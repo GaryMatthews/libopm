@@ -23,41 +23,86 @@
 
 
 #include "list.h"
+#include <stdio.h>
 
-list_t *list_create(void *data)
+node_t *node_create(void *data)
 {
-   list_t *node = (list_t *) malloc(sizeof(list_t));
+   node_t *node = (node_t *) malloc(sizeof(node_t));
    node->next = 0;
-   node->prev = 0;
+   node->prev = 0;  
    node->data = (void *) data;
 
    return node;
 }
 
-list_t *list_add(list_t *list, list_t *node)
+list_t *list_create()
+{
+   list_t *list = (list_t *) malloc(sizeof(list_t));
+
+   list->head = 0;
+   list->tail = 0;
+   list->elements = 0;
+
+   return list;
+}
+
+node_t *list_add(list_t **list, node_t *node)
 {
 
-   list_t *p;
+   if(!list || !*list || !node)
+      return 0;   
 
-   if(!node)
-      return 0;
-
-   node->next = 0;
-
-   if(!list)
+   if(!(*list)->tail)
    {
-      list = node;
-      list->prev = 0;
+      (*list)->head = node;
+      (*list)->tail = node;
+      node->next = 0;
+      node->prev = 0;
    }
    else
-      for(p = list; p; p = p-> next)
-      {
-         if(!p->next)
-         {
-            p->next = node;
-            node->prev = p;
-         }
-      }
+   {
+      node->prev = (*list)->tail;
+      (*list)->tail->next = node;
+      (*list)->tail = node;
+      node->next = 0;
+   }
 
    return node;
+}
+
+node_t *list_remove(list_t **list, node_t *node)
+{
+   node_t *p;
+
+   if(!list || !*list || !node)
+      return 0;
+
+   if(node == (*list)->head)
+   {
+      (*list)->head = node->next;
+
+      if(node->next)
+         node->next->prev = 0;
+
+      return node;
+   }
+   else if(node == (*list)->tail)
+   {
+      (*list)->tail = (*list)->tail->prev;
+      (*list)->tail->next = 0;
+      return node;
+   }
+
+
+   for(p = (*list)->head; p; p = p->next)
+   {
+      if(p == node)
+      {        
+         p->prev->next = p->next;
+         p->next->prev = p->prev;
+         return p;
+      }
+   }
+
+   return 0;
 }
