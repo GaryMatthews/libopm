@@ -12,7 +12,6 @@
 #define OPM_TYPE_WINGATE 4
 #define OPM_TYPE_ROUTER  5
 
-
 typedef struct  _OPM_CONFIG           OPM_CONFIG_T;
 typedef struct  _OPM                  OPM_T;
 typedef struct  _OPM_SCAN             OPM_SCAN_T;
@@ -26,19 +25,15 @@ typedef         int                   OPM_ERR_T;
 
 typedef void OPM_CALLBACK_T (OPM_REMOTE_T *, int);
 
+struct _OPM_CONFIG {
+   void **vars;
+};
 
 struct _OPM {
    OPM_CONFIG_T *config;
    list_t       *scans;
    list_t       *protocols;
 };
-
-struct _OPM_CONFIG {
-   char *bind_ip;
-   char *dnsbl_host;
-   int fd_limit;
-};
-
 
 struct _OPM_SCAN { 
    OPM_REMOTE_T        *remote;

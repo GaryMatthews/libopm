@@ -26,6 +26,12 @@
 #include "libopm_error.h"
 #include <string.h>
 
+struct CONFIG_HASH HASH[] = {
+   {CONFIG_BIND_IP ,    TYPE_STRING},
+   {CONFIG_FD_LIMIT,    TYPE_INT}
+};
+
+
 /* config_create
  *
  *    Create an OPM_CONFIG_T struct, set default values and return it
@@ -39,35 +45,40 @@
 
 OPM_CONFIG_T *config_create()
 {
+   int num, i;
    OPM_CONFIG_T *ret;
+
+   num = sizeof(HASH) / sizeof(struct CONFIG_HASH);
+
    ret = MyMalloc(sizeof(OPM_CONFIG_T));
+   ret->vars = MyMalloc(sizeof(void *) * num);
 
-   ret->bind_ip    = 0;
-   ret->dnsbl_host = 0;
-   ret->fd_limit   = 0;
-
+   for(i = 0; i < num; i++)
+      ret->vars[i] = 0;
+   
    return ret;
 }
 
 
 
 
-/*
+/* config_free
  *
+ *    Free config structure and clean up
  *
- *
- *
- *
+ * Parameters:
+ *    config: Structure to free/cleanup
+ *    
+ * Return:
+ *    None
  */
 
 void config_free(OPM_CONFIG_T *config)
 {
-   if(config->bind_ip)
-      MyFree(config->bind_ip);
-
    MyFree(config);
-
 }
+
+
 
 
 /* config_set
@@ -87,32 +98,61 @@ void config_free(OPM_CONFIG_T *config)
 OPM_ERR_T config_set(OPM_CONFIG_T *config, int key, void *value)
 {
 
-   int i;
-   struct CONFIG_HASH hash[] = {
-      {CONFIG_BIND_IP,      TYPE_STRING, &(config->bind_ip)  },
-      {CONFIG_FD_LIMIT,     TYPE_INT,    &(config->fd_limit) }
-   }; 
+   int num, type, i;
 
-   for(i = 0; i < sizeof(hash) / sizeof(struct CONFIG_HASH); i++)
+   num = sizeof(HASH) / sizeof(struct CONFIG_HASH);
+   
+   if(key < 0 || key > num)
+      return 1; /* Return appropriate error code eventually */  
+
+   type = 0;
+
+   for(i = 0; i < num; i++)
+      if(HASH[i].key == key)
+         type = HASH[i].type;
+
+
+   switch(type)
    {
-      if(key == hash->key)
-      {
-         switch(hash->type)
-         {
-            case TYPE_STRING:
-              if(*(char**) hash[i].var)
-                 MyFree(*(char**) hash[i].var);
-              *(char**) hash[i].var = strdup((char *)value); 
-                               
-               break;
-            case TYPE_INT:
-               *(int *) hash[i].var = *(int*) value;
-               break;
-            default:
-               return 0;
-         }
-         return 1;
-      }
+      case TYPE_STRING:
+         if((char *) config->vars[key])
+            MyFree((char *) config->vars[key]);
+         (char *) config->vars[key] = strdup((char *) value);
+         break;
+      case TYPE_INT:
+         if(!((int *) config->vars[key]))
+            (int *) config->vars[key] = MyMalloc(sizeof(int));
+         *(int *) config->vars[key] = *(int *) value;
+         break;
+      default:
+         return 1; /* return appropriate err code */
+
    }
-   return 0;
+
+   return OPM_SUCCESS;
+
+}
+
+
+
+
+/* config
+ *
+ *    Retrieve a specific config variable from
+ *    an OPM_CONFIG_T struct. This is basically a 
+ *    wrapper to extracting the variable from the
+ *    array.
+ *
+ * Parameters:
+ *    config: Config struct to extract from
+ *    key:    Value to extract
+ *
+ * Return:
+ *    -ADDRESS- to extracted value in array. This address
+ *    will have to be cast on the return end to be any use.
+ */
+
+void *config(OPM_CONFIG_T *config, int key)
+{
+   return config->vars[key];
 }
