@@ -1,0 +1,82 @@
+Overview of libopm API
+Erik Fears <strtok@blitzed.org
+
+1.0 Overview
+-------------
+
+   The open proxy monitor library provides an API interface to an open proxy
+scanner. File descriptor and memory allocation are handled internally by calls
+to API functions aswell as the main IO loop (opm_cycle). Configuration, callback
+registry and protocol types are all on a scanner based level. This provides means
+to create multiple 'virtual scanners', each with it's own configuration, limits
+and protocols.
+
+
+2.0 API Data Types
+------------------
+
+OPM_T 
+	This structure holds information regarding a 'virtual scanner'. It is the highest
+        level structure created to proxy scan.
+
+        The OPM_T structure is defined in opm.h and is as follows:
+
+        struct OPM_T {
+           OPM_CONFIG_T    *config;
+           list_t          *queue;
+           list_t          *scans;
+           list_t          *protocols;
+           
+           OPM_CALLBACK_T **callbacks;
+        }
+
+        All members of the OPM_T struct should be considered private. They are handled
+        internally by the API.
+
+OPM_REMOTE_T
+        
+        This structure holds information regarding a remote host. An OPM_REMOTE_T must
+        be created for each host libopm will scan. The OPM_REMOTE_T struct will be passed
+        back on callbacks, so that the client will be able to determine the IP, port and
+        protocol in question.
+
+        The OPM_REMOTE_T structure is defined in opm.h and is as follows:
+
+        struct OPM_REMOTE_T {
+           char              *ip;
+           opm_sockaddr       addr;
+            
+           unsigned short int port;
+           unsigned short int protocol;
+           unsigned short int bytes_read;
+
+           OPM_CALLBACK_T     *callbacks;
+         }
+
+         struct opm_sockaddr {
+            struct sockaddr_in sa4;
+         }
+
+         The members of the OPM_REMOTE_T structure are:
+
+         ip
+            The ip of the host in human readble form.
+
+         addr
+            The address of the host in network byte order.
+
+         port
+            Port used in callbacks.
+
+         protocol
+            Protocol used in callbacks.
+ 
+         bytes_read 
+            Number of bytes read before the callback.
+
+         callbacks
+            An array of callbacks associated with this OPM_REMOTE_T. This 
+            element is handled internally by the API and is considered private.
+
+2.1 C API Functions
+-------------------	    
