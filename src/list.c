@@ -80,7 +80,6 @@ OPM_NODE_T *libopm_list_add(OPM_LIST_T *list, OPM_NODE_T *node)
 
 OPM_NODE_T *libopm_list_remove(OPM_LIST_T *list, OPM_NODE_T *node)
 {
-   OPM_NODE_T *p;
 
    if(list == NULL || node == NULL)
       return NULL;
