@@ -23,6 +23,7 @@
 
 #include "malloc.h"
 #include "config.h"
+#include "libopm_error.h"
 #include <string.h>
 
 /* config_create

@@ -84,12 +84,11 @@ struct _OPM_PROTOCOL
 };
 
 OPM_T *opm_init();
-OPM_REMOTE_T *opm_new();
 void opm_free(OPM_T *);
 
-OPM_ERR_T opm_config(OPM_T *, int, void *);
+OPM_REMOTE_T *opm_remote();
+void opm_remote_free(OPM_REMOTE_T *);
 
-OPM_PROTOCOL_CONFIG_T *protocol_config_create();
-void protocol_config_free(OPM_PROTOCOL_CONFIG_T *);
+OPM_ERR_T opm_config(OPM_T *, int, void *);
 
 #endif /* LIBOPM_H */

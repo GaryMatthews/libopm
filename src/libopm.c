@@ -24,6 +24,11 @@
 #include "config.h"
 #include "libopm.h"
 #include "malloc.h"
+#include "libopm_error.h"
+
+OPM_PROTOCOL_CONFIG_T *protocol_config_create();
+void protocol_config_free(OPM_PROTOCOL_CONFIG_T *);
+
 
 
 /* OPM_PROTOCOLS hash
@@ -41,6 +46,8 @@ OPM_PROTOCOL_T OPM_PROTOCOLS[] = {
     {OPM_TYPE_WINGATE,            0},
     {OPM_TYPE_ROUTER,             0}
 };
+
+
 
 
 /* opm_init
@@ -67,7 +74,10 @@ OPM_T *opm_init()
    return ret;
 }
 
-/* opm_new
+
+
+
+/* opm_remote
  *
  *    Create OPM_REMOTE_T struct, fill it with neccessary
  *    default values and return it to the client.
@@ -87,8 +97,10 @@ OPM_REMOTE_T *opm_remote(char *ip)
    ret = MyMalloc(sizeof(OPM_REMOTE_T));
 
    /* Do initializations */
-
-   ret->ip = (char*) strdup(ip);  /* replace with custom strdup function */
+   if(ip)
+      ret->ip = (char*) strdup(ip);  /* replace with custom strdup function */
+   else
+      ret->ip = 0;
 
    ret->fun_openproxy = 0;
    ret->fun_negfail   = 0;
@@ -101,6 +113,27 @@ OPM_REMOTE_T *opm_remote(char *ip)
    ret->bytes_read    = 0;
 
    return ret;
+}
+
+
+
+/* opm_remote_free
+ *
+ *    Free OPM_REMOTE_T struct and cleanup
+ *
+ * Parameters:
+ *    remote: Struct to free
+ *
+ * Return:
+ *    None
+ */
+
+void opm_remote_free(OPM_REMOTE_T *remote)
+{
+   if(remote->ip)
+      MyFree(remote->ip);
+
+   MyFree(remote);
 }
 
 
