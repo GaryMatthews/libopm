@@ -5,3 +5,13 @@ libopm_la_SOURCES = config.c config.h inet.c inet.h libopm.c libopm.h \
     opm_types.h proxy.c proxy.h setup.h
 
 libopm_la_LIBADD = @LNSL@ @LSOCKET@
+
+noinst_PROGRAMS = test test_debug
+test_SOURCES = test.c
+test_LDADD = libopm.la
+
+# An easier-to-debug version of test
+
+test_debug_SOURCES = test.c
+test_debug_LDADD = libopm.la
+test_debug_LDFLAGS = -static

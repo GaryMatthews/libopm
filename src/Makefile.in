@@ -95,6 +95,16 @@ libopm_la_SOURCES = config.c config.h inet.c inet.h libopm.c libopm.h \
 
 
 libopm_la_LIBADD = @LNSL@ @LSOCKET@
+
+noinst_PROGRAMS = test test_debug
+test_SOURCES = test.c
+test_LDADD = libopm.la
+
+
+# An easier-to-debug version of test
+test_debug_SOURCES = test.c
+test_debug_LDADD = libopm.la
+test_debug_LDFLAGS = -static
 subdir = src
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = setup.h
@@ -106,6 +116,16 @@ libopm_la_DEPENDENCIES =
 am_libopm_la_OBJECTS = config.lo inet.lo libopm.lo list.lo malloc.lo \
 	proxy.lo
 libopm_la_OBJECTS = $(am_libopm_la_OBJECTS)
+noinst_PROGRAMS = test$(EXEEXT) test_debug$(EXEEXT)
+PROGRAMS = $(noinst_PROGRAMS)
+
+am_test_OBJECTS = test.$(OBJEXT)
+test_OBJECTS = $(am_test_OBJECTS)
+test_DEPENDENCIES = libopm.la
+test_LDFLAGS =
+am_test_debug_OBJECTS = test.$(OBJEXT)
+test_debug_OBJECTS = $(am_test_debug_OBJECTS)
+test_debug_DEPENDENCIES = libopm.la
 
 DEFS = @DEFS@
 DEFAULT_INCLUDES =  -I. -I$(srcdir) -I.
@@ -116,7 +136,8 @@ depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
 @AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/config.Plo ./$(DEPDIR)/inet.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/libopm.Plo ./$(DEPDIR)/list.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/malloc.Plo ./$(DEPDIR)/proxy.Plo
+@AMDEP_TRUE@	./$(DEPDIR)/malloc.Plo ./$(DEPDIR)/proxy.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/test.Po
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) \
@@ -125,9 +146,10 @@ CCLD = $(CC)
 LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
 CFLAGS = @CFLAGS@
-DIST_SOURCES = $(libopm_la_SOURCES)
+DIST_SOURCES = $(libopm_la_SOURCES) $(test_SOURCES) \
+	$(test_debug_SOURCES)
 DIST_COMMON = Makefile.am Makefile.in setup.h.in
-SOURCES = $(libopm_la_SOURCES)
+SOURCES = $(libopm_la_SOURCES) $(test_SOURCES) $(test_debug_SOURCES)
 
 all: setup.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
@@ -187,6 +209,19 @@ clean-libLTLIBRARIES:
 libopm.la: $(libopm_la_OBJECTS) $(libopm_la_DEPENDENCIES) 
 	$(LINK) -rpath $(libdir) $(libopm_la_LDFLAGS) $(libopm_la_OBJECTS) $(libopm_la_LIBADD) $(LIBS)
 
+clean-noinstPROGRAMS:
+	@list='$(noinst_PROGRAMS)'; for p in $$list; do \
+	  f=`echo $$p|sed 's/$(EXEEXT)$$//'`; \
+	  echo " rm -f $$p $$f"; \
+	  rm -f $$p $$f ; \
+	done
+test$(EXEEXT): $(test_OBJECTS) $(test_DEPENDENCIES) 
+	@rm -f test$(EXEEXT)
+	$(LINK) $(test_LDFLAGS) $(test_OBJECTS) $(test_LDADD) $(LIBS)
+test_debug$(EXEEXT): $(test_debug_OBJECTS) $(test_debug_DEPENDENCIES) 
+	@rm -f test_debug$(EXEEXT)
+	$(LINK) $(test_debug_LDFLAGS) $(test_debug_OBJECTS) $(test_debug_LDADD) $(LIBS)
+
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT) core *.core
 
@@ -199,6 +234,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/list.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/malloc.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/proxy.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test.Po@am__quote@
 
 distclean-depend:
 	-rm -rf ./$(DEPDIR)
@@ -295,7 +331,7 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-all-am: Makefile $(LTLIBRARIES) setup.h
+all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) setup.h
 
 installdirs:
 	$(mkinstalldirs) $(DESTDIR)$(libdir)
@@ -327,7 +363,7 @@ maintainer-clean-generic:
 clean: clean-am
 
 clean-am: clean-generic clean-libLTLIBRARIES clean-libtool \
-	mostlyclean-am
+	clean-noinstPROGRAMS mostlyclean-am
 
 distclean: distclean-am
 
@@ -365,16 +401,17 @@ mostlyclean-am: mostlyclean-compile mostlyclean-generic \
 uninstall-am: uninstall-info-am uninstall-libLTLIBRARIES
 
 .PHONY: GTAGS all all-am check check-am clean clean-generic \
-	clean-libLTLIBRARIES clean-libtool distclean distclean-compile \
-	distclean-depend distclean-generic distclean-hdr \
-	distclean-libtool distclean-tags distdir dvi dvi-am info \
-	info-am install install-am install-data install-data-am \
-	install-exec install-exec-am install-info install-info-am \
-	install-libLTLIBRARIES install-man install-strip installcheck \
-	installcheck-am installdirs maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-compile \
-	mostlyclean-generic mostlyclean-libtool tags uninstall \
-	uninstall-am uninstall-info-am uninstall-libLTLIBRARIES
+	clean-libLTLIBRARIES clean-libtool clean-noinstPROGRAMS \
+	distclean distclean-compile distclean-depend distclean-generic \
+	distclean-hdr distclean-libtool distclean-tags distdir dvi \
+	dvi-am info info-am install install-am install-data \
+	install-data-am install-exec install-exec-am install-info \
+	install-info-am install-libLTLIBRARIES install-man \
+	install-strip installcheck installcheck-am installdirs \
+	maintainer-clean maintainer-clean-generic mostlyclean \
+	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
+	tags uninstall uninstall-am uninstall-info-am \
+	uninstall-libLTLIBRARIES
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
