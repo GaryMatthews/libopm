@@ -2,6 +2,7 @@
 #define LIBOPM_H
 
 #include "config.h"
+#include "inet.h"
 #include "opm_common.h"
 #include "opm.h"
 
