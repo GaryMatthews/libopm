@@ -83,10 +83,10 @@ struct _OPM_PROTOCOL
    int function;  //Replace later with function ptr to protocols
 };
 
-OPM_T *opm_init();
+OPM_T *opm_create();
 void opm_free(OPM_T *);
 
-OPM_REMOTE_T *opm_remote();
+OPM_REMOTE_T *opm_remote_create();
 void opm_remote_free(OPM_REMOTE_T *);
 
 OPM_ERR_T opm_config(OPM_T *, int, void *);

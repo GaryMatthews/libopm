@@ -50,7 +50,7 @@ OPM_PROTOCOL_T OPM_PROTOCOLS[] = {
 
 
 
-/* opm_init
+/* opm_create
  *
  *    Initialize a new scanner and return a pointer to it.
  *
@@ -61,7 +61,7 @@ OPM_PROTOCOL_T OPM_PROTOCOLS[] = {
  *    Pointer to new OPM_T (scanner)
  */
 
-OPM_T *opm_init()
+OPM_T *opm_create()
 {
    OPM_T *ret;
 
@@ -77,7 +77,7 @@ OPM_T *opm_init()
 
 
 
-/* opm_remote
+/* opm_remote_create
  *
  *    Create OPM_REMOTE_T struct, fill it with neccessary
  *    default values and return it to the client.
@@ -90,7 +90,7 @@ OPM_T *opm_init()
  *
  */
 
-OPM_REMOTE_T *opm_remote(char *ip)
+OPM_REMOTE_T *opm_remote_create(char *ip)
 { 
 
    OPM_REMOTE_T *ret;
