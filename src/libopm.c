@@ -109,7 +109,7 @@ OPM_T *opm_create()
 
    ret = MyMalloc(sizeof(OPM_T));
 
-   ret->config = config_create();
+   ret->config = libopm_config_create();
    ret->scans = list_create();
    ret->queue = list_create();
    ret->protocols = list_create();
@@ -266,7 +266,7 @@ void opm_free(OPM_T *scanner)
    OPM_PROTOCOL_CONFIG_T *ppc;
    OPM_SCAN_T *scan;
 
-   config_free(scanner->config);
+   libopm_config_free(scanner->config);
 
    LIST_FOREACH_SAFE(p, next, scanner->protocols->head)
    {
@@ -319,7 +319,7 @@ void opm_free(OPM_T *scanner)
 
 OPM_ERR_T opm_config(OPM_T *scanner, int key, void *value)
 {
-   return config_set((scanner->config), key, value);
+   return libopm_config_set((scanner->config), key, value);
 }
 
 
@@ -428,7 +428,7 @@ OPM_ERR_T opm_scan(OPM_T *scanner, OPM_REMOTE_T *remote)
                         when we link it to scans */
    unsigned int fd_limit;
 
-   fd_limit = *(int *) config(scanner->config, OPM_CONFIG_FD_LIMIT);
+   fd_limit = *(int *) libopm_config(scanner->config, OPM_CONFIG_FD_LIMIT);
 
    scan = scan_create(scanner, remote);
    node = node_create(scan);
@@ -607,7 +607,7 @@ void check_queue(OPM_T *scanner)
    if(LIST_SIZE(scanner->queue) == 0)
       return;
 
-   fd_limit = *(int *) config(scanner->config, OPM_CONFIG_FD_LIMIT);
+   fd_limit = *(int *) libopm_config(scanner->config, OPM_CONFIG_FD_LIMIT);
 
    protocols = LIST_SIZE(scanner->protocols);
    projected = scanner->fd_use;
@@ -650,7 +650,7 @@ void check_establish(OPM_T *scanner)
    if(LIST_SIZE(scanner->scans) == 0)
       return;
 
-   fd_limit = *(int *) config(scanner->config, OPM_CONFIG_FD_LIMIT);
+   fd_limit = *(int *) libopm_config(scanner->config, OPM_CONFIG_FD_LIMIT);
 
    if(scanner->fd_use >= fd_limit)
       return;
@@ -705,7 +705,7 @@ void check_closed(OPM_T *scanner)
 
    time(&present);
 
-   timeout = *(int *) config(scanner->config, OPM_CONFIG_TIMEOUT);
+   timeout = *(int *) libopm_config(scanner->config, OPM_CONFIG_TIMEOUT);
 
    LIST_FOREACH_SAFE(node1, next1, scanner->scans->head)
    {
@@ -912,7 +912,7 @@ void do_readready(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
    int max_read;
    char c;
 
-   max_read = *(int *) config(scanner->config, OPM_CONFIG_MAX_READ);
+   max_read = *(int *) libopm_config(scanner->config, OPM_CONFIG_MAX_READ);
 
    while(1)
    {
@@ -972,7 +972,7 @@ void do_read(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
 {
    char *target_string;
  
-   target_string = (char *) config(scanner->config, OPM_CONFIG_TARGET_STRING);
+   target_string = (char *) libopm_config(scanner->config, OPM_CONFIG_TARGET_STRING);
 
    if(strstr(conn->readbuf, target_string))
       do_openproxy(scanner, scan, conn);

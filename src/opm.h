@@ -57,9 +57,6 @@ OPM_ERR_T opm_addtype(OPM_T *, int, int);
 OPM_ERR_T opm_remote_callback(OPM_REMOTE_T *, int, OPM_CALLBACK_T *);
 OPM_ERR_T opm_callback(OPM_T *, int, OPM_CALLBACK_T *);
 
-OPM_CONFIG_T *config_create();
-OPM_ERR_T config_set(OPM_CONFIG_T *, int , void *);
-
 void opm_cycle(OPM_T *);
 
 #endif /* OPM_H */

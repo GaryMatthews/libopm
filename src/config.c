@@ -34,7 +34,7 @@
 
 RCSID("$Id$");
 
-struct CONFIG_HASH HASH[] = {
+static OPM_CONFIG_HASH_T HASH[] = {
    {OPM_CONFIG_FD_LIMIT,       OPM_TYPE_INT},
    {OPM_CONFIG_BIND_IP ,       OPM_TYPE_ADDRESS},
    {OPM_CONFIG_DNSBL_HOST,     OPM_TYPE_STRING},
@@ -57,12 +57,12 @@ struct CONFIG_HASH HASH[] = {
  *    Pointer to allocated OPM_CONFIG_T struct
  */
 
-OPM_CONFIG_T *config_create()
+OPM_CONFIG_T *libopm_config_create()
 {
    int num, i;
    OPM_CONFIG_T *ret;
 
-   num = sizeof(HASH) / sizeof(struct CONFIG_HASH);
+   num = sizeof(HASH) / sizeof(OPM_CONFIG_HASH_T);
 
    ret = MyMalloc(sizeof(OPM_CONFIG_T));
    ret->vars = MyMalloc(sizeof(void *) * num);
@@ -87,10 +87,10 @@ OPM_CONFIG_T *config_create()
  *    None
  */
 
-void config_free(OPM_CONFIG_T *config)
+void libopm_config_free(OPM_CONFIG_T *config)
 {
    int num, i;
-   num = sizeof(HASH) / sizeof(struct CONFIG_HASH);
+   num = sizeof(HASH) / sizeof(OPM_CONFIG_HASH_T);
 
    for(i = 0; i > num; i++)
    {
@@ -123,17 +123,17 @@ void config_free(OPM_CONFIG_T *config)
  *    0: Some error occured
  */
 
-OPM_ERR_T config_set(OPM_CONFIG_T *config, int key, void *value)
+OPM_ERR_T libopm_config_set(OPM_CONFIG_T *config, int key, void *value)
 {
 
    int num, i;
 
-   num = sizeof(HASH) / sizeof(struct CONFIG_HASH);
+   num = sizeof(HASH) / sizeof(OPM_CONFIG_HASH_T);
    
    if(key < 0 || key >= num)
       return OPM_ERR_BADKEY; /* Return appropriate error code eventually */  
 
-   switch(config_gettype(key))
+   switch(libopm_config_gettype(key))
    {
       case OPM_TYPE_STRING:
          if((char *) config->vars[key] != NULL)
@@ -178,11 +178,11 @@ OPM_ERR_T config_set(OPM_CONFIG_T *config, int key, void *value)
  *    TYPE_? of key
  */
 
-int config_gettype(int key)
+int libopm_config_gettype(int key)
 {
    int num, i;
 
-   num = sizeof(HASH) / sizeof(struct CONFIG_HASH);
+   num = sizeof(HASH) / sizeof(OPM_CONFIG_HASH_T);
 
    for(i = 0; i < num; i++)
       if(HASH[i].key == key)
@@ -207,7 +207,7 @@ int config_gettype(int key)
  *    will have to be cast on the return end to be any use.
  */
 
-void *config(OPM_CONFIG_T *config, int key)
+void *libopm_config(OPM_CONFIG_T *config, int key)
 {
    return config->vars[key];
 }

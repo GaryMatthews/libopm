@@ -40,8 +40,8 @@ static char SENDBUFF[512];
 int proxy_http_write(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
 {
    snprintf(SENDBUFF, 128, "CONNECT %s:%d HTTP/1.0\r\n\r\n",
-      (char *) config(scanner->config, OPM_CONFIG_SCAN_IP), 
-      *(int *) config(scanner->config, OPM_CONFIG_SCAN_PORT));
+      (char *) libopm_config(scanner->config, OPM_CONFIG_SCAN_IP), 
+      *(int *) libopm_config(scanner->config, OPM_CONFIG_SCAN_PORT));
  
    if(send(conn->fd, SENDBUFF, strlen(SENDBUFF), 0) == -1)
       return 0; /* Return error code ? */
@@ -68,8 +68,8 @@ int proxy_socks4_write(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
    int len, scan_port;
    char *scan_ip;
          
-   scan_ip = (char *) config(scanner->config, OPM_CONFIG_SCAN_IP);
-   scan_port = *(int *) config(scanner->config, OPM_CONFIG_SCAN_PORT);
+   scan_ip = (char *) libopm_config(scanner->config, OPM_CONFIG_SCAN_IP);
+   scan_port = *(int *) libopm_config(scanner->config, OPM_CONFIG_SCAN_PORT);
 
    if (inet_aton(scan_ip, &addr) == 0)
        ; /* handle error */
@@ -135,8 +135,8 @@ int proxy_socks5_write(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
    int len, scan_port;
    char *scan_ip;
 
-   scan_ip = (char *) config(scanner->config, OPM_CONFIG_SCAN_IP);
-   scan_port = *(int *) config(scanner->config, OPM_CONFIG_SCAN_PORT);
+   scan_ip = (char *) libopm_config(scanner->config, OPM_CONFIG_SCAN_IP);
+   scan_port = *(int *) libopm_config(scanner->config, OPM_CONFIG_SCAN_PORT);
 
 
    if (inet_aton(scan_ip, &addr) == 0) 
@@ -175,8 +175,8 @@ int proxy_wingate_write(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn
    int scan_port, len;
    char *scan_ip;
 
-   scan_ip = (char *) config(scanner->config, OPM_CONFIG_SCAN_IP);
-   scan_port = *(int *) config(scanner->config, OPM_CONFIG_SCAN_PORT);
+   scan_ip = (char *) libopm_config(scanner->config, OPM_CONFIG_SCAN_IP);
+   scan_port = *(int *) libopm_config(scanner->config, OPM_CONFIG_SCAN_PORT);
 
    len = snprintf(SENDBUFF, 512, "%s:%d\r\n", scan_ip, scan_port);
    send(conn->fd, SENDBUFF, len, 0);
@@ -198,8 +198,8 @@ int proxy_router_write(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
    int len, scan_port;
    char *scan_ip;
 
-   scan_ip = (char *) config(scanner->config, OPM_CONFIG_SCAN_IP);
-   scan_port = *(int *) config(scanner->config, OPM_CONFIG_SCAN_PORT);
+   scan_ip = (char *) libopm_config(scanner->config, OPM_CONFIG_SCAN_IP);
+   scan_port = *(int *) libopm_config(scanner->config, OPM_CONFIG_SCAN_PORT);
 
    len = snprintf(SENDBUFF, 512, "cisco\r\n");
    send(conn->fd, SENDBUFF, len, 0);

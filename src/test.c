@@ -38,7 +38,6 @@ void negotiation_failed(OPM_T *, OPM_REMOTE_T *, int);
 void timeout(OPM_T *, OPM_REMOTE_T *, int);
 void end(OPM_T *, OPM_REMOTE_T *, int);
 void handle_error(OPM_T *, OPM_REMOTE_T *, int);
-
 int complete = 0;
 
 int main(int argc, char **argv)
