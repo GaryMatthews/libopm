@@ -63,6 +63,9 @@ void config_free(OPM_CONFIG_T *config)
 {
    if(config->bind_ip)
       MyFree(config->bind_ip);
+
+   MyFree(config);
+
 }
 
 
@@ -80,7 +83,7 @@ void config_free(OPM_CONFIG_T *config)
  *    0: Some error occured
  */
 
-int config_set(OPM_CONFIG_T *config, int key, void *value)
+OPM_ERR_T config_set(OPM_CONFIG_T *config, int key, void *value)
 {
 
    int i;

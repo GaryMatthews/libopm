@@ -63,7 +63,7 @@ OPM_T *opm_init()
    ret->config = config_create();
    ret->scans  = list_create();
    ret->protocols = list_create();
-  
+
    return ret;
 }
 
@@ -122,15 +122,12 @@ void opm_free(OPM_T *scanner)
    node_t *p, *next;
    OPM_PROTOCOL_CONFIG_T *ppc;
 
-   /* Free config */
+
    config_free(scanner->config);
 
-   /* Traverse protocol list_t and free
-    * each node, then free the list */
-
-   for(p = scanner->protocols->head; p;)
+   p = scanner->protocols->head;
+   while(p)
    {
-    
       next = p->next;
       ppc = (OPM_PROTOCOL_CONFIG_T *) p->data;
 
@@ -143,6 +140,7 @@ void opm_free(OPM_T *scanner)
 
    list_free(scanner->protocols);
    list_free(scanner->scans);
+
    MyFree(scanner);
 }
 
@@ -164,7 +162,7 @@ void opm_free(OPM_T *scanner)
  *    0: Some error occured
  */
 
-int opm_config(OPM_T *scanner, int key, void *value)
+OPM_ERR_T opm_config(OPM_T *scanner, int key, void *value)
 {
    return config_set((scanner->config), key, value);
 }

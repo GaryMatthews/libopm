@@ -20,6 +20,8 @@ typedef struct  _OPM_CONNECTION       OPM_CONNECTION_T;
 typedef struct  _OPM_PROTOCOL_CONFIG  OPM_PROTOCOL_CONFIG_T;
 typedef struct  _OPM_PROTOCOL         OPM_PROTOCOL_T;
 
+typedef         int                   OPM_ERR_T;
+
 typedef void OPM_CALLBACK_T (OPM_REMOTE_T *, int);
 
 
@@ -84,7 +86,8 @@ struct _OPM_PROTOCOL
 OPM_T *opm_init();
 OPM_REMOTE_T *opm_new();
 void opm_free(OPM_T *);
-int opm_config(OPM_T *, int, void *);
+
+OPM_ERR_T opm_config(OPM_T *, int, void *);
 
 OPM_PROTOCOL_CONFIG_T *protocol_config_create();
 void protocol_config_free(OPM_PROTOCOL_CONFIG_T *);
