@@ -16,25 +16,25 @@ struct _OPM_CONFIG {
 };
 
 struct _OPM {
-   OPM_CONFIG_T *config;
-   list_t       *scans;
-   list_t       *protocols;
+   OPM_CONFIG_T *config;               /* Individual scanner configuration */
+   list_t       *scans;                /* List of scans (each scan containing a list of connections) */
+   list_t       *protocols;            /* List of protocols this scanner handles */
 };
 
 struct _OPM_REMOTE {
 
-   char               *ip;
+   char               *ip;              /* Readable IP address */
    struct sockaddr_in *addr;
 
-   OPM_CALLBACK_T     *fun_openproxy;
-   OPM_CALLBACK_T     *fun_negfail;
-   OPM_CALLBACK_T     *fun_end;
-   OPM_CALLBACK_T     *fun_error;
-   OPM_CALLBACK_T     *fun_timeout;
+   OPM_CALLBACK_T     *fun_openproxy;   /* Callback for when an open proxy is found */
+   OPM_CALLBACK_T     *fun_negfail;     /* Callback for when negotiation with a proxy fails */
+   OPM_CALLBACK_T     *fun_end;         /* Callback for when scan on remote host is complete */
+   OPM_CALLBACK_T     *fun_error;       /* Callback for when an error has occured */
+   OPM_CALLBACK_T     *fun_timeout;     /* Callback for when a specific connection has timed out */
 
-   unsigned short int  port;
-   unsigned short int  protocol;
-   unsigned short int  bytes_read;
+   unsigned short int  port;            /* Port passed back on certain callbacks */
+   unsigned short int  protocol;        /* Protocol passed back on certain callbacks */
+   unsigned short int  bytes_read;      /* Bytes read passed back on certain callbacks */
 };
 
 OPM_T *opm_create();
