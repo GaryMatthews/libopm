@@ -6,3 +6,4 @@ libtool
 *.sw[op]
 stamp-h*
 autom4te.cache
+libtool
