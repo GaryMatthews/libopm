@@ -59,6 +59,7 @@ void connection_free(OPM_CONNECTION_T *);
 void check_establish(OPM_T *);
 void check_poll(OPM_T *);
 void check_closed(OPM_T *);
+void check_queue(OPM_T *);
 
 void do_connect(OPM_T *, OPM_SCAN_T *, OPM_CONNECTION_T *);
 void do_readready(OPM_T *, OPM_SCAN_T *, OPM_CONNECTION_T *);
@@ -108,6 +109,7 @@ OPM_T *opm_create()
 
    ret->config = config_create();
    ret->scans = list_create();
+   ret->queue = list_create();
    ret->protocols = list_create();
    ret->fd_use = 0;
 
@@ -224,8 +226,17 @@ void opm_free(OPM_T *scanner)
       node_free(p);
    }
 
+   LIST_FOREACH_SAFE(p, next, scanner->queue->head)
+   {
+      scan = (OPM_SCAN_T *) p->data;
+      scan_free(scan);
+      list_remove(scanner->queue, p);
+      node_free(p);
+   }
+
    list_free(scanner->protocols);
    list_free(scanner->scans);
+   list_free(scanner->queue);
 
    MyFree(scanner);
 }
@@ -356,11 +367,20 @@ OPM_ERR_T opm_scan(OPM_T *scanner, OPM_REMOTE_T *remote)
    OPM_SCAN_T *scan; /* New scan for OPM_T */
    node_t *node;     /* Node we'll add scan to
                         when we link it to scans */
+   unsigned int fd_limit;
+
+   fd_limit = *(int *) config(scanner->config, OPM_CONFIG_FD_LIMIT);
 
    scan = scan_create(scanner, remote);
    node = node_create(scan);
 
-   list_add(scanner->scans, node);
+   /* If we're below the file descriptor limit, save some
+      time and just add it directly to the scan list */
+
+//   if(scanner->fd_use >= fd_limit)
+ //     list_add(scanner->queue, node);
+ //  else
+      list_add(scanner->queue, node);
 
    return OPM_SUCCESS;
 }
@@ -505,11 +525,57 @@ void connection_free(OPM_CONNECTION_T *conn)
 
 void opm_cycle(OPM_T *scanner)
 {
-   /* Make new connections if FDs are free*/
-   check_establish(scanner);
-   check_poll(scanner);
-   check_closed(scanner);
+   check_establish(scanner);  /* Make new connections if possible                */
+   check_poll(scanner);       /* Poll connections for IO  and proxy test         */
+   check_closed(scanner);     /* Check for closed or timed out connections       */
+   check_queue(scanner);      /* Move scans from the queue to the live scan list */
 }
+
+
+
+
+/* check_queue
+ *
+ * Move scans from the queue to the live scan list as long as there is
+ * room.
+ *
+ * Parameters: 
+ *    scanner: Scanner to check queue on
+ *
+ * Return:
+ *    None
+ */
+
+void check_queue(OPM_T *scanner)
+{
+   node_t *node;
+   unsigned int protocols, projected, fd_limit;
+
+   if(LIST_SIZE(scanner->queue) == 0)
+      return;
+
+   fd_limit = *(int *) config(scanner->config, OPM_CONFIG_FD_LIMIT);
+
+   protocols = LIST_SIZE(scanner->protocols);
+   projected = scanner->fd_use;
+
+   /* We want to keep the live scan list as small as possible, so only
+      move queued scans to the live list if they will not push above fd_limit */
+   while((projected + protocols) <= fd_limit)
+   {
+      /* Scans on the top of the queue were added first, swap the head off the
+         top of the queue and add it to the tail of the live scan list */
+      node = list_remove(scanner->queue, scanner->queue->head);
+      list_add(scanner->scans, node);
+      projected += protocols;
+   }
+
+//   printf("fd_limit: %d projected: %d\n", fd_limit, projected);
+  // printf("queue: %d live: %d\n", LIST_SIZE(scanner->queue), LIST_SIZE(scanner->scans));
+}
+
+
+
 
 /* check_establish
  *
@@ -534,6 +600,9 @@ void check_establish(OPM_T *scanner)
       return;
 
    fd_limit = *(int *) config(scanner->config, OPM_CONFIG_FD_LIMIT);
+
+   if(scanner->fd_use >= fd_limit)
+      return;
 
    LIST_FOREACH(node1, scanner->scans->head)
    {
@@ -576,6 +645,7 @@ void check_closed(OPM_T *scanner)
    time_t present;
    node_t *node1, *node2, *next1, *next2;
    int timeout;
+   unsigned int pos = 0;
 
    OPM_SCAN_T *scan;
    OPM_CONNECTION_T *conn;
@@ -584,6 +654,7 @@ void check_closed(OPM_T *scanner)
       return;
 
    time(&present);
+
    timeout = *(int *) config(scanner->config, OPM_CONFIG_TIMEOUT);
 
    LIST_FOREACH_SAFE(node1, next1, scanner->scans->head)
@@ -591,6 +662,7 @@ void check_closed(OPM_T *scanner)
       scan = (OPM_SCAN_T *) node1->data;
       LIST_FOREACH_SAFE(node2, next2, scan->connections->head)
       {
+
          conn = (OPM_CONNECTION_T *) node2->data;
 
          if(conn->state == OPM_STATE_CLOSED)
@@ -693,9 +765,9 @@ void check_poll(OPM_T *scanner)
    node_t *node1, *node2;
    OPM_SCAN_T *scan;
    OPM_CONNECTION_T *conn;
-
+  
    static struct pollfd ufds[1024]; /* REPLACE WITH MAX_POLL */
-   unsigned int size, i;
+   unsigned int size, i, pos = 0;
    size = 0;
 
    if(LIST_SIZE(scanner->scans) == 0)
@@ -735,6 +807,7 @@ void check_poll(OPM_T *scanner)
          }
          size++;
       }
+
    }
 
    switch (poll(ufds, size, 1000))
