@@ -36,9 +36,12 @@
 
 OPM_PROTOCOL_CONFIG_T *protocol_config_create();
 void protocol_config_free(OPM_PROTOCOL_CONFIG_T *);
+
 OPM_SCAN_T *scan_create(OPM_T *, OPM_REMOTE_T *);
 void scan_free(OPM_SCAN_T *);
+
 OPM_CONNECTION_T *connection_create();
+void connection_free(OPM_CONNECTION_T *);
 
 void check_establish(OPM_T *);
 void check_poll(OPM_T *);
@@ -186,8 +189,9 @@ void opm_remote_free(OPM_REMOTE_T *remote)
 void opm_free(OPM_T *scanner)
 {
    node_t *p, *next;
-   OPM_PROTOCOL_CONFIG_T *ppc;
 
+   OPM_PROTOCOL_CONFIG_T *ppc;
+   OPM_SCAN_T *scan;
 
    config_free(scanner->config);
 
@@ -197,6 +201,13 @@ void opm_free(OPM_T *scanner)
       protocol_config_free(ppc);
       list_remove(scanner->protocols, p);
       node_free(p);
+   }
+
+   LIST_FOREACH_SAFE(p, next, scanner->scans->head)
+   {
+      scan = (OPM_SCAN_T *) p->data;
+      scan_free(scan);
+      list_remove(scanner->scans, p);
    }
 
    list_free(scanner->protocols);
@@ -401,7 +412,18 @@ OPM_SCAN_T *scan_create(OPM_T *scanner, OPM_REMOTE_T *remote)
 
 void scan_free(OPM_SCAN_T *scan)
 {
+   node_t *p, *next;
+   OPM_CONNECTION_T *conn;
+
+   LIST_FOREACH_SAFE(p, next, scan->connections->head)
+   {
+      conn = (OPM_CONNECTION_T *) p->data;
+      connection_free(conn);
+
+      list_remove(scan->connections, p);
+   }
    list_free(scan->connections);
+
    MyFree(scan);
 }
 

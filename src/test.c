@@ -5,20 +5,20 @@
 #include "opm_types.h"
 #include <unistd.h>
 
-#define NODES 111
-
 void open_proxy(OPM_REMOTE_T *, int);
 void negotiation_failed(OPM_REMOTE_T *, int);
 void timeout(OPM_REMOTE_T *, int);
 void end(OPM_REMOTE_T *, int);
 void handle_error(OPM_REMOTE_T *, int);
 
+int complete = 0;
+
 int main(int argc, char **argv)
 {
    int fdlimit = 1024;
    int scan_port = 6667;
    int max_read = 4096;
-   int scantimeout  = 30;
+   int scantimeout  = 10;
 
    OPM_T *scanner;
    OPM_REMOTE_T *remote;
@@ -29,6 +29,12 @@ int main(int argc, char **argv)
       remote  = opm_remote_create(argv[1]);
    else
       remote  = opm_remote_create("208.245.162.250");
+
+   if(remote == NULL)
+   {
+      printf("Bad address\n");
+      exit(1);
+   }
 
    /* Setup callbacks */
    remote->fun_openproxy = &open_proxy;
@@ -54,10 +60,9 @@ int main(int argc, char **argv)
 
    opm_scan(scanner, remote);
 
-   while(1)
+   while(!complete)
       opm_cycle(scanner);
    
-   opm_remote_free(remote);
    opm_free(scanner);
    
    return 0; 
@@ -82,6 +87,7 @@ void end(OPM_REMOTE_T *remote, int notused)
 {
    printf("Scan on %s has ended\n", remote->ip);
    opm_remote_free(remote);
+   complete = 1;
 }
 
 void handle_error(OPM_REMOTE_T *remote, int err)
