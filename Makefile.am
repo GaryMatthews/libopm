@@ -1,6 +1,6 @@
 AUTOMAKE_OPTIONS = foreign
 
-SUBDIRS = src doc
+SUBDIRS = src
 
 EXTRA_DIST = LICENSE
 

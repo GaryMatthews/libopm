@@ -1,3 +1,29 @@
+2003-01-06 12:40  andy
+
+	* doc/: .cvsignore, Makefile.in: Forgot Makefile.in
+
+2003-01-06 11:22  andy
+
+	* OPM/bopchecker.pl: More ports.
+
+2003-01-06 04:49  andy
+
+	* doc/.cvsignore: And ignore those.
+
+2003-01-06 04:48  andy
+
+	* doc/: Doxyfile.in, Makefile.am: Start of doxygen stuff.
+
+2003-01-05 12:22  andy
+
+	* Makefile.am, Makefile.in, configure, configure.in,
+	src/Makefile.am, src/Makefile.in, src/compat.c, src/opm.h: Install
+	opm_ headers, as requested by TimeMr14C and jv.
+
+2003-01-05 12:07  strtok
+
+	* ChangeLog: Added ChangeLog
+
 2003-01-03 20:49  andy
 
 	* OPM/bopchecker.pl: Updated for how we tend to be using this on

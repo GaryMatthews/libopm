@@ -93,14 +93,14 @@ am__quote = @am__quote@
 install_sh = @install_sh@
 AUTOMAKE_OPTIONS = foreign
 
-SUBDIRS = src doc
+SUBDIRS = src
 
 EXTRA_DIST = LICENSE
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = $(top_builddir)/src/setup.h
-CONFIG_CLEAN_FILES =
+CONFIG_CLEAN_FILES = doc/Makefile doc/Doxyfile
 DIST_SOURCES =
 
 RECURSIVE_TARGETS = info-recursive dvi-recursive install-info-recursive \
@@ -130,6 +130,10 @@ $(srcdir)/configure: @MAINTAINER_MODE_TRUE@ $(srcdir)/configure.in $(ACLOCAL_M4)
 
 $(ACLOCAL_M4): @MAINTAINER_MODE_TRUE@ configure.in 
 	cd $(srcdir) && $(ACLOCAL) $(ACLOCAL_AMFLAGS)
+doc/Makefile: $(top_builddir)/config.status $(top_srcdir)/doc/Makefile.in
+	cd $(top_builddir) && $(SHELL) ./config.status $@
+doc/Doxyfile: $(top_builddir)/config.status $(top_srcdir)/doc/Doxyfile.in
+	cd $(top_builddir) && $(SHELL) ./config.status $@
 
 mostlyclean-libtool:
 	-rm -f *.lo
