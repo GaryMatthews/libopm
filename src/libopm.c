@@ -12,14 +12,16 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
+ * along with this program; if not, write to
  *
- *       Foundation, Inc.
+ *       The Free Software Foundation, Inc.
  *       59 Temple Place - Suite 330
  *       Boston, MA  02111-1307, USA.
  *
  *                  
  */
+
+#include "setup.h"
 
 #include "config.h"
 #include "libopm.h"
@@ -33,6 +35,8 @@
 
 #include <errno.h>
 #include <time.h>
+
+RCSID("$Id$");
 
 OPM_PROTOCOL_CONFIG_T *protocol_config_create();
 void protocol_config_free(OPM_PROTOCOL_CONFIG_T *);

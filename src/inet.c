@@ -12,9 +12,9 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
+along with this program; if not, write to
 
-      Foundation, Inc.
+      The Free Software Foundation, Inc.
       59 Temple Place - Suite 330
       Boston, MA  02111-1307, USA.
 
@@ -25,15 +25,22 @@ along with this program; if not, write to the Free Software
  * -TimeMr14C
  */
 
+#include "setup.h"
+
 #include <errno.h>
 #include <stdio.h>
 #include <assert.h>
-#include <string.h>
-#include <stdlib.h>
+#if STDC_HEADERS
+# include <string.h>
+# include <stdlib.h>
+#endif
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
+
+#include "inet.h"
+#include "opm.h"
 
 #ifndef INADDRSZ
 #define INADDRSZ 4
@@ -55,6 +62,8 @@ along with this program; if not, write to the Free Software
 #else
 #define HOSTIPLEN 15
 #endif
+
+RCSID("$Id$");
 
 extern const unsigned char ToLowerTab[];
 #define ToLower(c) (ToLowerTab[(unsigned char)(c)])

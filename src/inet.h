@@ -22,7 +22,7 @@ struct _opm_sockaddr {
 };
 
 extern int inetpton(int, const char *, void *);
-extern char *inetntop(int, const void *, char *, unsigned int);
+extern const char *inetntop(int, const void *, char *, unsigned int);
 extern struct hostent *opm_gethostbyname(const char *);
 
 
