@@ -31,7 +31,6 @@ my $scan = OPM->new or die("Error loading OPM");
 
 sub add_default {
    my $remote = shift;
-print "add default\n";
 
 # Common ports are: 80, 3128, 8080
 # Less common: 81, 8000, 8888, 6588
