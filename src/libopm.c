@@ -577,10 +577,10 @@ static void libopm_connection_free(OPM_CONNECTION_T *conn)
 
 void opm_cycle(OPM_T *scanner)
 {
+   libopm_check_queue(scanner);      /* Move scans from the queue to the live scan list */
    libopm_check_establish(scanner);  /* Make new connections if possible                */
    libopm_check_poll(scanner);       /* Poll connections for IO  and proxy test         */
    libopm_check_closed(scanner);     /* Check for closed or timed out connections       */
-   libopm_check_queue(scanner);      /* Move scans from the queue to the live scan list */
 }
 
 
