@@ -52,7 +52,7 @@ sub new {
       
       # It looks bad if we segfault easily, this just means we'll sit in an
       # infinite loop...
-      $scan->config(OPM->CONFIG_FD_LIMIT, 1024);
+      $scan->config(OPM->CONFIG_FD_LIMIT, 512);
       $scan->config(OPM->CONFIG_MAX_READ, 4096);
       $scan->config(OPM->CONFIG_TIMEOUT,  10);
 
