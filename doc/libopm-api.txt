@@ -118,16 +118,17 @@ void opm_remote_free(OPM_REMOTE_T *)
 
 
 
-OPM_ERR_T opm_config(OPM_T *, int, void *)
+OPM_ERR_T opm_config(OPM_T *, const char *, void *)
 
    Parameters: OPM_T: object to set configuration options with
-               int: configuration option to set
+               const char *: configuration option to set (key)
                void *: Pointer to data to set the data to
 
    Return: OPM_ERR_T or OPM_SUCCESS on success
 
            OPM_ERR_BADVALUE: Unable to set the given value (bad formatting).
            OPM_ERR_BADKEY: The key (configuration option) is unknown.
+	   OPM_ERR_UNKNOWN: Unknown error.
 
    The opm_config function sets various options on the individual scanner 
    objects. A pointer to the data to set the option to is required. The scanner
@@ -138,23 +139,23 @@ OPM_ERR_T opm_config(OPM_T *, int, void *)
       OPTION                     TYPE            DESCRIPTION
       --------------------------------------------------------------------------
 
-      OPM_CONFIG_FD_LIMIT        int             Max file descriptor limit
+      fd_limit                   int             Max file descriptor limit
 
-      OPM_CONFIG_BIND_IP         char *          IP to bind to for outgoing scans
+      bind_ip                    char *          IP to bind to for outgoing scans
 
-      OPM_CONFIG_TARGET_STRING   list of char *  Target strings used to verify open proxies
+      target_string              list of char *  Target strings used to verify open proxies
 
-      OPM_CONFIG_SCAN_IP         char *          IP to command proxies to connect to
+      scan_ip                    char *          IP to command proxies to connect to
 
-      OPM_CONFIG_SCAN_PORT       int             port to command proxies to connect to
+      scan_port                  int             port to command proxies to connect to
 
-      OPM_CONFIG_MAX_READ        int             Maximum amount of data (in bytes) to be read from
+      max_read                   int             Maximum amount of data (in bytes) to be read from
                                                  the remote connection until it is dropped.
 
-      OPM_CONFIG_TIMEOUT         int             Time in seconds before a negotiation is considered 
+      timeout                    int             Time in seconds before a negotiation is considered 
                                                  timed out, and closed.
 
-      OPM_CONFIG_DNSBL_HOST      char *          DNSBL host
+      dnsbl_host                 char *          DNSBL host
 
    
 
@@ -167,16 +168,35 @@ OPM_ERR_T opm_config(OPM_T *, int, void *)
                 fd_limit = 1024;
                 max_read = 4096;
  
-                opm_config(scanner, OPM_CONFIG_FD_LIMIT, &fd_limit);
-                opm_config(scanner, OPM_CONFIG_MAX_READ, &max_read);
-                opm_config(scanner, OPM_CONFIG_BIND_IP, "10.0.0.1");
-                opm_config(scanner, OPM_CONFIG_TARGET_STRING, "Match1");
-                opm_config(scanner, OPM_CONFIG_TARET_STRING, "Match2");
+                opm_config(scanner, "fd_limit", &fd_limit);
+                opm_config(scanner, "max_read", &max_read);
+                opm_config(scanner, "bind_ip", "10.0.0.1");
+                opm_config(scanner, "target_string", "Match1");
+                opm_config(scanner, "target_string", "Match2");
 
                 opm_free(scanner);
 
 
 
+OPM_ERR_T opm_config_add(OPM_T *, const char *, int)
+
+   Parameters: OPM_T: scanner to add config key to
+               const char *: key to add
+	       int: type of value the key should hold
+	       
+   Return: OPM_ERR_T or OPM_SUCCESS on success
+   
+           OPM_ERR_BADTYPE: Unknown config item type.
+           OPM_ERR_DUPE: Duplicate config key specified.
+           OPM_ERR_UNKNOWN: Unknown error.
+
+   The opm_config_add function adds a new config key to those known by this
+   scanner.  The default config keys are described in the opm_config function
+   above; if any additional config keys are required then opm_config_add
+   should be called after opm_create.
+
+
+   
 OPM_ERR_T opm_addtype(OPM_T *, int, int)
 OPM_ERR_T opm_remote_addtype(OPM_REMOTE_T *, int, int)
 

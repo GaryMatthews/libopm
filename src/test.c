@@ -99,13 +99,12 @@ int main(int argc, char **argv)
 
 
    /* Setup the scanner configuration */ 
-   opm_config(scanner, OPM_CONFIG_FD_LIMIT, &fdlimit);
-   opm_config(scanner, OPM_CONFIG_SCAN_IP, "216.175.104.202");
-   opm_config(scanner, OPM_CONFIG_SCAN_PORT, &scan_port);
-   opm_config(scanner, OPM_CONFIG_TARGET_STRING, "*** Looking up your hostname...");
-   opm_config(scanner, OPM_CONFIG_TARGET_STRING, "ERROR :Trying to reconnect too fast.");
-   opm_config(scanner, OPM_CONFIG_TIMEOUT, &scantimeout);
-   opm_config(scanner, OPM_CONFIG_MAX_READ, &max_read);
+   opm_config(scanner, "fd_limit", &fdlimit);
+   opm_config(scanner, "scan_ip", "62.80.124.155");
+   opm_config(scanner, "scan_port", &scan_port);
+   opm_config(scanner, "target_string", "*** Looking up your hostname...");
+   opm_config(scanner, "timeout", &scantimeout);
+   opm_config(scanner, "max_read", &max_read);
 
    /* Setup the protocol configuration */
    for (s = ARRAY_SIZEOF(http_ports), i = 0; i < s; i++) {

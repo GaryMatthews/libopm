@@ -26,30 +26,43 @@ struct _OPM_CALLBACK {
 };
 
 struct _OPM_CONFIG {
-   void **vars;
+   const char *key;
+   int type;
+   void *value;
 };
 
 struct _OPM {
-   OPM_CONFIG_T *config;               /* Individual scanner configuration                           */
-   OPM_LIST_T   *queue;                /* List of scans in the queue (not yet established)           */
-   OPM_LIST_T   *scans;                /* List of scans (each scan containing a list of connections) */
-   OPM_LIST_T   *protocols;            /* List of protocols this scanner handles                     */
-   unsigned int  fd_use;               /* Number of file descriptors in use                          */
+   /* List of individual scanner configuration key/values. */
+   OPM_LIST_T *config;
+   /* List of scans in the queue (not yet established). */
+   OPM_LIST_T *queue;
+   /* List of scans (each scan containing a list of connections). */
+   OPM_LIST_T *scans;
+   /* List of protocols this scanner handles. */
+   OPM_LIST_T *protocols;
+   /* Number of file descriptors in use. */
+   unsigned int fd_use;
 
-   OPM_CALLBACK_T *callbacks;          /* Scanner wide callbacks                                     */
+   /* Scanner-wide callbacks. */
+   OPM_CALLBACK_T *callbacks;
 };
 
 struct _OPM_REMOTE {
+   /* Presentation-format IPv4 address. */
+   char *ip;
 
-   char                *ip;              /* Readable IP address                         */
+   /* Port passed back on certain callbacks. */
+   unsigned short int  port;
+   /* Protocol passed back on certain callbacks. */
+   unsigned short int protocol;
+   /* Bytes read passed back on certain callbacks. */
+   unsigned short int bytes_read;
 
-   unsigned short int   port;            /* Port passed back on certain callbacks       */
-   unsigned short int   protocol;        /* Protocol passed back on certain callbacks   */
-   unsigned short int   bytes_read;      /* Bytes read passed back on certain callbacks */
+   /* Remote-specific protocols. */
+   OPM_LIST_T *protocols;
 
-   OPM_LIST_T           *protocols;      /* Remote specific protocols */
-
-   void                 *data;           /* Arbitrary data that the client can point to for any purpose*/
+   /* Arbitrary data that the user can point to for any purpose. */
+   void *data;
 };
 
 OPM_T *opm_create(void);
@@ -58,7 +71,8 @@ void opm_free(OPM_T *);
 OPM_REMOTE_T *opm_remote_create(const char *);
 void opm_remote_free(OPM_REMOTE_T *);
 
-OPM_ERR_T opm_config(OPM_T *, int, void *);
+OPM_ERR_T opm_config(OPM_T *, const char *, void *);
+OPM_ERR_T opm_config_add(OPM_T *, const char *, int);
 OPM_ERR_T opm_scan(OPM_T *, OPM_REMOTE_T *);
 void opm_end(OPM_T *, OPM_REMOTE_T *);
 void opm_endscan(OPM_T *, OPM_REMOTE_T *);

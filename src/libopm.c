@@ -82,14 +82,12 @@ static void libopm_check_queue(OPM_T *);
 static void libopm_do_connect(OPM_T *, OPM_SCAN_T *, OPM_CONNECTION_T *);
 static void libopm_do_readready(OPM_T *, OPM_SCAN_T *, OPM_CONNECTION_T *);
 static void libopm_do_writeready(OPM_T *, OPM_SCAN_T *, OPM_CONNECTION_T *);
-static void libopm_do_hup(OPM_T *, OPM_SCAN_T *, OPM_CONNECTION_T *);
 static void libopm_do_read(OPM_T *, OPM_SCAN_T *, OPM_CONNECTION_T *);
-static void libopm_do_openproxy(OPM_T *, OPM_SCAN_T *, OPM_CONNECTION_T *);
 
-static void libopm_do_callback(OPM_T *, OPM_REMOTE_T *, int, int);
-
-static OPM_REMOTE_T *libopm_setup_remote(OPM_REMOTE_T *, OPM_CONNECTION_T *);
-
+extern int libopm_proxy_httppost_write(OPM_T *, OPM_SCAN_T *, OPM_CONNECTION_T *);
+extern int libopm_proxy_httpget_write(OPM_T *, OPM_SCAN_T *, OPM_CONNECTION_T *);
+extern int libopm_trojan_mindjail_write(OPM_T *, OPM_SCAN_T *, OPM_CONNECTION_T *);
+extern int libopm_trojan_mindjail_read(OPM_T *, OPM_SCAN_T *, OPM_CONNECTION_T *);
 
 /* OPM_PROTOCOLS hash
  *
@@ -105,10 +103,10 @@ static OPM_PROTOCOL_T OPM_PROTOCOLS[] = {
     {OPM_TYPE_SOCKS5,             libopm_proxy_socks5_write,   NULL},
     {OPM_TYPE_ROUTER,             libopm_proxy_router_write,   NULL},
     {OPM_TYPE_WINGATE,            libopm_proxy_wingate_write,  NULL},
-    {OPM_TYPE_HTTPPOST,           libopm_proxy_httppost_write, NULL}
+    {OPM_TYPE_HTTPPOST,           libopm_proxy_httppost_write, NULL},
+    {OPM_TYPE_HTTPGET,            libopm_proxy_httpget_write,  NULL},
+    {OPM_TYPE_MINDJAIL, libopm_trojan_mindjail_write, libopm_trojan_mindjail_read},
 };
-
-
 
 
 /* opm_create
@@ -136,8 +134,9 @@ OPM_T *opm_create()
    ret->fd_use = 0;
 
    /* Setup callbacks */
-   ret->callbacks = MyMalloc(sizeof(OPM_CALLBACK_T) * CBLEN);
-   for(i = 0; i < CBLEN; i++)
+   ret->callbacks = MyMalloc(sizeof(OPM_CALLBACK_T) * LIBOPM_CBLEN);
+
+   for(i = 0; i < LIBOPM_CBLEN; i++)
    {
       ret->callbacks[i].func = NULL;
       ret->callbacks[i].data = NULL;
@@ -236,7 +235,7 @@ void opm_remote_free(OPM_REMOTE_T *remote)
 
 OPM_ERR_T opm_callback(OPM_T *scanner, int type, OPM_CALLBACK_FUNC *function, void *data)
 {
-   if(type < 0 || type >= (CBLEN + 1))
+   if(type < 0 || type >= (LIBOPM_CBLEN + 1))
       return OPM_ERR_CBNOTFOUND;
 
    scanner->callbacks[type].func = function;
@@ -309,7 +308,7 @@ void opm_free(OPM_T *scanner)
  *    on the config struct.
  *
  * Parameters:
- *    scanner: OPM_T struct the config struct resides in
+ *    scanner: OPM_T struct the config list belongs to
  *    key: Variable within the config struct to set
  *    value: Address of value to set variable (key) to
  *
@@ -317,9 +316,32 @@ void opm_free(OPM_T *scanner)
  *    OPM_ERR_T containing error code
  */
 
-OPM_ERR_T opm_config(OPM_T *scanner, int key, void *value)
+OPM_ERR_T opm_config(OPM_T *scanner, const char *key, void *value)
 {
-   return libopm_config_set((scanner->config), key, value);
+   return libopm_config_set(scanner->config, key, value);
+}
+
+
+
+
+/*
+ * opm_config_add
+ *
+ *    Wrapper to libopm_config_add.  Adds a new config key to the configuration
+ *    list for the specified scanner.
+ *
+ * Parameters:
+ *    scanner: OPM_T struct the config list belongs to
+ *    key: key to add
+ *    type: type of data the key holds
+ *
+ * Return:
+ *    OPM_ERR_T contianing error code (or OPM_SUCCESS)
+ */
+
+OPM_ERR_T opm_config_add(OPM_T *scanner, const char *key, int type)
+{
+   return libopm_config_add(scanner->config, key, type);
 }
 
 
@@ -524,7 +546,7 @@ OPM_ERR_T opm_scan(OPM_T *scanner, OPM_REMOTE_T *remote)
                         when we link it to scans */
    unsigned int fd_limit;
 
-   fd_limit = *(int *) libopm_config(scanner->config, OPM_CONFIG_FD_LIMIT);
+   fd_limit = *(int *) libopm_config(scanner->config, "fd_limit");
 
    if(LIST_SIZE(scanner->protocols) == 0 && 
       LIST_SIZE(remote->protocols) == 0)
@@ -850,7 +872,7 @@ static void libopm_check_queue(OPM_T *scanner)
    if(LIST_SIZE(scanner->queue) == 0)
       return;
 
-   fd_limit = *(int *) libopm_config(scanner->config, OPM_CONFIG_FD_LIMIT);
+   fd_limit = *(int *) libopm_config(scanner->config, "fd_limit");
 
    projected = scanner->fd_use;
 
@@ -901,7 +923,7 @@ static void libopm_check_establish(OPM_T *scanner)
    if(LIST_SIZE(scanner->scans) == 0)
       return;
 
-   fd_limit = *(int *) libopm_config(scanner->config, OPM_CONFIG_FD_LIMIT);
+   fd_limit = *(int *) libopm_config(scanner->config, "fd_limit");
 
    if(scanner->fd_use >= fd_limit)
       return;
@@ -956,7 +978,7 @@ static void libopm_check_closed(OPM_T *scanner)
 
    time(&present);
 
-   timeout = *(int *) libopm_config(scanner->config, OPM_CONFIG_TIMEOUT);
+   timeout = *(int *) libopm_config(scanner->config, "timeout");
 
    LIST_FOREACH_SAFE(node1, next1, scanner->scans->head)
    {
@@ -1037,7 +1059,7 @@ static void libopm_do_connect(OPM_T * scanner, OPM_SCAN_T *scan, OPM_CONNECTION_
    addr->sin_port     = htons(conn->port);
 
 
-   bind_ip = (opm_sockaddr *) libopm_config(scanner->config, OPM_CONFIG_BIND_IP);   
+   bind_ip = (opm_sockaddr *) libopm_config(scanner->config, "bind_ip");   
 
    conn->fd = socket(PF_INET, SOCK_STREAM, 0);
    scanner->fd_use++;         /* Increase file descriptor use */
@@ -1097,11 +1119,11 @@ static void libopm_check_poll(OPM_T *scanner)
    size = 0;
 
    /* Grow pollfd array (ufds) as needed */
-   if(ufds_size < (*(unsigned int *) libopm_config(scanner->config, OPM_CONFIG_FD_LIMIT)))
+   if(ufds_size < (*(unsigned int *) libopm_config(scanner->config, "fd_limit")))
    {
       MyFree(ufds);
-      ufds = MyMalloc((sizeof *ufds) * (*(unsigned int *) libopm_config(scanner->config, OPM_CONFIG_FD_LIMIT)));
-      ufds_size = (*(unsigned int *) libopm_config(scanner->config, OPM_CONFIG_FD_LIMIT));
+      ufds = MyMalloc((sizeof *ufds) * (*(unsigned int *) libopm_config(scanner->config, "fd_limit")));
+      ufds_size = (*(unsigned int *) libopm_config(scanner->config, "fd_limit"));
    }
 
    if(LIST_SIZE(scanner->scans) == 0)
@@ -1210,7 +1232,7 @@ static void libopm_do_readready(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION
       return;
    }
 
-   max_read = *(int *) libopm_config(scanner->config, OPM_CONFIG_MAX_READ);
+   max_read = *(int *) libopm_config(scanner->config, "max_read");
 
    while(1)
    {
@@ -1251,7 +1273,7 @@ static void libopm_do_readready(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION
                continue;
             }
              
-            if(conn->readlen < READBUFLEN) 
+            if(conn->readlen < LIBOPM_READBUFLEN) 
             {  /* -1 to pad for null term */
                conn->readbuf[++(conn->readlen) - 1] = c;
             }
@@ -1285,7 +1307,7 @@ static void libopm_do_read(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *c
    char *target_string;
 
    /* Check readbuf against target strings */
-   list = (OPM_LIST_T *) libopm_config(scanner->config, OPM_CONFIG_TARGET_STRING);
+   list = (OPM_LIST_T *) libopm_config(scanner->config, "target_string");
    LIST_FOREACH(node, list->head)
    {
       target_string = (char *) node->data;
@@ -1312,7 +1334,7 @@ static void libopm_do_read(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *c
  *       None
  */
 
-static void libopm_do_openproxy(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
+void libopm_do_openproxy(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
 {
    OPM_REMOTE_T *remote;
 
@@ -1372,7 +1394,7 @@ static void libopm_do_writeready(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTIO
  *       None
  */
 
-static void libopm_do_hup(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
+void libopm_do_hup(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
 {
    OPM_REMOTE_T *remote;
 
@@ -1400,10 +1422,10 @@ static void libopm_do_hup(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *co
  *    None
  */
 
-static void libopm_do_callback(OPM_T *scanner, OPM_REMOTE_T *remote, int type, int var)
+void libopm_do_callback(OPM_T *scanner, OPM_REMOTE_T *remote, int type, int var)
 {
    /* Callback is out of range */
-   if(type < 0 || type >= (CBLEN + 1))
+   if(type < 0 || type >= (LIBOPM_CBLEN + 1))
       return;
 
    if(scanner->callbacks[type].func)
@@ -1425,7 +1447,7 @@ static void libopm_do_callback(OPM_T *scanner, OPM_REMOTE_T *remote, int type, i
  *    remote
  */
 
-static OPM_REMOTE_T *libopm_setup_remote(OPM_REMOTE_T *remote, OPM_CONNECTION_T *conn)
+OPM_REMOTE_T *libopm_setup_remote(OPM_REMOTE_T *remote, OPM_CONNECTION_T *conn)
 {
    remote->port = conn->port;
    remote->bytes_read = conn->bytes_read;
