@@ -276,18 +276,6 @@ void
 opm_remote_free(remote)
 	OPM_Remote *remote
 
-OPM_Error
-opm_remote_callback(remote, type, func)
-	OPM_Remote *remote
-	int type
-	SV *func
-    CODE:
-	RETVAL = opm_remote_callback(remote, type, &perl_callback, (void *)func);
-	if(RETVAL != OPM_SUCCESS)
-	   error_check(RETVAL);
-    OUTPUT:
-	RETVAL
-
 SV *
 opm_remote_ip(remote)
 	OPM_Remote *remote
