@@ -817,15 +817,16 @@ static void libopm_check_closed(OPM_T *scanner)
          if(((present - conn->creation) >= timeout) && 
               conn->state != OPM_STATE_UNESTABLISHED)
          {
-
+             
               close(conn->fd);
               scanner->fd_use--;         
+
+              libopm_do_callback(scanner, libopm_setup_remote(scan->remote, conn), OPM_CALLBACK_TIMEOUT, 0);
 
               libopm_list_remove(scan->connections, node2);
               libopm_connection_free(conn);
               libopm_node_free(node2);
              
-              libopm_do_callback(scanner, libopm_setup_remote(scan->remote, conn), OPM_CALLBACK_TIMEOUT, 0); 
               continue;
          }
       }
@@ -1049,7 +1050,7 @@ static void libopm_do_readready(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION
                return;
             }
 
-            if(c == 0 || c == '\r')
+            if(c == '\0' || c == '\r')
                continue;
 
             if(c == '\n')
