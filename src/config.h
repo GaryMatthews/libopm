@@ -3,13 +3,6 @@
 
 #include "libopm.h" 
 
-#define CONFIG_BIND_IP      0
-#define CONFIG_DNSBL_HOST   1
-#define CONFIG_FD_LIMIT     2
-
-#define TYPE_INT            1
-#define TYPE_STRING         2
-
 struct CONFIG_HASH {
    int key;
    int type;

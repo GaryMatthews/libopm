@@ -23,7 +23,8 @@
 
 #include "malloc.h"
 #include "config.h"
-#include "libopm_error.h"
+#include "opm_error.h"
+#include "opm_types.h"
 #include <string.h>
 
 struct CONFIG_HASH HASH[] = {

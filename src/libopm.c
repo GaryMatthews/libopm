@@ -24,7 +24,8 @@
 #include "config.h"
 #include "libopm.h"
 #include "malloc.h"
-#include "libopm_error.h"
+#include "opm_error.h"
+#include "opm_types.h"
 
 #include <netinet/in.h>
 
