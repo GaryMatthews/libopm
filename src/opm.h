@@ -46,6 +46,7 @@ struct _OPM_REMOTE {
    unsigned short int   protocol;        /* Protocol passed back on certain callbacks   */
    unsigned short int   bytes_read;      /* Bytes read passed back on certain callbacks */
 
+   OPM_LIST_T           *protocols;      /* Remote specific protocols */
 };
 
 OPM_T *opm_create();
@@ -58,6 +59,7 @@ OPM_ERR_T opm_config(OPM_T *, int, void *);
 OPM_ERR_T opm_scan(OPM_T *, OPM_REMOTE_T *);
 
 OPM_ERR_T opm_addtype(OPM_T *, int, unsigned short int);
+OPM_ERR_T opm_remote_addtype(OPM_REMOTE_T *, int, unsigned short int);
 OPM_ERR_T opm_callback(OPM_T *, int, OPM_CALLBACK_FUNC *, void *);
 
 void opm_cycle(OPM_T *);

@@ -169,6 +169,7 @@ OPM_ERR_T opm_config(OPM_T *, int, void *)
 
 
 OPM_ERR_T opm_addtype(OPM_T *, int, int)
+OPM_ERR_T opm_remote_addtype(OPM_REMOTE_T *, int, int)
 
    Parameters: OPM_T scanner to add type to
                int: type to add
@@ -183,6 +184,9 @@ OPM_ERR_T opm_addtype(OPM_T *, int, int)
    and what protocols it will check for on those ports. Each protocol/port will
    result in 1 file descriptor used per scan.
 
+   The opm_remote_addtype functions works similarly, but adds the protocol 
+   configuration to an individual remote struct instead.
+
    
    Type                 Description
    ---------------------------------------------------------------------
@@ -191,7 +195,7 @@ OPM_ERR_T opm_addtype(OPM_T *, int, int)
    OPM_TYPE_SOCKS5      Open socks 5 proxies
    OPM_TYPE_ROUTER      Routers with default passwords set (usually cisco)
    OPM_TYPE_WINGATE     Open wingate proxy
-
+   OPM_TYPE_POST        Opm HTTP post proxy
 
    Example:
 
@@ -205,7 +209,8 @@ OPM_ERR_T opm_addtype(OPM_T *, int, int)
                 opm_addtype(scanner, OPM_TYPE_SOCKS5, 1080);
                 opm_addtype(scanner, OPM_TYPE_ROUTER, 23);
                 opm_addtype(scanner, OPM_TYPE_WINGATE, 23);
-           
+                opm_addtype(scanner, OPM_TYPE_POST, 80);
+
                 opm_free(scanner);
 
 

@@ -87,8 +87,8 @@ static OPM_PROTOCOL_T OPM_PROTOCOLS[] = {
     {OPM_TYPE_HTTP,               libopm_proxy_http_write,     NULL},
     {OPM_TYPE_SOCKS4,             libopm_proxy_socks4_write,   NULL},
     {OPM_TYPE_SOCKS5,             libopm_proxy_socks5_write,   NULL},
-    {OPM_TYPE_WINGATE,            libopm_proxy_wingate_write,  NULL},
     {OPM_TYPE_ROUTER,             libopm_proxy_router_write,   NULL},
+    {OPM_TYPE_WINGATE,            libopm_proxy_wingate_write,  NULL},
     {OPM_TYPE_HTTPPOST,           libopm_proxy_httppost_write, NULL}
 };
 
@@ -164,6 +164,8 @@ OPM_REMOTE_T *opm_remote_create(char *ip)
    ret->protocol      = 0;
    ret->bytes_read    = 0;
 
+   ret->protocols = libopm_list_create(); /* setup protocol list */
+
    return ret;
 }
 
@@ -183,8 +185,22 @@ OPM_REMOTE_T *opm_remote_create(char *ip)
 void opm_remote_free(OPM_REMOTE_T *remote)
 {
 
+   OPM_NODE_T *p, *next;
+   OPM_PROTOCOL_CONFIG_T *ppc;
+
    if(remote->ip)
       MyFree(remote->ip);
+
+   LIST_FOREACH_SAFE(p, next, remote->protocols->head)
+   {
+      ppc = (OPM_PROTOCOL_CONFIG_T *) p->data;
+
+      libopm_protocol_config_free(ppc);
+      libopm_list_remove(remote->protocols, p);
+      libopm_node_free(p);
+   }
+
+   libopm_list_free(remote->protocols);
 
    MyFree(remote);
 }
@@ -305,7 +321,8 @@ OPM_ERR_T opm_config(OPM_T *scanner, int key, void *value)
  *    type:    type of proxy to scan (used in hashing to the functions)
  *    port:    port this specific type/protocol will scan on
  * Return:
- *    (write in future error codes)
+ *    OPM_SUCCESS: Successful protocol add
+ *    OPM_ERR_BADPROTOCOL: Protocol is unknown
  */
 
 OPM_ERR_T opm_addtype(OPM_T *scanner, int type, unsigned short int port)
@@ -333,6 +350,48 @@ OPM_ERR_T opm_addtype(OPM_T *scanner, int type, unsigned short int port)
    }
    return OPM_ERR_BADPROTOCOL;
 }
+
+
+
+/* opm_remote_addtype
+ *
+ *    Add a proxy type and port to the list of protocols
+ *    a scanner will use.
+ *
+ * Parameters:
+ *    remote: pointer to scanner struct
+ *    type:    type of proxy to scan (used in hashing to the functions)
+ *    port:    port this specific type/protocol will scan on
+ * Return:
+ *    OPM_SUCCESS: Successful protocol add
+ *    OPM_ERR_BADPROTOCOL: Protocol is unknown
+ */
+
+OPM_ERR_T opm_remote_addtype(OPM_REMOTE_T *remote, int type, unsigned short int port)
+{
+   int i;
+
+   OPM_NODE_T *node;
+   OPM_PROTOCOL_CONFIG_T *protocol_config;
+
+   for(i = 0; i < sizeof(OPM_PROTOCOLS) / sizeof(OPM_PROTOCOL_T); i++)
+   {
+      if(type == OPM_PROTOCOLS[i].type)
+      {
+         protocol_config = libopm_protocol_config_create();
+
+         protocol_config->type = &OPM_PROTOCOLS[i];
+         protocol_config->port = port;
+
+         node = libopm_node_create(protocol_config);
+         libopm_list_add(remote->protocols, node);
+
+         return OPM_SUCCESS;
+      }
+   }
+   return OPM_ERR_BADPROTOCOL;
+}
+
 
 
 
@@ -445,10 +504,11 @@ OPM_ERR_T opm_scan(OPM_T *scanner, OPM_REMOTE_T *remote)
 
    fd_limit = *(int *) libopm_config(scanner->config, OPM_CONFIG_FD_LIMIT);
 
-
-   if(LIST_SIZE(scanner->protocols) == 0)
+   if(LIST_SIZE(scanner->protocols) == 0 && 
+      LIST_SIZE(remote->protocols) == 0)
+   {
       return OPM_ERR_NOPROTOCOLS; 
-   
+   }
 
    scan = libopm_scan_create(scanner, remote);
 
@@ -520,6 +580,21 @@ static OPM_SCAN_T *libopm_scan_create(OPM_T *scanner, OPM_REMOTE_T *remote)
       conn->protocol = ((OPM_PROTOCOL_CONFIG_T *) p->data)->type;
       conn->port     = ((OPM_PROTOCOL_CONFIG_T *) p->data)->port;
  
+      node = libopm_node_create(conn);
+
+      libopm_list_add(ret->connections, node);
+   }
+
+   /* Do the same for any specific protocols the remote struct might be configured
+      with */
+
+   LIST_FOREACH(p, remote->protocols->head)
+   {
+      conn = libopm_connection_create();
+
+      conn->protocol = ((OPM_PROTOCOL_CONFIG_T *) p->data)->type;
+      conn->port     = ((OPM_PROTOCOL_CONFIG_T *) p->data)->port;
+
       node = libopm_node_create(conn);
 
       libopm_list_add(ret->connections, node);

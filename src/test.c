@@ -43,6 +43,7 @@ int complete = 0;
 
 int main(int argc, char **argv)
 {
+   OPM_ERR_T err;
    int fdlimit = 1024;
    int scan_port = 6667;
    int max_read = 4096;
@@ -64,7 +65,9 @@ int main(int argc, char **argv)
    opm_callback(scanner, OPM_CALLBACK_TIMEOUT, &timeout, 0);
    opm_callback(scanner, OPM_CALLBACK_END, &end, 0);
    opm_callback(scanner, OPM_CALLBACK_ERROR, &handle_error, 0);
- 
+
+
+   /* Setup the scanner configuration */ 
    opm_config(scanner, OPM_CONFIG_FD_LIMIT, &fdlimit);
    opm_config(scanner, OPM_CONFIG_SCAN_IP, "203.56.139.100");
    opm_config(scanner, OPM_CONFIG_SCAN_PORT, &scan_port);
@@ -72,6 +75,7 @@ int main(int argc, char **argv)
    opm_config(scanner, OPM_CONFIG_TIMEOUT, &scantimeout);
    opm_config(scanner, OPM_CONFIG_MAX_READ, &max_read);
 
+   /* Setup the protocol configuration */
    opm_addtype(scanner, OPM_TYPE_HTTP, 8080);
    opm_addtype(scanner, OPM_TYPE_HTTP, 80);
    opm_addtype(scanner, OPM_TYPE_HTTP, 3128);
@@ -83,8 +87,13 @@ int main(int argc, char **argv)
    opm_addtype(scanner, OPM_TYPE_HTTPPOST, 8090);
    opm_addtype(scanner, OPM_TYPE_HTTPPOST, 3128);
 
+   /* Remote structs can also have their own extended protocol configurations. For instance
+      if the target hostname contains strings such as 'proxy' or 'www', extended ports could
+      be scanned. */
+   opm_remote_addtype(remote, OPM_TYPE_HTTP, 8001);
+   opm_remote_addtype(remote, OPM_TYPE_HTTP, 8002);
 
-   switch(opm_scan(scanner, remote))
+   switch(err = opm_scan(scanner, remote))
    {
       case OPM_SUCCESS:
                        break;
@@ -94,7 +103,7 @@ int main(int argc, char **argv)
                        opm_remote_free(remote);
                        return 0;
       default:
-                       printf("Unknown Error\n");
+                       printf("Unknown Error %d\n", err);
                        return 0;
    }
    
