@@ -37,7 +37,7 @@ sub add_default {
 
 # Common + Less common
 
-   for(80, 81, 3128, 6588, 8000, 8080) {
+   for(80, 81, 3128, 4480, 6588, 8000, 8080) {
       $remote->addtype(OPM->TYPE_HTTP, $_);
       $remote->addtype(OPM->TYPE_HTTPPOST, $_);
    }
