@@ -20,7 +20,7 @@ typedef int OPM_PROXYREAD_T  (OPM_T *, OPM_SCAN_T *, OPM_CONNECTION_T *);
 
 struct _OPM_SCAN { 
    OPM_REMOTE_T        *remote;         /* Pointed to the OPM_REMOTE_T for this scan, passed by client */
-   list_t              *connections;    /* List of individual connections of this scan (1 for each protocol) */
+   OPM_LIST_T          *connections;    /* List of individual connections of this scan (1 for each protocol) */
 };
 
 struct _OPM_CONNECTION {

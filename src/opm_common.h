@@ -1,24 +1,24 @@
 #ifndef OPM_COMMON_H
 #define OPM_COMMON_H
 
-typedef struct _node node_t;
-typedef struct _list list_t;
+typedef struct _libopm_node OPM_NODE_T;
+typedef struct _libopm_list OPM_LIST_T;
 
 
-struct _list {
+struct _libopm_list {
 
-  struct _node *head;
-  struct _node *tail;
+  struct _libopm_node *head;
+  struct _libopm_node *tail;
+
   int elements;
-
 };
 
-struct _node {
+struct _libopm_node {
 
-   struct _node *next; 
-   struct _node *prev;
+   struct _libopm_node *next; 
+   struct _libopm_node *prev;
+
    void *data;
-
 };
 
 #endif /* OPM_COMMON_H */

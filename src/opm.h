@@ -24,9 +24,9 @@ struct _OPM_CONFIG {
 
 struct _OPM {
    OPM_CONFIG_T *config;               /* Individual scanner configuration                           */
-   list_t       *queue;                /* List of scans in the queue (not yet established)           */
-   list_t       *scans;                /* List of scans (each scan containing a list of connections) */
-   list_t       *protocols;            /* List of protocols this scanner handles                     */
+   OPM_LIST_T   *queue;                /* List of scans in the queue (not yet established)           */
+   OPM_LIST_T   *scans;                /* List of scans (each scan containing a list of connections) */
+   OPM_LIST_T   *protocols;            /* List of protocols this scanner handles                     */
    unsigned int  fd_use;               /* Number of file descriptors in use                          */
 
    OPM_CALLBACK_T **callbacks;          /* Scanner wide callbacks                                     */

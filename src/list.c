@@ -30,9 +30,9 @@
 
 RCSID("$Id$");
 
-node_t *node_create(void *data)
+OPM_NODE_T *libopm_node_create(void *data)
 {
-   node_t *node = MyMalloc(sizeof(node_t));
+   OPM_NODE_T *node = MyMalloc(sizeof(OPM_NODE_T));
    node->next = NULL;
    node->prev = NULL;  
    node->data = (void *) data;
@@ -40,9 +40,9 @@ node_t *node_create(void *data)
    return node;
 }
 
-list_t *list_create()
+OPM_LIST_T *libopm_list_create()
 {
-   list_t *list = MyMalloc(sizeof(list_t));
+   OPM_LIST_T *list = MyMalloc(sizeof(OPM_LIST_T));
 
    list->head = NULL;
    list->tail = NULL;
@@ -52,7 +52,7 @@ list_t *list_create()
    return list;
 }
 
-node_t *list_add(list_t *list, node_t *node)
+OPM_NODE_T *libopm_list_add(OPM_LIST_T *list, OPM_NODE_T *node)
 {
 
    if(list == NULL || node == NULL)
@@ -78,9 +78,9 @@ node_t *list_add(list_t *list, node_t *node)
    return node;
 }
 
-node_t *list_remove(list_t *list, node_t *node)
+OPM_NODE_T *libopm_list_remove(OPM_LIST_T *list, OPM_NODE_T *node)
 {
-   node_t *p;
+   OPM_NODE_T *p;
 
    if(list == NULL || node == NULL)
       return NULL;
@@ -123,12 +123,12 @@ node_t *list_remove(list_t *list, node_t *node)
    return NULL;
 }
 
-void list_free(list_t *list)
+void libopm_list_free(OPM_LIST_T *list)
 {
    MyFree(list);
 }
 
-void node_free(node_t *node)
+void libopm_node_free(OPM_NODE_T *node)
 {
    MyFree(node);
 }
