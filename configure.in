@@ -18,7 +18,7 @@ AC_SUBST(DOX_DIR_MAN)
 AC_ARG_WITH(extra-fascism,
     AC_HELP_STRING([--with-extra-fascism],
     [add extra gcc3-specific warning flags]),
-    [CFLAGS="$CFLAGS -g -O2 -W -Wall -Wfloat-equal -Wbad-function-cast -Wconversion -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wredundant-decls -Wnested-externs"])
+    [CFLAGS="$CFLAGS -g -O0 -W -Wall -Wfloat-equal -Wbad-function-cast -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wredundant-decls -Wnested-externs"])
 
 dnl AC_ARG_WITH(faldo,
 dnl     AC_HELP_STRING([--with-faldo],
