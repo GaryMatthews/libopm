@@ -528,6 +528,106 @@ OPM_ERR_T opm_scan(OPM_T *scanner, OPM_REMOTE_T *remote)
 
 
 
+/* opm_end
+ *
+ *    End a scan prematurely.
+ *
+ * Parameters:
+ *    scanner: Scanner to end scan on
+ *    remote: Pointer to remote struct to search for and end
+ *
+ * Return: 
+ *    No return. OPM_CALLBACK_END will still be called as normal.
+ */
+
+void opm_end(OPM_T *scanner, OPM_REMOTE_T *remote)
+{
+   OPM_NODE_T *node1, *node2, *next1, *next2;
+
+   OPM_SCAN_T *scan;
+   OPM_CONNECTION_T *conn;
+
+   /* End active scans */
+   opm_endscan(scanner, remote);
+
+   /* Secondly remove all traces of it in the queue. Once removed we have to call 
+      OPM_CALLBACK_END */
+
+   LIST_FOREACH_SAFE(node1, next1, scanner->queue->head)
+   {
+      scan = (OPM_SCAN_T *) node1->data;
+      if(scan->remote == remote)
+      {
+         /* Free all connections */
+         LIST_FOREACH_SAFE(node2, next2, scan->connections->head)
+         {
+
+            conn = (OPM_CONNECTION_T *) node2->data;
+
+            libopm_list_remove(scan->connections, node2);
+            libopm_connection_free(conn);
+            libopm_node_free(node2);
+            continue;
+         }
+
+         /* OPM_CALLBACK_END because check_closed normally handles this */
+         libopm_do_callback(scanner, scan->remote, OPM_CALLBACK_END, 0);
+
+         /* Free up the scan */
+         libopm_list_remove(scanner->queue, node1);
+         libopm_scan_free(scan);
+         libopm_node_free(node1);
+      }
+   }
+}
+
+
+
+
+/* opm_endscan
+ *
+ *    End a scan prematurely. Only end non-queued scans. This is useful
+ *    because it only checks the active scan list (saving time), where
+ *    opm_end checks both the scan and the possibly large queue.
+ *
+ * Parameters:
+ *    scanner: Scanner to end scan on
+ *    remote: Pointer to remote struct to search for and end
+ *
+ * Return:
+ *    No return. OPM_CALLBACK_END will still be called as normal.
+ */
+
+void opm_endscan(OPM_T *scanner, OPM_REMOTE_T *remote)
+{
+   OPM_NODE_T *node1, *node2;
+
+   OPM_SCAN_T *scan;
+   OPM_CONNECTION_T *conn;
+
+   /*
+     First check to see if it's in the queue, if it is set all connections closed
+     Next cycle of libopm_check_closed will take care of the garbage and handle
+     OPM_CALLBACK_END
+   */
+   LIST_FOREACH(node1, scanner->scans->head)
+   {
+      scan = (OPM_SCAN_T *) node1->data;
+
+      if(scan->remote == remote)
+      {
+         LIST_FOREACH(node2, scan->connections->head)
+         {
+            conn = (OPM_CONNECTION_T *) node2->data;
+            conn->state = OPM_STATE_CLOSED;
+         }
+      }
+   }
+}
+
+
+
+
 /* opm_active 
 
       Return number of scans in a scanner left.

@@ -250,6 +250,24 @@ OPM_ERR_T opm_scan(OPM_T *, OPM_REMOTE_T *)
 
 
 
+void opm_end(OPM_T *, OPM_REMOTE_T *)
+void opm_scanend(OPM_T *, OPM_REMOTE_T *)
+
+   Parameters: OPM_T Scanner to end scan on
+               OPM_REMOTE_T Scan to end
+
+   Return: None, OPM_CALLBACK_END will still be called
+                 when the scans end
+
+   The opm_end function ends all scans using the passed OPM_REMOTE_T. The
+   opm_scanend will only end active scans (scans in the queue are not 
+   traversed). This is useful if it is known only one scan using the remote
+   struct exists, but it is also known that the scan has already active.
+   Using opm_scanend will save time by not traversing the queue list.
+
+
+
+
 OPM_ERR_T opm_callback(OPM_T *, int, OPM_CALLBACK_T, void *)
 
    Parameters: OPM_T: Scanner to set callbacks on

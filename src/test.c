@@ -120,6 +120,7 @@ int main(int argc, char **argv)
 void open_proxy(OPM_T *scanner, OPM_REMOTE_T *remote, int notused, void *data)
 {
    printf("Open proxy on %s:%d [%d bytes read]\n", remote->ip, remote->port, remote->bytes_read);
+   opm_end(scanner, remote);
 }
 
 void negotiation_failed(OPM_T *scanner, OPM_REMOTE_T *remote, int notused, void *data)

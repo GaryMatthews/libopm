@@ -58,6 +58,8 @@ void opm_remote_free(OPM_REMOTE_T *);
 
 OPM_ERR_T opm_config(OPM_T *, int, void *);
 OPM_ERR_T opm_scan(OPM_T *, OPM_REMOTE_T *);
+void opm_end(OPM_T *, OPM_REMOTE_T *);
+void opm_endscan(OPM_T *, OPM_REMOTE_T *);
 
 OPM_ERR_T opm_addtype(OPM_T *, int, unsigned short int);
 OPM_ERR_T opm_remote_addtype(OPM_REMOTE_T *, int, unsigned short int);
