@@ -90,9 +90,8 @@ MAIN: while(1) {
                $remote->addtype(
                      OPM::constant("TYPE_$types[$_]", 0), $ports[$_]);
             }
-         }else{
-            add_default($remote);
          }
+         add_default($remote);
 
          my $error = $scan->scan($remote);
          if($$error != OPM->SUCCESS) {
