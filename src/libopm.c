@@ -164,6 +164,8 @@ OPM_REMOTE_T *opm_remote_create(char *ip)
    ret->protocol      = 0;
    ret->bytes_read    = 0;
 
+   ret->data          = NULL;
+
    ret->protocols = libopm_list_create(); /* setup protocol list */
 
    return ret;

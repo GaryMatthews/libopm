@@ -35,7 +35,9 @@ OPM_REMOTE_T
            unsigned short int protocol;
            unsigned short int bytes_read;
 
-           OPM_CALLBACK_T     *callbacks;   
+           OPM_PROTOCOL_T    *protocols;
+
+           void              *data;           
          }
 
          The members of the OPM_REMOTE_T structure are:
@@ -55,6 +57,11 @@ OPM_REMOTE_T
          callbacks
             An array of callbacks associated with this OPM_REMOTE_T. This 
             element is handled internally by the API.
+
+         data
+            An arbitrary pointer used if the client program wants to store additional 
+            data in the remote struct. This can be used to avoid having to have a seperate
+            list of scans outside of the library.
 
 2.1 C API Functions
 -------------------

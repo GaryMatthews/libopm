@@ -47,6 +47,8 @@ struct _OPM_REMOTE {
    unsigned short int   bytes_read;      /* Bytes read passed back on certain callbacks */
 
    OPM_LIST_T           *protocols;      /* Remote specific protocols */
+
+   void                 *data;           /* Arbitrary data that the client can point to for any purpose*/
 };
 
 OPM_T *opm_create();
