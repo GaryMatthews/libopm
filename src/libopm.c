@@ -990,8 +990,17 @@ static void libopm_check_poll(OPM_T *scanner)
 
 static void libopm_do_readready(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
 {
+
    int max_read;
    char c;
+
+   /* If protocol has a specific read function, call that instead of
+      reading data from here. */
+   if(conn->protocol->read_function)
+   {
+      conn->protocol->read_function(scanner, scan, conn);
+      return;
+   }
 
    max_read = *(int *) libopm_config(scanner->config, OPM_CONFIG_MAX_READ);
 
@@ -1120,7 +1129,8 @@ static void libopm_do_writeready(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTIO
    protocol = conn->protocol;
 
    /* Call write function for specific protocol */
-   protocol->write_function(scanner, scan, conn);
+   if(protocol->write_function)
+      protocol->write_function(scanner, scan, conn);
 
    /* Flag as NEGSENT so we don't have to send data again*/
    conn->state = OPM_STATE_NEGSENT;  
