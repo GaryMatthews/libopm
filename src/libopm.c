@@ -911,7 +911,7 @@ static void libopm_check_poll(OPM_T *scanner)
        
          if(conn->state < OPM_STATE_ESTABLISHED ||
             conn->state == OPM_STATE_CLOSED)
-               continue;                /* This needs work */
+               continue;            
 
          ufds[size].events = 0;
          ufds[size].revents = 0;
@@ -1211,5 +1211,6 @@ static OPM_REMOTE_T *libopm_setup_remote(OPM_REMOTE_T *remote, OPM_CONNECTION_T 
    remote->port = conn->port;
    remote->bytes_read = conn->bytes_read;
    remote->protocol = conn->protocol->type;
+
    return remote;
 }

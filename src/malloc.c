@@ -21,6 +21,7 @@
  *
  */
 
+#include <assert.h>
 #include "setup.h"
 
 #include "malloc.h"
@@ -43,8 +44,8 @@ RCSID("$Id$");
 void *libopm_MyMalloc(size_t bytes)
 {
    void *ret = calloc(1, bytes);
-   
-   if(!ret) ;  
+
+   assert(ret); 
 
    return ret;
 }
