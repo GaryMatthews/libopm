@@ -48,6 +48,7 @@ _defines define[] = {
    {"STATE_NEGSENT",        OPM_STATE_NEGSENT},
    {"STATE_UNESTABLISHED",  OPM_STATE_UNESTABLISHED},
    {"SUCCESS",              OPM_SUCCESS},
+   {"TYPE_CUSTOM",          OPM_TYPE_CUSTOM},
    {"TYPE_HTTP",            OPM_TYPE_HTTP},
    {"TYPE_ROUTER",          OPM_TYPE_ROUTER},
    {"TYPE_SOCKS4",          OPM_TYPE_SOCKS4},
@@ -307,7 +308,16 @@ SV *
 opm_remote_protocol(remote)
 	OPM_Remote *remote
     CODE:
-        RETVAL = newSViv(remote->protocol);
+	if(remote->protocol == OPM_TYPE_CUSTOM)
+	   RETVAL = newSVpv("Custom", 0);
+	else
+	   switch(remote->protocol) {
+	      case OPM_TYPE_HTTP: RETVAL = newSVpv("HTTP", 0); break;
+	      case OPM_TYPE_SOCKS4: RETVAL = newSVpv("Socks4", 0); break;
+	      case OPM_TYPE_SOCKS5: RETVAL = newSVpv("Socks5", 0); break;
+	      case OPM_TYPE_WINGATE: RETVAL = newSVpv("WinGate", 0); break;
+	      case OPM_TYPE_ROUTER: RETVAL = newSVpv("Cisco", 0); break;
+	   }
     OUTPUT:
 	RETVAL
 
