@@ -279,11 +279,11 @@ opm_remote_protocol(remote)
     CODE:
 	   switch(remote->protocol) {
 	      case OPM_TYPE_HTTP: RETVAL = newSVpv("HTTP", 0); break;
-	      case OPM_TYPE_SOCKS4: RETVAL = newSVpv("Socks4", 0); break;
-	      case OPM_TYPE_SOCKS5: RETVAL = newSVpv("Socks5", 0); break;
-	      case OPM_TYPE_WINGATE: RETVAL = newSVpv("WinGate", 0); break;
-	      case OPM_TYPE_ROUTER: RETVAL = newSVpv("Cisco", 0); break;
-	      case OPM_TYPE_HTTPPOST: RETVAL = newSVpv("POST", 0); break;
+	      case OPM_TYPE_SOCKS4: RETVAL = newSVpv("SOCKS4", 0); break;
+	      case OPM_TYPE_SOCKS5: RETVAL = newSVpv("SOCKS5", 0); break;
+	      case OPM_TYPE_WINGATE: RETVAL = newSVpv("WINGATE", 0); break;
+	      case OPM_TYPE_ROUTER: RETVAL = newSVpv("ROUTER", 0); break;
+	      case OPM_TYPE_HTTPPOST: RETVAL = newSVpv("HTTPPOST", 0); break;
 	   }
     OUTPUT:
 	RETVAL
@@ -295,6 +295,17 @@ opm_remote_bytes_read(remote)
         RETVAL = newSViv(remote->bytes_read);
     OUTPUT:
 	RETVAL
+
+OPM_Error
+opm_remote_addtype(remote, type, port)
+	OPM_Remote *remote
+	int type
+	int port
+   CODE:
+	RETVAL = opm_remote_addtype(remote, type, port);
+	if(RETVAL != OPM_SUCCESS)
+	   error_check(RETVAL);
+   OUTPUT:
 
 MODULE = OPM		PACKAGE = OPM::Error		PREFIX = opm_error_
 

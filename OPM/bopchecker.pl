@@ -7,6 +7,11 @@
 # << ip.ad.re.ss open port,portN protocol,protocolN 
 # << ip.ad.re.ss closed
 # << ip.ad.re.ss error string
+#
+# You can also specify an additional port to scan as well as the default ones
+#  >> ip.ad.re.ss port protocol
+#  << ip.ad.re.ss open port,portN protocol,protocolN 
+#  (and other values as above)
 
 use strict;
 use IO::Select;
@@ -36,7 +41,7 @@ $scan->addtype(OPM->TYPE_HTTPPOST, 8080);
 # XXX: make configurable           "lik-m-aid.blitzed.org"
 $scan->config(OPM->CONFIG_SCAN_IP, "203.56.139.100");
 $scan->config(OPM->CONFIG_SCAN_PORT, 6667);
-$scan->config(OPM->CONFIG_TARGET_STRING, "*** Looking up your hostname...");
+$scan->config(OPM->CONFIG_TARGET_STRING, ":lik-m-aid.ca.us.blitzed.org NOTICE AUTH :*** Looking up your hostname...");
 
 $scan->callback(OPM->CALLBACK_END, \&callback_end);
 $scan->callback(OPM->CALLBACK_OPENPROXY, \&callback_openproxy);
@@ -50,14 +55,25 @@ MAIN: while(1) {
       $buffer .= $tmp;
 
       while($buffer =~ s/^([^\n]+)\n//) {
-         my $proxy = $1;
-         $proxy =~ s/:\d+$//; # not used for now, but might in the future
+         my($remote, $proxy, $proxyip);
+         $proxy = $1;
 
-         my $remote = OPM->new($proxy);
+         ($proxyip) = $proxy =~ /^([^:]+)/;
+         $remote = OPM->new($proxyip);
+
+         if($proxy =~ / (.+) (.+)$/) {
+            my $port = $1;
+            my $type = "TYPE_$2";
+            unless(defined *{"OPM::$type"}) {
+               print "$proxyip error Unknown protocol type\n";
+               next;
+            }
+            $remote->addtype(OPM->$type, $port);
+         }
 
          my $error = $scan->scan($remote);
          if($$error != OPM->SUCCESS) {
-            print "$proxy error " . $error->string . "\n";
+            print "$proxyip error " . $error->string . "\n";
          }
       }
    }
