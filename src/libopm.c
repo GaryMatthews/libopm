@@ -374,13 +374,7 @@ OPM_ERR_T opm_scan(OPM_T *scanner, OPM_REMOTE_T *remote)
    scan = scan_create(scanner, remote);
    node = node_create(scan);
 
-   /* If we're below the file descriptor limit, save some
-      time and just add it directly to the scan list */
-
-//   if(scanner->fd_use >= fd_limit)
- //     list_add(scanner->queue, node);
- //  else
-      list_add(scanner->queue, node);
+   list_add(scanner->queue, node);
 
    return OPM_SUCCESS;
 }
@@ -570,8 +564,6 @@ void check_queue(OPM_T *scanner)
       projected += protocols;
    }
 
-//   printf("fd_limit: %d projected: %d\n", fd_limit, projected);
-  // printf("queue: %d live: %d\n", LIST_SIZE(scanner->queue), LIST_SIZE(scanner->scans));
 }
 
 
