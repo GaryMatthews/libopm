@@ -8,5 +8,6 @@
 #define OPM_ERR_BADKEY            2
 #define OPM_ERR_BADVALUE          3
 
+#define OPM_ERR_BADPROTOCOL       4
 
 #endif /* LIBOPM_ERROR_H */

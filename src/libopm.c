@@ -254,8 +254,11 @@ OPM_ERR_T opm_addtype(OPM_T *scanner, int type, int port)
          node = node_create(protocol);
          list_add(scanner->protocols, node);
 
+         return OPM_SUCCESS;
+
       }
    }
+   return OPM_ERR_BADPROTOCOL;
 }
 
 
@@ -416,9 +419,11 @@ OPM_CONNECTION_T *connection_create()
    ret->fd         = 0;
    ret->bytes_read = 0;
    ret->readlen    = 0;
-   ret->state      = OPM_STATE_UNESTABLISHED;
    ret->protocol   = 0;
    ret->port       = 0;
+
+   ret->state      = OPM_STATE_UNESTABLISHED;
+
 
    return ret;
 }
