@@ -81,6 +81,9 @@ int libopm_proxy_socks4_write(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T
    scan_ip = (char *) libopm_config(scanner->config, OPM_CONFIG_SCAN_IP);
    scan_port = *(int *) libopm_config(scanner->config, OPM_CONFIG_SCAN_PORT);
 
+   if (inet_aton(scan_ip, &addr) == 0)   
+      ; /* handle error */ 
+
    laddr = htonl(addr.s_addr);
 
    len = snprintf(SENDBUF, SENDBUFLEN, "%c%c%c%c%c%c%c%c%c",  4, 1,
