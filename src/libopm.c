@@ -547,7 +547,11 @@ OPM_ERR_T opm_scan(OPM_T *scanner, OPM_REMOTE_T *remote)
    return OPM_SUCCESS;
 }
 
-
+/* active: returns the number of active scans */
+size_t opm_active(OPM_T *scanner)
+{
+    return LIST_SIZE(scanner->queue) + LIST_SIZE(scanner->scans);
+}
 
 /* scan_create
  *
@@ -1062,7 +1066,12 @@ static void libopm_do_readready(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION
       switch (read(conn->fd, &c, 1))
       {
          case  0:
+	     libopm_do_hup(scanner, scan, conn);
+	     return;
+
          case -1:
+	    if(errno != EAGAIN)
+		libopm_do_hup(scanner, scan, conn);
             return;
 
          default:

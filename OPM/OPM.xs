@@ -236,6 +236,11 @@ void
 opm_cycle(scanner)
 	OPM_Scan *scanner
 
+int
+opm_active(scanner)
+	OPM_Scan *scanner
+
+
 OPM_Error
 opm__config_int(scanner, type, num)
 	OPM_Scan *scanner
