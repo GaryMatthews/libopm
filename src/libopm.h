@@ -1,5 +1,5 @@
 #include "config.h"
-#include "list.h"
+#include "opm_common.h"
 
 #ifndef LIBOPM_H
 #define LIBOPM_H
@@ -60,6 +60,8 @@ struct _OPM_REMOTE {
 struct _OPM_CONNECTION {
 
    OPM_PROTOCOL_T     *protocol; 
+   unsigned short int  port;
+
    int                fd;  
    unsigned short int bytes_read; 
    char               readbuf[128];

@@ -344,16 +344,20 @@ OPM_SCAN_T *scan_create(OPM_T *scanner, OPM_REMOTE_T *remote)
 
    ret->remote = remote;
    ret->connections = list_create();
-  
+ 
+   /* Setup list of connections, one for each protocol */ 
    for(p = scanner->protocols->head; p; p = p->next)
    {
       conn = connection_create();
-      conn->protocol = (OPM_PROTOCOL_T *) p->data;
+      conn->protocol = ((OPM_PROTOCOL_CONFIG_T *) p->data)->type;
+      conn->port     = ((OPM_PROTOCOL_CONFIG_T *) p->data)->port;
 
       node = node_create(conn);
 
       list_add(ret->connections, node);
    }
+
+   
 
    return ret;
 }
@@ -401,6 +405,7 @@ OPM_CONNECTION_T *connection_create()
    ret->readlen    = 0;
    ret->state      = OPM_STATE_UNESTABLISHED;
    ret->protocol   = 0;
+   ret->port       = 0;
 
    return ret;
 }
