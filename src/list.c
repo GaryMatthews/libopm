@@ -29,8 +29,8 @@
 node_t *node_create(void *data)
 {
    node_t *node = MyMalloc(sizeof(node_t));
-   node->next = 0;
-   node->prev = 0;  
+   node->next = NULL;
+   node->prev = NULL;  
    node->data = (void *) data;
 
    return node;
@@ -40,8 +40,9 @@ list_t *list_create()
 {
    list_t *list = MyMalloc(sizeof(list_t));
 
-   list->head = 0;
-   list->tail = 0;
+   list->head = NULL;
+   list->tail = NULL;
+
    list->elements = 0;
 
    return list;
@@ -50,22 +51,23 @@ list_t *list_create()
 node_t *list_add(list_t *list, node_t *node)
 {
 
-   if(!list || !node)
-      return 0;   
+   if(list == NULL || node == NULL)
+      return NULL;   
 
-   if(!list->tail)
+   if(list->tail == NULL)
    {
       list->head = node;
       list->tail = node;
-      node->next = 0;
-      node->prev = 0;
+
+      node->next = NULL;
+      node->prev = NULL;
    }
    else
    {
       node->prev = list->tail;
       list->tail->next = node;
       list->tail = node;
-      node->next = 0;
+      node->next = NULL;
    }
 
    list->elements++;
@@ -76,17 +78,17 @@ node_t *list_remove(list_t *list, node_t *node)
 {
    node_t *p;
 
-   if(!list || !node)
-      return 0;
+   if(list == NULL || node == NULL)
+      return NULL;
 
    if(node == list->head)
    {
       list->head = node->next;
 
       if(node->next)
-         node->next->prev = 0;
+         node->next->prev = NULL;
       else
-         list->tail = 0;
+         list->tail = NULL;
  
       list->elements--;
 
@@ -95,7 +97,7 @@ node_t *list_remove(list_t *list, node_t *node)
    else if(node == list->tail)
    {
       list->tail = list->tail->prev;
-      list->tail->next = 0;
+      list->tail->next = NULL;
   
       list->elements--;
 
@@ -103,7 +105,7 @@ node_t *list_remove(list_t *list, node_t *node)
    }
 
 
-   for(p = list->head; p; p = p->next)
+   for(p = list->head; p != NULL; p = p->next)
    {
       if(p == node)
       {        
@@ -114,7 +116,7 @@ node_t *list_remove(list_t *list, node_t *node)
       }
    }
 
-   return 0;
+   return NULL;
 }
 
 void list_free(list_t *list)
