@@ -43,32 +43,61 @@ my $scan = OPM->new or die("Error loading OPM");
 
 sub add_default {
    my $remote = shift;
+   my $home = $ENV{'HOME'};
 
-# Common ports are: 80, 3128, 8080
-# Less common: 81, 8000, 8888, 6588
-# Quite rare: 8002, 8081 + many others
+# Take protocols from $HOME/.bopcheckerrc in format:
+# protocols = HTTP:80,81,3128 SOCKS4:1080,1182
+# and so on
+   if (-f "$home/.bopcheckerrc") {
+      my $cfg = "$home/.bopcheckerrc";
+      open(CFG, "< $cfg") or die "Can't open $cfg for reading: $!";
+#      print STDERR "Reading protocols/ports from $cfg...\n";
 
-# Common + Less common
+      while(<CFG>) {
+         next if (/^#/);
 
-   for(80, 81, 1182, 3128, 4480, 6588, 8000, 8080) {
-      $remote->addtype(OPM->TYPE_HTTP, $_);
-      $remote->addtype(OPM->TYPE_HTTPPOST, $_);
+         if(/^\s*protocols\s*=\s*(.*)$/i) {
+            my $protos_ports = $1;
+            $protos_ports =~ s/^\s*//g;
+            foreach my $proto_ports (split(/\s+/, $protos_ports)) {
+               if($proto_ports =~ /^([A-Z0-9]+):([0-9,]+)$/i) {
+                  my $proto = $1;
+                  my $ports = $2;
+
+                  unless(OPM::constant("TYPE_$proto", 0)) {
+                     print STDERR "Unknown protocol type $proto in $cfg: $proto_ports\n";
+                  }
+
+                  foreach my $port (split(/,/, $ports)) {
+                     $remote->addtype(OPM::constant("TYPE_$proto", 0), $port);
+#                     print STDERR "Added $proto:$port\n";
+                  }
+               } else {
+                  print STDERR "Broken protocol/ports in $cfg: $proto_ports\n";
+                  exit;
+               }
+            }
+         }
+      }
+
+      close(CFG);
+      return;
    }
 
-   for(889, 25318) {
-      $remote->addtype(OPM->TYPE_HTTP, $_);
+   for(80, 81, 2282, 3128, 3332, 3382, 3777, 3802, 4044, 4480, 5490, 6588, 6682, 8000, 8080, 8081, 8090, 22788, 28178, 46214, 48316, 57123, 65506) {
+       $remote->addtype(OPM->TYPE_HTTP, $_);
    }
-
-   for(555, 5121, 8548) {
+   
+   for(80, 81, 808, 1075, 1182, 2282, 3128, 3382, 4480, 6588, 8000, 8080, 8081, 8090, 46213, 53201) {
        $remote->addtype(OPM->TYPE_HTTPPOST, $_);
    }
-
-   for(889, 1080, 1180, 4914, 6826, 7198, 7366, 9036) {
+   
+   for(81, 889, 1027, 1028, 1029, 1066, 1075, 1080, 1180, 1478, 2280, 2425, 3330, 3380, 4044, 4455, 4777, 4894, 4914, 5748, 6000, 6042, 6826, 7198, 7366, 7441, 8799, 9036, 9938, 10000, 10001, 14728, 15859, 17878, 22799, 26859, 30021, 30022, 32343, 34167, 38994, 40934, 41934, 43934, 53201, 53311, 53412, 57123) {
        $remote->addtype(OPM->TYPE_SOCKS4, $_);
    }
 
 # These seem to be even more common than port 1080, at least on IRCnet :(
-   for(1080, 1813, 4438, 5104, 5113, 5262, 5634, 6552, 6561, 7464, 7810, 8130, 8148, 8175, 8520, 8814, 9100, 9186, 9447, 9578, 25791) {
+   for(81, 1080, 1813, 1978, 2280, 4438, 5104, 5113, 5262, 5634, 6552, 6561, 7464, 7810, 8130, 8148, 8175, 8520, 8814, 9100, 9186, 9447, 9578, 17879, 25791) {
        $remote->addtype(OPM->TYPE_SOCKS5, $_);
    }
 
@@ -80,10 +109,12 @@ sub add_default {
 }
 
 # local interface to bind to
-$scan->config(OPM->CONFIG_BIND_IP, "212.32.4.26");
+$scan->config(OPM->CONFIG_BIND_IP, "82.195.234.3");
+$scan->config(OPM->CONFIG_FD_LIMIT, 1024);
+$scan->config(OPM->CONFIG_MAX_READ, 512);
 
 # XXX: make configurable           "quorn.blitzed.org"
-$scan->config(OPM->CONFIG_SCAN_IP, "212.32.4.26");
+$scan->config(OPM->CONFIG_SCAN_IP, "82.195.234.3");
 $scan->config(OPM->CONFIG_SCAN_PORT, 16667);
 $scan->config(OPM->CONFIG_TARGET_STRING, "proxy check k thx");
 
@@ -142,7 +173,8 @@ MAIN: while(1) {
 }
 
 while($scan->active) {
-   sleep 1;
+#   sleep 1;
+   select(undef, undef, undef, 0.25);
    $scan->cycle;
 }
 
