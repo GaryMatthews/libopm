@@ -135,7 +135,12 @@ OPM_ERR_T config_set(OPM_CONFIG_T *config, int key, void *value)
          *(int *) config->vars[key] = *(int *) value;
          break;
       case TYPE_ADDRESS:
-         
+         if(!((opm_sockaddr *) config->vars[key]))
+            (opm_sockaddr *) config->vars[key] = MyMalloc(sizeof(opm_sockaddr));
+         if(!inetpton(AF_INET, (char *) value, &( ((opm_sockaddr *)config->vars[key])->sa4.sin_addr.s_addr)))
+            return 1; /* return appropriate err code */
+         printf("CONFIG SET TO %d\n", ((opm_sockaddr *)config->vars[key])->sa4.sin_addr.s_addr);
+         break; 
       default:
          return 1; /* return appropriate err code */
 

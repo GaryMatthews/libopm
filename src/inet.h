@@ -11,14 +11,15 @@
 #define AF_INET6 10
 #endif
 
-struct opm_sockaddr {
-    union {
+typedef struct _opm_sockaddr opm_sockaddr;
+
+struct _opm_sockaddr {
         struct sockaddr_in sa4;
-#ifdef IPV6
-        struct sockaddr_in6 sa6;
-#endif
-    } sas;
 };
+
+extern int inetpton(int, const char *, void *);
+extern char *inetntop(int, const void *, char *, unsigned int);
+extern struct hostent *opm_gethostbyname(const char *);
 
 
 #endif /* INET_H */
