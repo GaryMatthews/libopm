@@ -84,11 +84,11 @@ static OPM_REMOTE_T *libopm_setup_remote(OPM_REMOTE_T *remote, OPM_CONNECTION_T 
  */
 
 static OPM_PROTOCOL_T OPM_PROTOCOLS[] = {
-    {OPM_TYPE_HTTP,               libopm_proxy_http_write,    NULL, NULL},
-    {OPM_TYPE_SOCKS4,             libopm_proxy_socks4_write,  NULL, NULL},
-    {OPM_TYPE_SOCKS5,             libopm_proxy_socks5_write,  NULL, NULL},
-    {OPM_TYPE_WINGATE,            libopm_proxy_wingate_write, NULL, NULL},
-    {OPM_TYPE_ROUTER,             libopm_proxy_router_write,  NULL, NULL}
+    {OPM_TYPE_HTTP,               libopm_proxy_http_write,    NULL, NULL, NULL},
+    {OPM_TYPE_SOCKS4,             libopm_proxy_socks4_write,  NULL, NULL, NULL},
+    {OPM_TYPE_SOCKS5,             libopm_proxy_socks5_write,  NULL, NULL, NULL},
+    {OPM_TYPE_WINGATE,            libopm_proxy_wingate_write, NULL, NULL, NULL},
+    {OPM_TYPE_ROUTER,             libopm_proxy_router_write,  NULL, NULL, NULL}
 };
 
 
