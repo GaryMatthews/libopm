@@ -8,8 +8,9 @@
 # << ip.ad.re.ss closed
 # << ip.ad.re.ss error string
 #
-# You can also specify an additional port to scan as well as the default ones
-#  >> ip.ad.re.ss port protocol
+# You can also specify an additional port to scan as instead of the default ones
+# or add default to say scan in addition to the default ports.
+#  >> ip.ad.re.ss [default] port protocol
 #  << ip.ad.re.ss open port,portN protocol,protocolN 
 #  (and other values as above)
 
@@ -30,6 +31,7 @@ my $scan = OPM->new or die("Error loading OPM");
 
 sub add_default {
    my $remote = shift;
+print "add default\n";
 
 # Common ports are: 80, 3128, 8080
 # Less common: 81, 8000, 8888, 6588
@@ -77,6 +79,10 @@ MAIN: while(1) {
 
          ($proxyip) = $proxy =~ /^([^ ]+)/;
          $remote = OPM->new($proxyip);
+         
+         if($proxy !~ / / or $proxy =~ / default/) {
+            add_default($remote);
+         }
 
          if($proxy =~ / (.+) (.+)$/) {
             my @ports = split ',', $1;
@@ -90,8 +96,7 @@ MAIN: while(1) {
                $remote->addtype(
                      OPM::constant("TYPE_$types[$_]", 0), $ports[$_]);
             }
-         }
-         add_default($remote);
+	 }
 
          my $error = $scan->scan($remote);
          if($$error != OPM->SUCCESS) {
