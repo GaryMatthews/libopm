@@ -47,16 +47,16 @@
 
 RCSID("$Id$");
 
-static OPM_PROTOCOL_CONFIG_T *libopm_protocol_config_create();
+static OPM_PROTOCOL_CONFIG_T *libopm_protocol_config_create(void);
 static void libopm_protocol_config_free(OPM_PROTOCOL_CONFIG_T *);
 
-static OPM_PROTOCOL_T *libopm_protocol_create();
+static OPM_PROTOCOL_T *libopm_protocol_create(void);
 static void libopm_protocol_free(OPM_PROTOCOL_T *);
 
 static OPM_SCAN_T *libopm_scan_create(OPM_T *, OPM_REMOTE_T *);
 static void libopm_scan_free(OPM_SCAN_T *);
 
-static OPM_CONNECTION_T *libopm_connection_create();
+static OPM_CONNECTION_T *libopm_connection_create(void);
 static void libopm_connection_free(OPM_CONNECTION_T *);
 
 static void libopm_check_establish(OPM_T *);
@@ -406,7 +406,7 @@ OPM_ERR_T opm_remote_addtype(OPM_REMOTE_T *remote, int type, unsigned short int 
  *    Pointer to new struct
  */
 
-static OPM_PROTOCOL_T *libopm_protocol_create()
+static OPM_PROTOCOL_T *libopm_protocol_create(void)
 {
    OPM_PROTOCOL_T *ret;
    ret = MyMalloc(sizeof(OPM_PROTOCOL_T));
@@ -452,7 +452,7 @@ static void libopm_protocol_free(OPM_PROTOCOL_T *protocol)
  *    Address of new OPM_PROTOCOL_CONFIG_T
  */
 
-static OPM_PROTOCOL_CONFIG_T *libopm_protocol_config_create()
+static OPM_PROTOCOL_CONFIG_T *libopm_protocol_config_create(void)
 {
    OPM_PROTOCOL_CONFIG_T *ret;
    ret = MyMalloc(sizeof(OPM_PROTOCOL_CONFIG_T));
@@ -752,7 +752,7 @@ static void libopm_scan_free(OPM_SCAN_T *scan)
  *    Address of new OPM_CONNECTION_T
  */
 
-static OPM_CONNECTION_T *libopm_connection_create()
+static OPM_CONNECTION_T *libopm_connection_create(void)
 {
    OPM_CONNECTION_T *ret;
    ret = MyMalloc(sizeof(OPM_CONNECTION_T));

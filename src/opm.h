@@ -58,7 +58,7 @@ struct _OPM_REMOTE {
    void                 *data;           /* Arbitrary data that the client can point to for any purpose*/
 };
 
-OPM_T *opm_create();
+OPM_T *opm_create(void);
 void opm_free(OPM_T *);
 
 OPM_REMOTE_T *opm_remote_create(char *);
