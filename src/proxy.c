@@ -37,6 +37,69 @@ RCSID("$Id$");
 
 static char SENDBUFF[512];
 
+
+/* proxy_custom
+ *
+ * Handle writing of custom protocol
+ *
+ * Parameters:
+ *    scanner: scanner object
+ *    scan: scan object
+ *    conn: specific connection to handle scan on
+ *
+ * Return:
+ *    None
+ */
+
+int libopm_proxy_custom(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
+{
+   OPM_PROTOCOL_T *protocol;
+   int sblen, fmpos;
+   char c, tmp[32];
+
+   char *scan_ip                =  (char *) libopm_config(scanner->config, OPM_CONFIG_SCAN_IP);
+   unsigned short int scan_port =  *(int *) libopm_config(scanner->config, OPM_CONFIG_SCAN_PORT);
+  
+   protocol = conn->protocol;
+   sblen = fmpos = 0;
+   SENDBUFF[0] = '\0';
+
+   while((c = protocol->format[fmpos++]) != '\0')
+   {
+      if(c == '%')
+      {
+         switch(protocol->format[fmpos])
+         {
+            case '\0':
+               continue;
+            case '%':
+               break;
+            case 'i':
+               strncat(SENDBUFF, scan_ip, (511 - sblen));
+               break;
+            case 'p':
+               snprintf(tmp, 31, "%d", scan_port);
+               strncat(SENDBUFF, tmp, (511 - sblen));
+               break;
+         }
+
+         sblen = strlen(SENDBUFF);
+         fmpos++;
+      }
+      else
+      {
+         SENDBUFF[sblen] = c;
+         SENDBUFF[++sblen] = '\0';
+      }
+   }
+
+
+   printf("SENDBUFF: [%s]\n", SENDBUFF);
+
+   return OPM_SUCCESS;
+}
+
+
 int libopm_proxy_http_write(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
 {
    snprintf(SENDBUFF, 128, "CONNECT %s:%d HTTP/1.0\r\n\r\n",

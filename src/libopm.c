@@ -50,6 +50,9 @@ RCSID("$Id$");
 static OPM_PROTOCOL_CONFIG_T *libopm_protocol_config_create();
 static void libopm_protocol_config_free(OPM_PROTOCOL_CONFIG_T *);
 
+static OPM_PROTOCOL_T *libopm_protocol_create();
+static void libopm_protocol_free(OPM_PROTOCOL_T *);
+
 static OPM_SCAN_T *libopm_scan_create(OPM_T *, OPM_REMOTE_T *);
 static void libopm_scan_free(OPM_SCAN_T *);
 
@@ -263,6 +266,10 @@ void opm_free(OPM_T *scanner)
    LIST_FOREACH_SAFE(p, next, scanner->protocols->head)
    {
       ppc = (OPM_PROTOCOL_CONFIG_T *) p->data;
+
+      if(ppc->type->type == OPM_TYPE_CUSTOM)
+         libopm_protocol_free(ppc->type);     
+
       libopm_protocol_config_free(ppc);
       libopm_list_remove(scanner->protocols, p);
       libopm_node_free(p);
@@ -330,23 +337,23 @@ OPM_ERR_T opm_config(OPM_T *scanner, int key, void *value)
  *    (write in future error codes)
  */
 
-OPM_ERR_T opm_addtype(OPM_T *scanner, int type, int port)
+OPM_ERR_T opm_addtype(OPM_T *scanner, int type, unsigned short int port)
 {
    int i;
 
    OPM_NODE_T *node;
-   OPM_PROTOCOL_CONFIG_T *protocol;
+   OPM_PROTOCOL_CONFIG_T *protocol_config;
 
    for(i = 0; i < sizeof(OPM_PROTOCOLS) / sizeof(OPM_PROTOCOL_T); i++)
    {
       if(type == OPM_PROTOCOLS[i].type)
       {
-         protocol = libopm_protocol_config_create();
+         protocol_config = libopm_protocol_config_create();
 
-         protocol->type = &OPM_PROTOCOLS[i];
-         protocol->port = port;
+         protocol_config->type = &OPM_PROTOCOLS[i];
+         protocol_config->port = port;
   
-         node = libopm_node_create(protocol);
+         node = libopm_node_create(protocol_config);
          libopm_list_add(scanner->protocols, node);
 
          return OPM_SUCCESS;
@@ -359,7 +366,96 @@ OPM_ERR_T opm_addtype(OPM_T *scanner, int type, int port)
 
 
 
-/* protocol_config_create
+/* opm_addcustom
+
+     Add custom protocol format and port.
+
+   Parameters:
+     scanner: Scanner to add custom protocol to
+     id: a unique ID to describe this protocol (ex: HTTP, SOCKS4)
+     format: Format string of custom protocol
+     port: Port custom protocol scans on
+
+   Return:
+     OPM_ERR_T
+*/
+
+OPM_ERR_T opm_addcustom(OPM_T *scanner, char *id, char *format, unsigned short int port)
+{
+
+   OPM_NODE_T *node;
+   OPM_PROTOCOL_CONFIG_T *protocol_config;
+   OPM_PROTOCOL_T *protocol;
+
+   protocol_config = libopm_protocol_config_create();
+   protocol = libopm_protocol_create();
+
+   protocol_config->type = protocol;
+   protocol_config->port = port;
+
+   protocol->id = (char *) strdup(id);
+   protocol->format = (char *) strdup(format);
+   protocol->type = OPM_TYPE_CUSTOM;
+
+   node = libopm_node_create(protocol_config);
+   libopm_list_add(scanner->protocols, node);
+
+   return OPM_SUCCESS;
+}
+
+
+
+/* libopm_protocol_create
+ *
+ *    Create OPM_PROTOCOL_T struct.
+ *
+ * Parameters:
+ *    None
+ * Return:
+ *    Pointer to new struct
+ */
+
+static OPM_PROTOCOL_T *libopm_protocol_create()
+{
+   OPM_PROTOCOL_T *ret;
+   ret = MyMalloc(sizeof(OPM_PROTOCOL_T));
+
+   ret->type           = 0;
+   ret->format         = NULL;
+   ret->write_function = NULL;
+   ret->read_function  = NULL;
+   
+   return ret;
+}
+
+
+
+/* libopm_protocol_free
+ *
+ *    Free an OPM_PROTOCOL_T struct. Assume that if 
+ *    format is not NULL, it is pointed to dynamically 
+ *    allocated memory and free it.
+ * 
+ * Parameters:
+ *    protocol: struct to free
+ * 
+ * Return:
+ *    None
+ */
+
+static void libopm_protocol_free(OPM_PROTOCOL_T *protocol)
+{
+   if(protocol->format != NULL)
+      MyFree(protocol->format);
+   if(protocol->id != NULL)
+      MyFree(protocol->id);
+   MyFree(protocol);
+}
+
+
+
+
+/* libopm_protocol_config_create
  *
  *    Allocate and return address of a new OPM_PROTOCOL_CONFIG_T
  *
@@ -370,7 +466,7 @@ OPM_ERR_T opm_addtype(OPM_T *scanner, int type, int port)
  *    Address of new OPM_PROTOCOL_CONFIG_T
  */
 
-OPM_PROTOCOL_CONFIG_T *libopm_protocol_config_create()
+static OPM_PROTOCOL_CONFIG_T *libopm_protocol_config_create()
 {
    OPM_PROTOCOL_CONFIG_T *ret;
    ret = MyMalloc(sizeof(OPM_PROTOCOL_CONFIG_T));
@@ -1072,11 +1168,15 @@ static void libopm_do_writeready(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTIO
    protocol = conn->protocol;
 
    /* Call write function for specific protocol */
-   protocol->write_function(scanner, scan, conn);
+   if(protocol->type == OPM_TYPE_CUSTOM)
+      libopm_proxy_custom(scanner, scan, conn);
+   else 
+      protocol->write_function(scanner, scan, conn);
 
    /* Flag as NEGSENT so we don't have to send data again*/
    conn->state = OPM_STATE_NEGSENT;  
 }
+
 
 
 
