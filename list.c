@@ -27,7 +27,7 @@
 
 node_t *node_create(void *data)
 {
-   node_t *node = (node_t *) MyMalloc(sizeof(node_t));
+   node_t *node = MyMalloc(sizeof(node_t));
    node->next = 0;
    node->prev = 0;  
    node->data = (void *) data;
@@ -37,7 +37,7 @@ node_t *node_create(void *data)
 
 list_t *list_create()
 {
-   list_t *list = (list_t *) MyMalloc(sizeof(list_t));
+   list_t *list = MyMalloc(sizeof(list_t));
 
    list->head = 0;
    list->tail = 0;
