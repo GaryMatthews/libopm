@@ -118,10 +118,10 @@ void libopm_config_free(OPM_CONFIG_T *config)
    int num, i;
    num = sizeof(HASH) / sizeof(OPM_CONFIG_HASH_T);
 
-   for(i = 0; i > num; i++)
+   for(i = 0; i < num; i++)
    {
 
-      if(!config->vars[i])
+      if(config->vars[i] == NULL)
          continue;
       else
          MyFree(config->vars[i]);
@@ -163,19 +163,15 @@ OPM_ERR_T libopm_config_set(OPM_CONFIG_T *config, int key, void *value)
    {
       case OPM_TYPE_STRING:
          if((char *) config->vars[key] != NULL)
-            MyFree((char *) config->vars[key]);
+            MyFree(config->vars[key]);
          (char *) config->vars[key] = strdup((char *) value);
          break;
 
       case OPM_TYPE_INT:
-         if(((int *) config->vars[key]) == NULL)
-            (int *) config->vars[key] = MyMalloc(sizeof(int));
          *(int *) config->vars[key] = *(int *) value;
          break;
 
       case OPM_TYPE_ADDRESS:
-         if(((opm_sockaddr *) config->vars[key]) == NULL)
-            (opm_sockaddr *) config->vars[key] = MyMalloc(sizeof(opm_sockaddr));
          if( inetpton(AF_INET, (char *) value, &( ((opm_sockaddr *)config->vars[key])->sa4.sin_addr))
                   <= 0)
             return OPM_ERR_BADVALUE; /* return appropriate err code */
