@@ -23,14 +23,15 @@
 
 #include "malloc.h"
 #include "config.h"
+#include "inet.h"
 #include "opm_error.h"
 #include "opm_types.h"
 #include <string.h>
 
 struct CONFIG_HASH HASH[] = {
-   {CONFIG_BIND_IP ,    TYPE_STRING},
-   {CONFIG_DNSBL_HOST,  TYPE_STRING},
-   {CONFIG_FD_LIMIT,    TYPE_INT}
+   {CONFIG_FD_LIMIT,       TYPE_INT},
+   {CONFIG_BIND_IP ,       TYPE_ADDRESS},
+   {CONFIG_DNSBL_HOST,     TYPE_STRING},
 };
 
 
@@ -133,6 +134,8 @@ OPM_ERR_T config_set(OPM_CONFIG_T *config, int key, void *value)
             (int *) config->vars[key] = MyMalloc(sizeof(int));
          *(int *) config->vars[key] = *(int *) value;
          break;
+      case TYPE_ADDRESS:
+         
       default:
          return 1; /* return appropriate err code */
 
