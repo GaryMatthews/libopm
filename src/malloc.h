@@ -8,7 +8,7 @@
 #endif
 
 #define MyMalloc(SIZE) libopm_MyMalloc(SIZE)
-#define MyFree(X) libopm_MyFree(&X)
+#define MyFree(X) libopm_MyFree((void **) &X)
 
 void *libopm_MyMalloc(size_t bytes);
 void libopm_MyFree(void **var);
