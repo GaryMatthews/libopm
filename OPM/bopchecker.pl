@@ -27,7 +27,7 @@ my $numopen;
 my $select = new IO::Select ( \*STDIN );
 my $scan = OPM->new or die("Error loading OPM");
 
-for(80, 81, 3128, 8080, 8081) {
+for(80, 81, 3128, 6588, 8080, 8081) {
    $scan->addtype(OPM->TYPE_HTTP, $_);
    $scan->addtype(OPM->TYPE_HTTPPOST, $_);
 }
