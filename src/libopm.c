@@ -1031,9 +1031,11 @@ static void libopm_do_connect(OPM_T * scanner, OPM_SCAN_T *scan, OPM_CONNECTION_
 
    if(bind_ip != NULL)
    {
+      memset(&local_addr, 0, sizeof(local_addr));
       local_addr.sin_addr.s_addr = bind_ip->sa4.sin_addr.s_addr;
       local_addr.sin_family = AF_INET;
       local_addr.sin_port = htons(0);
+
       if(bind(conn->fd, (struct sockaddr *) &(local_addr), sizeof(local_addr)) == -1)
       {
          libopm_do_callback(scanner, libopm_setup_remote(scan->remote, conn), OPM_CALLBACK_ERROR, OPM_ERR_BIND);

@@ -7,7 +7,7 @@
 #include "opm.h"
 
 #define CBLEN 5            /* Number of callback functions  */
-#define READBUFLEN 128     /* Size of conn->readbuf         */
+#define READBUFLEN 128    /* Size of conn->readbuf         */
 #define SENDBUFLEN 512     /* Size of sendbuffer in proxy.c */
 
 typedef struct  _OPM_SCAN             OPM_SCAN_T;
