@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002  Erik Fears
+ * Copyright (C) 2002-2003  Erik Fears
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -32,7 +32,7 @@ RCSID("$Id$");
 
 OPM_NODE_T *libopm_node_create(void *data)
 {
-   OPM_NODE_T *node = MyMalloc(sizeof(OPM_NODE_T));
+   OPM_NODE_T *node = MyMalloc(sizeof *node);
    node->next = NULL;
    node->prev = NULL;  
    node->data = (void *) data;
@@ -42,7 +42,7 @@ OPM_NODE_T *libopm_node_create(void *data)
 
 OPM_LIST_T *libopm_list_create()
 {
-   OPM_LIST_T *list = MyMalloc(sizeof(OPM_LIST_T));
+   OPM_LIST_T *list = MyMalloc(sizeof *list);
 
    list->head = NULL;
    list->tail = NULL;

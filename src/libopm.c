@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002  Erik Fears
+ * Copyright (C) 2002-2003  Erik Fears
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -124,7 +124,7 @@ OPM_T *opm_create()
    int i;
    OPM_T *ret;
 
-   ret = MyMalloc(sizeof(OPM_T));
+   ret = MyMalloc(sizeof *ret);
 
    ret->config = libopm_config_create();
    ret->scans = libopm_list_create();
@@ -164,7 +164,7 @@ OPM_REMOTE_T *opm_remote_create(const char *ip)
    OPM_REMOTE_T *ret;
 
 
-   ret = MyMalloc(sizeof(OPM_REMOTE_T));
+   ret = MyMalloc(sizeof *ret);
 
    /* Do initializations */
    if(ip == NULL)
@@ -473,7 +473,7 @@ static void libopm_protocol_free(OPM_PROTOCOL_T *protocol)
 static OPM_PROTOCOL_CONFIG_T *libopm_protocol_config_create(void)
 {
    OPM_PROTOCOL_CONFIG_T *ret;
-   ret = MyMalloc(sizeof(OPM_PROTOCOL_CONFIG_T));
+   ret = MyMalloc(sizeof *ret);
 
    return ret;
 }
@@ -684,7 +684,7 @@ static OPM_SCAN_T *libopm_scan_create(OPM_T *scanner, OPM_REMOTE_T *remote)
    OPM_CONNECTION_T *conn;
    OPM_NODE_T *node, *p;
 
-   ret = MyMalloc(sizeof(OPM_SCAN_T));
+   ret = MyMalloc(sizeof *ret);
 
    ret->remote = remote;
    ret->connections = libopm_list_create();
@@ -771,7 +771,7 @@ static void libopm_scan_free(OPM_SCAN_T *scan)
 static OPM_CONNECTION_T *libopm_connection_create(void)
 {
    OPM_CONNECTION_T *ret;
-   ret = MyMalloc(sizeof(OPM_CONNECTION_T));
+   ret = MyMalloc(sizeof *ret);
 
    ret->fd         = 0;
    ret->bytes_read = 0;
@@ -1097,8 +1097,8 @@ static void libopm_check_poll(OPM_T *scanner)
    if(ufds_size < (*(unsigned int *) libopm_config(scanner->config, OPM_CONFIG_FD_LIMIT)))
    {
       MyFree(ufds);
-      ufds = MyMalloc(sizeof(struct pollfd) * (*(int *) libopm_config(scanner->config, OPM_CONFIG_FD_LIMIT)));
-      ufds_size = (*(int *) libopm_config(scanner->config, OPM_CONFIG_FD_LIMIT));
+      ufds = MyMalloc((sizeof *ufds) * (*(unsigned int *) libopm_config(scanner->config, OPM_CONFIG_FD_LIMIT)));
+      ufds_size = (*(unsigned int *) libopm_config(scanner->config, OPM_CONFIG_FD_LIMIT));
    }
 
    if(LIST_SIZE(scanner->scans) == 0)
