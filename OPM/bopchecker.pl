@@ -38,28 +38,42 @@ sub add_default {
 
 # Common + Less common
 
-   for(80, 81, 3128, 4480, 6588, 8000, 8080) {
+   for(80, 81, 1182, 3128, 4480, 6588, 8000, 8080) {
       $remote->addtype(OPM->TYPE_HTTP, $_);
       $remote->addtype(OPM->TYPE_HTTPPOST, $_);
    }
 
-   $remote->addtype(OPM->TYPE_SOCKS4, 1080);
-   $remote->addtype(OPM->TYPE_SOCKS5, 1080);
+   for(889, 25318) {
+      $remote->addtype(OPM->TYPE_HTTP, $_);
+   }
+
+   for(555, 5121, 8548) {
+       $remote->addtype(OPM->TYPE_HTTPPOST, $_);
+   }
+
+   for(889, 1080, 1180, 4914, 6826, 7198, 7366, 9036) {
+       $remote->addtype(OPM->TYPE_SOCKS4, 1080);
+   }
 
 # These seem to be even more common than port 1080, at least on IRCnet :(
-   for(4438, 5104, 5113, 5262, 5634, 6552, 6561, 7464, 7810, 8130, 8148, 8520, 8814, 9100, 9186, 9447, 9578) {
-       $remote->addtype(OPM->TYPE_SOCKS5, $_);
+   for(1080, 1813, 4438, 5104, 5113, 5262, 5634, 6552, 6561, 7464, 7810, 8130, 8148, 8175, 8520, 8814, 9100, 9186, 9447, 9578, 25791) {
+       $remote->addtype(OPM->TYPE_SOCKS5, 1080);
    }
 
    $remote->addtype(OPM->TYPE_ROUTER, 23);
-   $remote->addtype(OPM->TYPE_WINGATE, 23);
+
+   for(23, 1181) {
+       $remote->addtype(OPM->TYPE_WINGATE, 23);
+   }
 }
 
+# local interface to bind to
+$scan->config(OPM->CONFIG_BIND_IP, "212.32.4.26");
+
 # XXX: make configurable           "quorn.blitzed.org"
-$scan->config(OPM->CONFIG_SCAN_IP, "212.32.4.49");
-$scan->config(OPM->CONFIG_SCAN_PORT, 6667);
-$scan->config(OPM->CONFIG_TARGET_STRING, ":quorn.uk.eu.blitzed.org NOTICE AUTH :*** Looking up your hostname...");
-$scan->config(OPM->CONFIG_TARGET_STRING, "ERROR :Your host is trying to (re)connect too fast -- throttled.");
+$scan->config(OPM->CONFIG_SCAN_IP, "212.32.4.26");
+$scan->config(OPM->CONFIG_SCAN_PORT, 16667);
+$scan->config(OPM->CONFIG_TARGET_STRING, "proxy check k thx");
 
 $scan->callback(OPM->CALLBACK_END, \&callback_end);
 $scan->callback(OPM->CALLBACK_OPENPROXY, \&callback_openproxy);
