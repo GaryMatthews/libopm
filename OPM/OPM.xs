@@ -251,6 +251,16 @@ opm__config_string(scanner, type, sv)
     OUTPUT:
 	RETVAL
 
+void
+opm_end(scanner, remote)
+	OPM_Scan *scanner
+	OPM_Remote *remote
+
+void
+opm_endscan(scanner, remote)
+	OPM_Scan *scanner
+	OPM_Remote *remote
+
 MODULE = OPM		PACKAGE = OPM::Remote		PREFIX = opm_remote_
 
 void

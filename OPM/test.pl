@@ -48,6 +48,10 @@ $scan->callback(OPM->CALLBACK_OPENPROXY, sub {
    } );
 $scan->callback(OPM->CALLBACK_NEGFAIL, sub {
       my($scan, $remote, $val) = @_;
+      if($remote->ip eq "127.0.0.1") {
+         print "Ended 127.0.0.1\n";
+         $scan->end($remote);
+      }
       print "negfail callback " . $remote->addr . "\n";
    } );
 $scan->callback(OPM->CALLBACK_TIMEOUT, sub {
