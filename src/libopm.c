@@ -208,6 +208,7 @@ void opm_free(OPM_T *scanner)
       scan = (OPM_SCAN_T *) p->data;
       scan_free(scan);
       list_remove(scanner->scans, p);
+      node_free(p);
    }
 
    list_free(scanner->protocols);
@@ -421,6 +422,7 @@ void scan_free(OPM_SCAN_T *scan)
       connection_free(conn);
 
       list_remove(scan->connections, p);
+      node_free(p);
    }
    list_free(scan->connections);
 
@@ -590,7 +592,7 @@ void check_closed(OPM_T *scanner)
               continue;
          }
 
-         if(((present - conn->creation) > timeout) && 
+         if(((present - conn->creation) >= timeout) && 
               conn->state != OPM_STATE_UNESTABLISHED)
          {
 
@@ -614,8 +616,10 @@ void check_closed(OPM_T *scanner)
       {
          if(scan->remote->fun_end != NULL)
             scan->remote->fun_end(scan->remote, 0);
+
          list_remove(scanner->scans, node1);
          scan_free(scan);
+         node_free(node1);
       }
    }
 }

@@ -21,7 +21,6 @@
  *
  */
 
-#include <stdlib.h>
 #include "malloc.h"
 
 /* MyMalloc
@@ -38,9 +37,9 @@
 
 void *MyMalloc(size_t bytes)
 {
-   void *ret = malloc(bytes);
-
-   if(!ret) ;  /* Insert Error Handling */
+   void *ret = calloc(1, bytes);
+   
+   if(!ret) ;  
 
    return ret;
 }

@@ -130,19 +130,19 @@ OPM_ERR_T config_set(OPM_CONFIG_T *config, int key, void *value)
    switch(config_gettype(key))
    {
       case OPM_TYPE_STRING:
-         if((char *) config->vars[key])
+         if((char *) config->vars[key] != NULL)
             MyFree((char *) config->vars[key]);
          (char *) config->vars[key] = strdup((char *) value);
          break;
 
       case OPM_TYPE_INT:
-         if(!((int *) config->vars[key]))
+         if(((int *) config->vars[key]) == NULL)
             (int *) config->vars[key] = MyMalloc(sizeof(int));
          *(int *) config->vars[key] = *(int *) value;
          break;
 
       case OPM_TYPE_ADDRESS:
-         if(!((opm_sockaddr *) config->vars[key]))
+         if(((opm_sockaddr *) config->vars[key]) != NULL)
             (opm_sockaddr *) config->vars[key] = MyMalloc(sizeof(opm_sockaddr));
          if( inetpton(AF_INET, (char *) value, &( ((opm_sockaddr *)config->vars[key])->sa4.sin_addr))
                   <= 0)
