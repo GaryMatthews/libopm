@@ -51,6 +51,6 @@ OPM_ERR_T opm_scan(OPM_T *, OPM_REMOTE_T *);
 OPM_CONFIG_T *config_create();
 OPM_ERR_T config_set(OPM_CONFIG_T *, int , void *);
 
-void opm_cycle();
+void opm_cycle(OPM_T *);
 
 #endif /* OPM_H */

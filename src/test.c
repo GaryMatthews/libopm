@@ -17,10 +17,11 @@ int main()
    remote  = opm_remote_create("127.0.0.1");
 
    opm_config(scanner, OPM_CONFIG_FD_LIMIT, &fdlimit);
+   opm_addtype(scanner, OPM_TYPE_HTTP, 80);
+   opm_scan(scanner, remote);
 
-
-   while(0)
-      opm_cycle();
+   while(1)
+      opm_cycle(scanner);
    
    opm_remote_free(remote);
    opm_free(scanner);

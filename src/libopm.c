@@ -32,11 +32,13 @@
 
 OPM_PROTOCOL_CONFIG_T *protocol_config_create();
 void protocol_config_free(OPM_PROTOCOL_CONFIG_T *);
-
 OPM_SCAN_T *scan_create(OPM_T *, OPM_REMOTE_T *);
 void scan_free(OPM_SCAN_T *);
-
 OPM_CONNECTION_T *connection_create();
+
+void check_establish(OPM_T *);
+void check_poll(OPM_T *);
+void do_connect(OPM_CONNECTION_T *, OPM_REMOTE_T *);
 
 /* OPM_PROTOCOLS hash
  *
@@ -437,7 +439,7 @@ void connection_free(OPM_CONNECTION_T *conn)
 
 /* opm_cycle
  *
- *   Perform tasks (called by a loop)
+ *   Perform tasks (called by client's loop)
  *
  * Parameters:
  *   None
@@ -445,7 +447,95 @@ void connection_free(OPM_CONNECTION_T *conn)
  *    None
  */
 
-void opm_cycle()
+void opm_cycle(OPM_T *scanner)
 {
+   /* Make new connections if FDs are free*/
+   check_establish(scanner);
+   check_poll(scanner);
+}
+
+/* check_establish
+ *
+ * Make new connections if there are free file descriptors and connections
+ * to be made.
+ *
+ * Parameters:
+ *   scanner: Scanner to check for establish on
+ * Return:
+ *   None
+ */
+
+void check_establish(OPM_T *scanner)
+{
+   node_t *node1;
+   node_t *node2;
+
+   OPM_SCAN_T *scan;
+   OPM_CONNECTION_T *conn;
+
+   LIST_FOREACH(node1, scanner->scans->head)
+   {
+      scan = (OPM_SCAN_T *) node1->data;
+      LIST_FOREACH(node2, scan->connections->head)
+      {
+         conn = (OPM_CONNECTION_T *) node2->data;
+         if(conn->state == OPM_STATE_UNESTABLISHED)
+            do_connect(conn, scan->remote);
+      } 
+   }
+}
+
+/* do_connect
+ *
+ * Call socket() and connect() to start a scan.
+ *
+ * Parametsr:
+ *    conn: Connection to establish
+ *    remote: Information regarding remote connection (addr, and callback functions)
+ * Return: 
+ *    None
+ */
+
+void do_connect(OPM_CONNECTION_T *conn, OPM_REMOTE_T *remote)
+{
+   opm_sockaddr *addr;
+  
+   addr = &(remote->addr); /* Already have the IP in byte format from 
+                              opm_remote_connect */
+   addr->sa4.sin_family   = AF_INET;
+   addr->sa4.sin_port     = conn->port;
+
+   printf("do_connect ON %s PORT %d\n",  inet_ntoa(addr->sa4.sin_addr), conn->port);
+
+   /* Do bind */
+
+   conn->fd = socket(AF_INET, SOCK_STREAM, 0);
+
+   if(conn->fd == -1)
+      ; /* Handle error */
+
+   /* Set socket non blocking */
+   fcntl(conn->fd, F_SETFL, O_NONBLOCK);
+  
+   connect(conn->fd, (struct sockaddr *) &(addr->sa4),
+            sizeof(struct sockaddr));
+   
+   conn->state = OPM_STATE_ESTABLISHED;
+}
+
+
+/* check_poll
+ *
+ * Check sockets for ready read/write
+ *
+ * Parameters:
+ *    scanner: Scanner to isolate check on
+ * Return:
+ *    None
+ */
+
+void check_poll(OPM_T *scanner)
+{
+
 
 }
