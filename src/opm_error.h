@@ -15,4 +15,7 @@
 /* Callback Registration Errors */
 #define OPM_ERR_CBNOTFOUND        6 /* Callback is out of range */
 
+/* opm_scan errors */
+#define OPM_ERR_BADADDR           7 /* IP in remote struct is bad */
+
 #endif /* LIBOPM_ERROR_H */

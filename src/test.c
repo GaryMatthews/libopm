@@ -57,12 +57,6 @@ int main(int argc, char **argv)
    else
       remote  = opm_remote_create("208.245.162.250");
 
-   if(remote == NULL)
-   {
-      printf("Bad address\n");
-      exit(1);
-   }
-
    /* Setup callbacks */
    opm_callback(scanner, OPM_CALLBACK_OPENPROXY, &open_proxy);
    opm_callback(scanner, OPM_CALLBACK_NEGFAIL, &negotiation_failed);
@@ -85,7 +79,20 @@ int main(int argc, char **argv)
    opm_addtype(scanner, OPM_TYPE_SOCKS4, 1080);
    opm_addtype(scanner, OPM_TYPE_SOCKS5, 1080);
 
-   opm_scan(scanner, remote);
+   switch(opm_scan(scanner, remote))
+   {
+      case OPM_SUCCESS:
+                       break;
+      case OPM_ERR_BADADDR:
+                       printf("Bad address\n");
+                       opm_free(scanner);
+                       opm_remote_free(remote);
+                       return 0;
+      default:
+                       printf("Unknown Error\n");
+                       return 0;
+   }
+   
 
    while(!complete)
       opm_cycle(scanner);

@@ -35,8 +35,7 @@ struct _OPM {
 struct _OPM_REMOTE {
 
    char                *ip;              /* Readable IP address                         */
-   opm_sockaddr         addr;            /* Store the IP in a sockaddr_in aswell, this is
-                                            done in opm_remote_create                   */
+
    unsigned short int   port;            /* Port passed back on certain callbacks       */
    unsigned short int   protocol;        /* Protocol passed back on certain callbacks   */
    unsigned short int   bytes_read;      /* Bytes read passed back on certain callbacks */

@@ -163,14 +163,6 @@ OPM_REMOTE_T *opm_remote_create(char *ip)
    ret->protocol      = 0;
    ret->bytes_read    = 0;
 
-   memset(&(ret->addr), 0, sizeof(opm_sockaddr));
-
-   if(inetpton(AF_INET, ret->ip, &(ret->addr.sa4.sin_addr) ) <= 0)
-   {
-      opm_remote_free(ret);
-      return NULL;
-   }
-
    return ret;
 }
 
@@ -432,8 +424,14 @@ OPM_ERR_T opm_scan(OPM_T *scanner, OPM_REMOTE_T *remote)
    fd_limit = *(int *) libopm_config(scanner->config, OPM_CONFIG_FD_LIMIT);
 
    scan = libopm_scan_create(scanner, remote);
-   node = libopm_node_create(scan);
 
+   if(inetpton(AF_INET, remote->ip, &(scan->addr.sa4.sin_addr) ) <= 0)
+   {
+      libopm_scan_free(scan);
+      return OPM_ERR_BADADDR;
+   }
+
+   node = libopm_node_create(scan);
    libopm_list_add(scanner->queue, node);
 
    return OPM_SUCCESS;
@@ -479,7 +477,8 @@ static OPM_SCAN_T *libopm_scan_create(OPM_T *scanner, OPM_REMOTE_T *remote)
       libopm_list_add(ret->connections, node);
    }
 
-   
+   memset(&(ret->addr), 0, sizeof(opm_sockaddr));
+
    return ret;
 }
 
@@ -774,7 +773,7 @@ static void libopm_do_connect(OPM_T * scanner, OPM_SCAN_T *scan, OPM_CONNECTION_
 {
    struct sockaddr_in *addr;
   
-   addr = (struct sockaddr_in *) &(scan->remote->addr.sa4); /* Already have the IP in byte format from 
+   addr = (struct sockaddr_in *) &(scan->addr.sa4); /* Already have the IP in byte format from 
                                     opm_remote_connect */
    addr->sin_family   = AF_INET;
    addr->sin_port     = htons(conn->port);
