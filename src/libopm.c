@@ -188,8 +188,7 @@ void opm_remote_free(OPM_REMOTE_T *remote)
    OPM_NODE_T *p, *next;
    OPM_PROTOCOL_CONFIG_T *ppc;
 
-   if(remote->ip)
-      MyFree(remote->ip);
+   MyFree(remote->ip);
 
    LIST_FOREACH_SAFE(p, next, remote->protocols->head)
    {
