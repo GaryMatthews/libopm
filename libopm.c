@@ -23,6 +23,9 @@
 
 #include "libopm.h"
 
+
+
+
 /* opm_new
  *
  *    Create OPM_REMOTE_T struct, fill it with neccessary
@@ -44,8 +47,23 @@ OPM_REMOTE_T *opm_new(char *ip)
 
    /* Do initializations */
 
+   ret->ip = (char*) strdup(ip);  /* replace with custom strdup function */
+
+   ret->fun_openproxy = 0;
+   ret->fun_negfail   = 0;
+   ret->fun_end       = 0;
+   ret->fun_error     = 0;
+   ret->fun_timeout   = 0;
+ 
+   ret->port          = 0;
+   ret->protocol      = 0;
+   ret->bytes_read    = 0;
+
    return ret;
 }
+
+
+
 
 /* opm_free
  *

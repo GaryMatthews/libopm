@@ -26,6 +26,7 @@ struct _OPM_REMOTE {
    OPM_CALLBACK_T     *fun_negfail;
    OPM_CALLBACK_T     *fun_end;
    OPM_CALLBACK_T     *fun_error;
+   OPM_CALLBACK_T     *fun_timeout;
 
    int                port;
    int                protocol;                  
