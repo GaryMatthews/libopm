@@ -18,7 +18,7 @@ AC_SUBST(DOX_DIR_MAN)
 AC_ARG_WITH(extra-fascism,
     AC_HELP_STRING([--with-extra-fascism],
     [add extra gcc3-specific warning flags]),
-    [CFLAGS="$CFLAGS -g -ggdb -O2 -W -Wfloat-equal -Wbad-function-cast -Wconversion -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wredundant-decls -Wnested-externs"])
+    [CFLAGS="$CFLAGS -g -O2 -W -Wall -Wfloat-equal -Wbad-function-cast -Wconversion -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wredundant-decls -Wnested-externs"])
 
 dnl AC_ARG_WITH(faldo,
 dnl     AC_HELP_STRING([--with-faldo],
@@ -80,6 +80,13 @@ dnl fi
 LTLIBOBJS=`echo "$LIB@&t@OBJS" |
            sed 's,\.[[^.]]* ,.lo ,g;s,\.[[^.]]*$,.lo,'`
 AC_SUBST(LTLIBOBJS)
+
+dnl This comes last because configure won't actually work with -Werror in
+dnl the CFLAGS
+AC_ARG_WITH(werror,
+    AC_HELP_STRING([--with-werror],
+    [use -Werror to abort compilation on any warning]),
+    [CFLAGS="$CFLAGS -Werror"])
 
 AC_OUTPUT(Makefile src/Makefile doc/Makefile doc/Doxyfile)
 
