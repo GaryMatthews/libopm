@@ -18,4 +18,8 @@
 /* opm_scan errors */
 #define OPM_ERR_BADADDR           7 /* IP in remote struct is bad */
 
+/* bind/connect errors */
+#define OPM_ERR_BIND              8 /* Error binding to BIND_IP */
+#define OPM_ERR_NOFD              9 /* Unable to allocate file descriptor */
+
 #endif /* LIBOPM_ERROR_H */

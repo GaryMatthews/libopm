@@ -715,8 +715,9 @@ static void libopm_check_closed(OPM_T *scanner)
 
          if(conn->state == OPM_STATE_CLOSED)
          {
+              if(conn->fd > 0)
+                 close(conn->fd);
 
-              close(conn->fd);
               scanner->fd_use--;
 
               libopm_list_remove(scan->connections, node2);
@@ -771,20 +772,41 @@ static void libopm_check_closed(OPM_T *scanner)
 
 static void libopm_do_connect(OPM_T * scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
 {
-   struct sockaddr_in *addr;
-  
-   addr = (struct sockaddr_in *) &(scan->addr.sa4); /* Already have the IP in byte format from 
-                                    opm_remote_connect */
+   opm_sockaddr *bind_ip;
+
+   struct sockaddr_in *addr;   /* Outgoing host */
+   struct sockaddr_in local_addr; /* For binding */
+ 
+   addr = (struct sockaddr_in *) &(scan->addr.sa4); /* Already have the IP in byte format from opm_scan */
+
    addr->sin_family   = AF_INET;
    addr->sin_port     = htons(conn->port);
 
-   /* Do bind */
+
+   bind_ip = (opm_sockaddr *) libopm_config(scanner->config, OPM_CONFIG_BIND_IP);   
 
    conn->fd = socket(PF_INET, SOCK_STREAM, 0);
 
    if(conn->fd == -1)
-      ; /* Handle error */
+   {
+      libopm_do_callback(scanner, libopm_setup_remote(scan->remote, conn), OPM_CALLBACK_ERROR, OPM_ERR_NOFD);
+      conn->state = OPM_STATE_CLOSED;
+      return;
+   }
 
+   if(bind_ip != NULL)
+   {
+      local_addr.sin_addr.s_addr = bind_ip->sa4.sin_addr.s_addr;
+      local_addr.sin_family = AF_INET;
+      local_addr.sin_port = htons(0);
+      if(bind(conn->fd, (struct sockaddr *) &(local_addr), sizeof(local_addr)) == -1)
+      {
+         libopm_do_callback(scanner, libopm_setup_remote(scan->remote, conn), OPM_CALLBACK_ERROR, OPM_ERR_BIND);
+         conn->state = OPM_STATE_CLOSED;
+         return;
+      }
+   }
+ 
    /* Set socket non blocking */
    fcntl(conn->fd, F_SETFL, O_NONBLOCK);
 

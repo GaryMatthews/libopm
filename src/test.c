@@ -131,6 +131,12 @@ void handle_error(OPM_T *scanner, OPM_REMOTE_T *remote, int err)
       case OPM_ERR_MAX_READ:
          printf("Reached MAX READ on %s:%d\n", remote->ip, remote->port);
          break;
+      case OPM_ERR_BIND:
+         printf("Unable to bind for %s:%d\n", remote->ip, remote->port);
+         break;
+      case OPM_ERR_NOFD:
+         printf("Unable to allocate file descriptor for %s:%d\n", remote->ip, remote->port);
+         break;
       default:
          printf("Unknown error on %s:%d, err = %d\n", remote->ip, remote->port, err);
    }

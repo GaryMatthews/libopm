@@ -68,7 +68,7 @@ OPM_CONFIG_T *libopm_config_create()
    ret->vars = MyMalloc(sizeof(void *) * num);
 
    for(i = 0; i < num; i++)
-      ret->vars[i] = 0;
+      ret->vars[i] = NULL;
    
    return ret;
 }
@@ -148,7 +148,7 @@ OPM_ERR_T libopm_config_set(OPM_CONFIG_T *config, int key, void *value)
          break;
 
       case OPM_TYPE_ADDRESS:
-         if(((opm_sockaddr *) config->vars[key]) != NULL)
+         if(((opm_sockaddr *) config->vars[key]) == NULL)
             (opm_sockaddr *) config->vars[key] = MyMalloc(sizeof(opm_sockaddr));
          if( inetpton(AF_INET, (char *) value, &( ((opm_sockaddr *)config->vars[key])->sa4.sin_addr))
                   <= 0)
