@@ -103,12 +103,12 @@ libopm_la_LIBADD = @LNSL@ @LSOCKET@
 
 noinst_PROGRAMS = test test_debug
 test_SOURCES = test.c
-test_LDADD = libopm.la
+test_LDADD = libopm.la compat.o
 
 
 # An easier-to-debug version of test
 test_debug_SOURCES = test.c
-test_debug_LDADD = libopm.la
+test_debug_LDADD = libopm.la compat.o
 test_debug_LDFLAGS = -static
 subdir = src
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
@@ -126,11 +126,11 @@ PROGRAMS = $(noinst_PROGRAMS)
 
 am_test_OBJECTS = test.$(OBJEXT)
 test_OBJECTS = $(am_test_OBJECTS)
-test_DEPENDENCIES = libopm.la
+test_DEPENDENCIES = libopm.la compat.o
 test_LDFLAGS =
 am_test_debug_OBJECTS = test.$(OBJEXT)
 test_debug_OBJECTS = $(am_test_debug_OBJECTS)
-test_debug_DEPENDENCIES = libopm.la
+test_debug_DEPENDENCIES = libopm.la compat.o
 
 DEFS = @DEFS@
 DEFAULT_INCLUDES =  -I. -I$(srcdir) -I.

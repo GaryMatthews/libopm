@@ -10,10 +10,10 @@ libopm_la_LIBADD = @LNSL@ @LSOCKET@
 
 noinst_PROGRAMS = test test_debug
 test_SOURCES = test.c
-test_LDADD = libopm.la
+test_LDADD = libopm.la compat.o
 
 # An easier-to-debug version of test
 
 test_debug_SOURCES = test.c
-test_debug_LDADD = libopm.la
+test_debug_LDADD = libopm.la compat.o
 test_debug_LDFLAGS = -static
