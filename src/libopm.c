@@ -43,7 +43,7 @@ OPM_REMOTE_T *opm_new(char *ip)
 { 
 
    OPM_REMOTE_T *ret;
-   ret = (OPM_REMOTE_T *) MyMalloc(sizeof(OPM_REMOTE_T));
+   ret = MyMalloc(sizeof(OPM_REMOTE_T));
 
    /* Do initializations */
 
