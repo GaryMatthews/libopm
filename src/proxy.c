@@ -31,6 +31,7 @@
 #include "opm_error.h"
 #include "libopm.h"
 #include "inet.h"
+#include "compat.h"
 
 RCSID("$Id$");
 
