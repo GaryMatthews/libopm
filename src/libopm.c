@@ -1044,6 +1044,8 @@ static void libopm_do_connect(OPM_T * scanner, OPM_SCAN_T *scan, OPM_CONNECTION_
  
    /* Set socket non blocking */
    fcntl(conn->fd, F_SETFL, O_NONBLOCK);
+   /* Set socket close on exec */
+   fcntl(conn->fd, F_SETFD);
 
    connect(conn->fd, (struct sockaddr *) addr, sizeof(*addr));
 
