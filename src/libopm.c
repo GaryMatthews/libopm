@@ -1091,7 +1091,7 @@ static void libopm_check_poll(OPM_T *scanner)
       scan = (OPM_SCAN_T *) node1->data;
       LIST_FOREACH(node2, scan->connections->head)
       {
-         if(size >= 1024)
+         if(size >= ufds_size)
             break;
 
          conn = (OPM_CONNECTION_T *) node2->data;
