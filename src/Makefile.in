@@ -71,6 +71,9 @@ AWK = @AWK@
 CC = @CC@
 DEPDIR = @DEPDIR@
 DLLTOOL = @DLLTOOL@
+DOX_DIR_HTML = @DOX_DIR_HTML@
+DOX_DIR_LATEX = @DOX_DIR_LATEX@
+DOX_DIR_MAN = @DOX_DIR_MAN@
 ECHO = @ECHO@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 LIBTOOL = @LIBTOOL@
@@ -93,6 +96,8 @@ libopm_la_SOURCES = compat.c compat.h config.c config.h inet.c inet.h \
     libopm.c libopm.h list.c list.h malloc.c malloc.h opm_common.h \
     opm_error.h opm.h opm_types.h proxy.c proxy.h setup.h
 
+
+include_HEADERS = opm.h opm_error.h opm_types.h opm_common.h
 
 libopm_la_LIBADD = @LNSL@ @LSOCKET@
 
@@ -148,7 +153,9 @@ LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 CFLAGS = @CFLAGS@
 DIST_SOURCES = $(libopm_la_SOURCES) $(test_SOURCES) \
 	$(test_debug_SOURCES)
-DIST_COMMON = Makefile.am Makefile.in setup.h.in
+HEADERS = $(include_HEADERS)
+
+DIST_COMMON = $(include_HEADERS) Makefile.am Makefile.in setup.h.in
 SOURCES = $(libopm_la_SOURCES) $(test_SOURCES) $(test_debug_SOURCES)
 
 all: setup.h
@@ -268,6 +275,24 @@ clean-libtool:
 distclean-libtool:
 	-rm -f libtool
 uninstall-info-am:
+includeHEADERS_INSTALL = $(INSTALL_HEADER)
+install-includeHEADERS: $(include_HEADERS)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(includedir)
+	@list='$(include_HEADERS)'; for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  f="`echo $$p | sed -e 's|^.*/||'`"; \
+	  echo " $(includeHEADERS_INSTALL) $$d$$p $(DESTDIR)$(includedir)/$$f"; \
+	  $(includeHEADERS_INSTALL) $$d$$p $(DESTDIR)$(includedir)/$$f; \
+	done
+
+uninstall-includeHEADERS:
+	@$(NORMAL_UNINSTALL)
+	@list='$(include_HEADERS)'; for p in $$list; do \
+	  f="`echo $$p | sed -e 's|^.*/||'`"; \
+	  echo " rm -f $(DESTDIR)$(includedir)/$$f"; \
+	  rm -f $(DESTDIR)$(includedir)/$$f; \
+	done
 
 ETAGS = etags
 ETAGSFLAGS =
@@ -332,10 +357,10 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) setup.h
+all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(HEADERS) setup.h
 
 installdirs:
-	$(mkinstalldirs) $(DESTDIR)$(libdir)
+	$(mkinstalldirs) $(DESTDIR)$(libdir) $(DESTDIR)$(includedir)
 
 install: install-am
 install-exec: install-exec-am
@@ -380,7 +405,7 @@ info: info-am
 
 info-am:
 
-install-data-am:
+install-data-am: install-includeHEADERS
 
 install-exec-am: install-libLTLIBRARIES
 
@@ -399,19 +424,21 @@ mostlyclean: mostlyclean-am
 mostlyclean-am: mostlyclean-compile mostlyclean-generic \
 	mostlyclean-libtool
 
-uninstall-am: uninstall-info-am uninstall-libLTLIBRARIES
+uninstall-am: uninstall-includeHEADERS uninstall-info-am \
+	uninstall-libLTLIBRARIES
 
 .PHONY: GTAGS all all-am check check-am clean clean-generic \
 	clean-libLTLIBRARIES clean-libtool clean-noinstPROGRAMS \
 	distclean distclean-compile distclean-depend distclean-generic \
 	distclean-hdr distclean-libtool distclean-tags distdir dvi \
 	dvi-am info info-am install install-am install-data \
-	install-data-am install-exec install-exec-am install-info \
-	install-info-am install-libLTLIBRARIES install-man \
-	install-strip installcheck installcheck-am installdirs \
-	maintainer-clean maintainer-clean-generic mostlyclean \
-	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
-	tags uninstall uninstall-am uninstall-info-am \
+	install-data-am install-exec install-exec-am \
+	install-includeHEADERS install-info install-info-am \
+	install-libLTLIBRARIES install-man install-strip installcheck \
+	installcheck-am installdirs maintainer-clean \
+	maintainer-clean-generic mostlyclean mostlyclean-compile \
+	mostlyclean-generic mostlyclean-libtool tags uninstall \
+	uninstall-am uninstall-includeHEADERS uninstall-info-am \
 	uninstall-libLTLIBRARIES
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

@@ -71,6 +71,9 @@ AWK = @AWK@
 CC = @CC@
 DEPDIR = @DEPDIR@
 DLLTOOL = @DLLTOOL@
+DOX_DIR_HTML = @DOX_DIR_HTML@
+DOX_DIR_LATEX = @DOX_DIR_LATEX@
+DOX_DIR_MAN = @DOX_DIR_MAN@
 ECHO = @ECHO@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 LIBTOOL = @LIBTOOL@
@@ -90,7 +93,7 @@ am__quote = @am__quote@
 install_sh = @install_sh@
 AUTOMAKE_OPTIONS = foreign
 
-SUBDIRS = src
+SUBDIRS = src doc
 
 EXTRA_DIST = LICENSE
 subdir = .
@@ -104,7 +107,7 @@ RECURSIVE_TARGETS = info-recursive dvi-recursive install-info-recursive \
 	uninstall-info-recursive all-recursive install-data-recursive \
 	install-exec-recursive installdirs-recursive install-recursive \
 	uninstall-recursive check-recursive installcheck-recursive
-DIST_COMMON = Makefile.am Makefile.in aclocal.m4 config.guess \
+DIST_COMMON = ChangeLog Makefile.am Makefile.in aclocal.m4 config.guess \
 	config.sub configure configure.in depcomp install-sh ltmain.sh \
 	missing mkinstalldirs
 DIST_SUBDIRS = $(SUBDIRS)
@@ -249,6 +252,7 @@ distcleancheck_listfiles = find . -type f -print
 distdir: $(DISTFILES)
 	$(am__remove_distdir)
 	mkdir $(distdir)
+	$(mkinstalldirs) $(distdir)/doc
 	@list='$(DISTFILES)'; for file in $$list; do \
 	  if test -f $$file || test -d $$file; then d=.; else d=$(srcdir); fi; \
 	  dir=`echo "$$file" | sed -e 's,/[^/]*$$,,'`; \
@@ -422,6 +426,9 @@ uninstall-info: uninstall-info-recursive
 
 libtool: $(LIBTOOL_DEPS)
 	$(SHELL) ./config.status --recheck
+
+docs:
+	-cd doc && $(MAKE) $(AM_MAKEFLAGS) $@
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

@@ -6,6 +6,15 @@ AM_INIT_AUTOMAKE()
 AC_PREFIX_DEFAULT([/usr/local/libopm])
 AM_MAINTAINER_MODE
 
+# for documentation purposes
+DOX_DIR_HTML=api
+DOX_DIR_LATEX=latex
+DOX_DIR_MAN=man
+
+AC_SUBST(DOX_DIR_HTML)
+AC_SUBST(DOX_DIR_LATEX)
+AC_SUBST(DOX_DIR_MAN)
+
 AC_ARG_WITH(extra-fascism,
     AC_HELP_STRING([--with-extra-fascism],
     [add extra gcc3-specific warning flags]),
@@ -65,7 +74,7 @@ if test "$with_faldo" != "no"; then
  AC_MSG_RESULT([ http://blitzed.org/advocacy/enjoy.jpg])
 fi
 
-AC_OUTPUT(Makefile src/Makefile)
+AC_OUTPUT(Makefile src/Makefile doc/Makefile doc/Doxyfile)
 
 echo "##############################################################################"
 echo "Everything is now configured.  To compile libopm now, just type make.  It"

@@ -1790,6 +1790,15 @@ fi
 
 
 
+# for documentation purposes
+DOX_DIR_HTML=api
+DOX_DIR_LATEX=latex
+DOX_DIR_MAN=man
+
+
+
+
+
 
 # Check whether --with-extra-fascism or --without-extra-fascism was given.
 if test "${with_extra_fascism+set}" = set; then
@@ -4213,7 +4222,7 @@ test "x$enable_libtool_lock" != xno && enable_libtool_lock=yes
 case $host in
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 4216 "configure"' > conftest.$ac_ext
+  echo '#line 4225 "configure"' > conftest.$ac_ext
   if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -4749,7 +4758,7 @@ chmod -w .
 save_CFLAGS="$CFLAGS"
 CFLAGS="$CFLAGS -o out/conftest2.$ac_objext"
 compiler_c_o=no
-if { (eval echo configure:4752: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>out/conftest.err; } && test -s out/conftest2.$ac_objext; then
+if { (eval echo configure:4761: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>out/conftest.err; } && test -s out/conftest2.$ac_objext; then
   # The compiler can only warn and ignore the option if not recognized
   # So say no if there are warnings
   if test -s out/conftest.err; then
@@ -6542,7 +6551,7 @@ else
     lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 6545 "configure"
+#line 6554 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -6640,7 +6649,7 @@ else
     lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 6643 "configure"
+#line 6652 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -8630,7 +8639,7 @@ if test "$with_faldo" != "no"; then
 echo "${ECHO_T} http://blitzed.org/advocacy/enjoy.jpg" >&6
 fi
 
-ac_config_files="$ac_config_files Makefile src/Makefile"
+ac_config_files="$ac_config_files Makefile src/Makefile doc/Makefile doc/Doxyfile"
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
 # tests run on this system so they can be shared between configure
@@ -9128,6 +9137,8 @@ do
   # Handling of arguments.
   "Makefile" ) CONFIG_FILES="$CONFIG_FILES Makefile" ;;
   "src/Makefile" ) CONFIG_FILES="$CONFIG_FILES src/Makefile" ;;
+  "doc/Makefile" ) CONFIG_FILES="$CONFIG_FILES doc/Makefile" ;;
+  "doc/Doxyfile" ) CONFIG_FILES="$CONFIG_FILES doc/Doxyfile" ;;
   "depfiles" ) CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
   "src/setup.h" ) CONFIG_HEADERS="$CONFIG_HEADERS src/setup.h" ;;
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
@@ -9232,6 +9243,9 @@ s,@SET_MAKE@,$SET_MAKE,;t t
 s,@MAINTAINER_MODE_TRUE@,$MAINTAINER_MODE_TRUE,;t t
 s,@MAINTAINER_MODE_FALSE@,$MAINTAINER_MODE_FALSE,;t t
 s,@MAINT@,$MAINT,;t t
+s,@DOX_DIR_HTML@,$DOX_DIR_HTML,;t t
+s,@DOX_DIR_LATEX@,$DOX_DIR_LATEX,;t t
+s,@DOX_DIR_MAN@,$DOX_DIR_MAN,;t t
 s,@CC@,$CC,;t t
 s,@CFLAGS@,$CFLAGS,;t t
 s,@LDFLAGS@,$LDFLAGS,;t t
