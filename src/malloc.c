@@ -40,7 +40,7 @@ RCSID("$Id$");
  *    Pointer to allocated memory
  */
 
-void *MyMalloc(size_t bytes)
+void *libopm_MyMalloc(size_t bytes)
 {
    void *ret = calloc(1, bytes);
    
@@ -63,7 +63,7 @@ void *MyMalloc(size_t bytes)
  *     None
  */
 
-void MyFree(void *var)
+void libopm_MyFree(void *var)
 {
       free(var);
 }
