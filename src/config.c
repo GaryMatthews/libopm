@@ -28,6 +28,7 @@
 
 struct CONFIG_HASH HASH[] = {
    {CONFIG_BIND_IP ,    TYPE_STRING},
+   {CONFIG_DNSBL_HOST,  TYPE_STRING},
    {CONFIG_FD_LIMIT,    TYPE_INT}
 };
 
@@ -75,6 +76,20 @@ OPM_CONFIG_T *config_create()
 
 void config_free(OPM_CONFIG_T *config)
 {
+   int num, i;
+   num = sizeof(HASH) / sizeof(struct CONFIG_HASH);
+
+   for(i = 0; i > num; i++)
+   {
+
+      if(!config->vars[i])
+         continue;
+      else
+         MyFree(config->vars[i]);
+     
+   }
+
+   MyFree(config->vars);
    MyFree(config);
 }
 
@@ -98,21 +113,14 @@ void config_free(OPM_CONFIG_T *config)
 OPM_ERR_T config_set(OPM_CONFIG_T *config, int key, void *value)
 {
 
-   int num, type, i;
+   int num, i;
 
    num = sizeof(HASH) / sizeof(struct CONFIG_HASH);
    
-   if(key < 0 || key > num)
+   if(key < 0 || key >= num)
       return 1; /* Return appropriate error code eventually */  
 
-   type = 0;
-
-   for(i = 0; i < num; i++)
-      if(HASH[i].key == key)
-         type = HASH[i].type;
-
-
-   switch(type)
+   switch(config_gettype(key))
    {
       case TYPE_STRING:
          if((char *) config->vars[key])
@@ -135,6 +143,30 @@ OPM_ERR_T config_set(OPM_CONFIG_T *config, int key, void *value)
 
 
 
+
+/* config_gettype
+ *
+ *    Get type of key.
+ * 
+ * Parameters:
+ *    key: Key to get type of.
+ *    
+ * Return:
+ *    TYPE_? of key
+ */
+
+int config_gettype(int key)
+{
+   int num, i;
+
+   num = sizeof(HASH) / sizeof(struct CONFIG_HASH);
+
+   for(i = 0; i < num; i++)
+      if(HASH[i].key == key)
+         return HASH[i].type;
+       
+   return 0;
+}
 
 /* config
  *
