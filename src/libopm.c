@@ -1021,6 +1021,7 @@ static void libopm_do_connect(OPM_T * scanner, OPM_SCAN_T *scan, OPM_CONNECTION_
    bind_ip = (opm_sockaddr *) libopm_config(scanner->config, OPM_CONFIG_BIND_IP);   
 
    conn->fd = socket(PF_INET, SOCK_STREAM, 0);
+   scanner->fd_use++;         /* Increase file descriptor use */
 
    if(conn->fd == -1)
    {
@@ -1051,7 +1052,6 @@ static void libopm_do_connect(OPM_T * scanner, OPM_SCAN_T *scan, OPM_CONNECTION_
 
    conn->state = OPM_STATE_ESTABLISHED;
    time(&(conn->creation));   /* Stamp creation time, for timeout */
-   scanner->fd_use++;         /* Increase file descriptor use */
 }
 
 
