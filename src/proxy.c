@@ -37,7 +37,7 @@ RCSID("$Id$");
 
 static char SENDBUFF[512];
 
-int proxy_http_write(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
+int libopm_proxy_http_write(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
 {
    snprintf(SENDBUFF, 128, "CONNECT %s:%d HTTP/1.0\r\n\r\n",
       (char *) libopm_config(scanner->config, OPM_CONFIG_SCAN_IP), 
@@ -61,7 +61,7 @@ int proxy_http_write(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
  *  VN = Version, CD = Command Code (1 is connect request)
  */
 
-int proxy_socks4_write(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
+int libopm_proxy_socks4_write(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
 {
    struct in_addr addr;
    unsigned long laddr;
@@ -128,7 +128,7 @@ int proxy_socks4_write(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
  *
  */
 
-int proxy_socks5_write(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
+int libopm_proxy_socks5_write(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
 {
    struct in_addr addr;
    unsigned long laddr;
@@ -170,7 +170,7 @@ int proxy_socks5_write(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
  * connect.
  */
 
-int proxy_wingate_write(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
+int libopm_proxy_wingate_write(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
 {
    int scan_port, len;
    char *scan_ip;
@@ -193,7 +193,7 @@ int proxy_wingate_write(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn
  * telnet to the scanip/scanport
  */
 
-int proxy_router_write(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
+int libopm_proxy_router_write(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
 {
    int len, scan_port;
    char *scan_ip;
