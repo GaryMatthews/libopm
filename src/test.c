@@ -33,11 +33,11 @@
 
 RCSID("$Id$");
 
-void open_proxy(OPM_REMOTE_T *, int);
-void negotiation_failed(OPM_REMOTE_T *, int);
-void timeout(OPM_REMOTE_T *, int);
-void end(OPM_REMOTE_T *, int);
-void handle_error(OPM_REMOTE_T *, int);
+void open_proxy(OPM_T *, OPM_REMOTE_T *, int);
+void negotiation_failed(OPM_T *, OPM_REMOTE_T *, int);
+void timeout(OPM_T *, OPM_REMOTE_T *, int);
+void end(OPM_T *, OPM_REMOTE_T *, int);
+void handle_error(OPM_T *, OPM_REMOTE_T *, int);
 
 int complete = 0;
 
@@ -65,11 +65,11 @@ int main(int argc, char **argv)
    }
 
    /* Setup callbacks */
-   remote->fun_openproxy = &open_proxy;
-   remote->fun_negfail   = &negotiation_failed;
-   remote->fun_timeout   = &timeout;
-   remote->fun_end       = &end;
-   remote->fun_error     = &handle_error;
+   opm_remote_callback(remote, OPM_CALLBACK_OPENPROXY, &open_proxy);
+   opm_remote_callback(remote, OPM_CALLBACK_NEGFAIL, &negotiation_failed);
+   opm_remote_callback(remote, OPM_CALLBACK_TIMEOUT, &timeout);
+   opm_remote_callback(remote, OPM_CALLBACK_END, &end);
+   opm_remote_callback(remote, OPM_CALLBACK_ERROR, &handle_error);
  
    opm_config(scanner, OPM_CONFIG_FD_LIMIT, &fdlimit);
    opm_config(scanner, OPM_CONFIG_SCAN_IP, "203.56.139.100");
@@ -96,29 +96,29 @@ int main(int argc, char **argv)
    return 0; 
 }
 
-void open_proxy(OPM_REMOTE_T *remote, int notused)
+void open_proxy(OPM_T *scanner, OPM_REMOTE_T *remote, int notused)
 {
    printf("Open proxy on %s:%d [%d bytes read]\n", remote->ip, remote->port, remote->bytes_read);
 }
 
-void negotiation_failed(OPM_REMOTE_T *remote, int notused)
+void negotiation_failed(OPM_T *scanner, OPM_REMOTE_T *remote, int notused)
 {
    printf("Negotiation on %s:%d failed [%d bytes read]\n", remote->ip, remote->port, remote->bytes_read);
 }
 
-void timeout(OPM_REMOTE_T *remote, int notused)
+void timeout(OPM_T *scanner, OPM_REMOTE_T *remote, int notused)
 {
    printf("Negotiation timed out on %s:%d\n", remote->ip, remote->port);
 }
 
-void end(OPM_REMOTE_T *remote, int notused)
+void end(OPM_T *scanner, OPM_REMOTE_T *remote, int notused)
 {
    printf("Scan on %s has ended\n", remote->ip);
    opm_remote_free(remote);
    complete = 1;
 }
 
-void handle_error(OPM_REMOTE_T *remote, int err)
+void handle_error(OPM_T *scanner, OPM_REMOTE_T *remote, int err)
 {
    switch(err)
    {

@@ -65,9 +65,10 @@ void do_connect(OPM_T *, OPM_SCAN_T *, OPM_CONNECTION_T *);
 void do_readready(OPM_T *, OPM_SCAN_T *, OPM_CONNECTION_T *);
 void do_writeready(OPM_T *, OPM_SCAN_T *, OPM_CONNECTION_T *);
 void do_hup(OPM_T *, OPM_SCAN_T *, OPM_CONNECTION_T *);
-
 void do_read(OPM_T *, OPM_SCAN_T *, OPM_CONNECTION_T *);
 void do_openproxy(OPM_T *, OPM_SCAN_T *, OPM_CONNECTION_T *);
+
+void do_callback(OPM_T *, OPM_REMOTE_T *, int, int);
 
 OPM_REMOTE_T *setup_remote(OPM_REMOTE_T *remote, OPM_CONNECTION_T *conn);
 
@@ -103,6 +104,7 @@ OPM_PROTOCOL_T OPM_PROTOCOLS[] = {
 
 OPM_T *opm_create()
 {
+   int i;
    OPM_T *ret;
 
    ret = MyMalloc(sizeof(OPM_T));
@@ -112,6 +114,11 @@ OPM_T *opm_create()
    ret->queue = list_create();
    ret->protocols = list_create();
    ret->fd_use = 0;
+
+   /* Setup callbacks */
+   ret->callbacks = MyMalloc(sizeof(OPM_CALLBACK_T *) * CBLEN);
+   for(i = 0; i < CBLEN; i++)
+      ret->callbacks[i] = NULL;
 
    return ret;
 }
@@ -134,8 +141,10 @@ OPM_T *opm_create()
 
 OPM_REMOTE_T *opm_remote_create(char *ip)
 { 
-
+   int i;
    OPM_REMOTE_T *ret;
+
+
    ret = MyMalloc(sizeof(OPM_REMOTE_T));
 
    /* Do initializations */
@@ -144,13 +153,11 @@ OPM_REMOTE_T *opm_remote_create(char *ip)
 
    ret->ip = (char*) strdup(ip);  /* replace with custom strdup function */
  
+   /* Setup callbacks */
+   ret->callbacks = MyMalloc(sizeof(OPM_CALLBACK_T *) * CBLEN);
+   for(i = 0; i < CBLEN; i++)
+      ret->callbacks[i] = NULL;   
 
-   ret->fun_openproxy = NULL;
-   ret->fun_negfail   = NULL;
-   ret->fun_end       = NULL;
-   ret->fun_error     = NULL;
-   ret->fun_timeout   = NULL;
- 
    ret->port          = 0;
    ret->protocol      = 0;
    ret->bytes_read    = 0;
@@ -181,10 +188,60 @@ OPM_REMOTE_T *opm_remote_create(char *ip)
 
 void opm_remote_free(OPM_REMOTE_T *remote)
 {
+   int i;
+
+   MyFree(remote->callbacks);
+
    if(remote->ip)
       MyFree(remote->ip);
 
    MyFree(remote);
+}
+
+
+
+
+/* opm_remote_callback
+ *
+ * Register remote level callback 
+ *
+ * Parameters:
+ *    remote: remote struct 
+ *    type:   callback type
+ * Return:
+ *    Error code
+ */
+
+OPM_ERR_T opm_remote_callback(OPM_REMOTE_T *remote, int type, OPM_CALLBACK_T *function)
+{
+   if(type < 0 || type >= (CBLEN + 1))
+      return OPM_ERR_CBNOTFOUND;
+
+   remote->callbacks[type] = function;
+
+   return OPM_SUCCESS;
+}
+
+
+
+/* opm_callback
+ *    Register scanner level callback
+ *
+ * Parameters
+ *    scanner: scanner struct
+ *    type:    callback type
+ * Return:
+ *    Error code
+ */
+
+OPM_ERR_T opm_callback(OPM_T *scanner, int type, OPM_CALLBACK_T *function)
+{
+   if(type < 0 || type >= (CBLEN + 1))
+      return OPM_ERR_CBNOTFOUND;
+
+   scanner->callbacks[type] = function;
+
+   return OPM_SUCCESS;
 }
 
 
@@ -203,6 +260,7 @@ void opm_remote_free(OPM_REMOTE_T *remote)
 
 void opm_free(OPM_T *scanner)
 {
+   int i;
    node_t *p, *next;
 
    OPM_PROTOCOL_CONFIG_T *ppc;
@@ -238,6 +296,7 @@ void opm_free(OPM_T *scanner)
    list_free(scanner->scans);
    list_free(scanner->queue);
 
+   MyFree(scanner->callbacks);
    MyFree(scanner);
 }
 
@@ -637,7 +696,6 @@ void check_closed(OPM_T *scanner)
    time_t present;
    node_t *node1, *node2, *next1, *next2;
    int timeout;
-   unsigned int pos = 0;
 
    OPM_SCAN_T *scan;
    OPM_CONNECTION_T *conn;
@@ -679,9 +737,8 @@ void check_closed(OPM_T *scanner)
               list_remove(scan->connections, node2);
               connection_free(conn);
               node_free(node2);
-              
-              if(scan->remote->fun_timeout != NULL)
-                 scan->remote->fun_timeout(setup_remote(scan->remote, conn), 0);
+             
+              do_callback(scanner, setup_remote(scan->remote, conn), OPM_CALLBACK_TIMEOUT, 0); 
               continue;
          }
       }
@@ -691,8 +748,7 @@ void check_closed(OPM_T *scanner)
          scan from the scanner, and free it up */
       if(LIST_SIZE(scan->connections) == 0)
       {
-         if(scan->remote->fun_end != NULL)
-            scan->remote->fun_end(scan->remote, 0);
+         do_callback(scanner, setup_remote(scan->remote, conn), OPM_CALLBACK_END, 0);
 
          list_remove(scanner->scans, node1);
          scan_free(scan);
@@ -759,7 +815,7 @@ void check_poll(OPM_T *scanner)
    OPM_CONNECTION_T *conn;
   
    static struct pollfd ufds[1024]; /* REPLACE WITH MAX_POLL */
-   unsigned int size, i, pos = 0;
+   unsigned int size, i;
    size = 0;
 
    if(LIST_SIZE(scanner->scans) == 0)
@@ -872,7 +928,7 @@ void do_readready(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
 
             if(conn->bytes_read >= max_read)
             {
-               do_error(setup_remote(scan->remote, conn), OPM_ERR_MAX_READ);
+               do_callback(scanner, setup_remote(scan->remote, conn), OPM_CALLBACK_ERROR, OPM_ERR_MAX_READ);
                conn->state = OPM_STATE_CLOSED;
                return;
             }
@@ -948,8 +1004,7 @@ void do_openproxy(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
    conn->state = OPM_STATE_CLOSED;
 
    /* Call client's open proxy callback */
-   if(remote->fun_openproxy != NULL)
-      remote->fun_openproxy(setup_remote(scan->remote, conn), 0);
+   do_callback(scanner, setup_remote(scan->remote, conn), OPM_CALLBACK_OPENPROXY, 0);
 }
 
 /*  do_writeready
@@ -1004,27 +1059,36 @@ void do_hup(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
   /* Mark the connection for close */
    conn->state = OPM_STATE_CLOSED;
 
-  /* Call client's open proxy callback */
-   if(remote->fun_negfail != NULL)
-      remote->fun_negfail(setup_remote(scan->remote, conn), 0);
+   do_callback(scanner, setup_remote(scan->remote, conn), OPM_CALLBACK_NEGFAIL, 0);
 }
 
-/* do_error
+
+
+/* do_callback
  * 
- *    Handle error by calling callback fun_error
- *  
+ *    Call callback
+ *
  * Parameters:
- *       scanner: Scanner doing the scan
- *       scan: Specific scan
- *       conn: Specific connection in the scan
- *       error: OPM_ERR_T containing the error type
+ *    scanner: scanner remote is on
+ *    remote:  remote callback is for
+ *    type:    callback type
+ *    var:     optional var passed back (error codes, etc )
+ * Return:
+ *    None
  */
 
-void do_error(OPM_REMOTE_T *remote, int error)
+void do_callback(OPM_T *scanner, OPM_REMOTE_T *remote, int type, int var)
 {
-   if(remote->fun_error != NULL)
-      remote->fun_error(remote, error);
+   /* Callback is out of range */
+   if(type < 0 || type >= (CBLEN + 1))
+      return;
+
+   if(scanner->callbacks[type])
+      (scanner->callbacks[type]) (scanner, remote, var);
+   if(remote->callbacks[type])
+      (remote->callbacks[type])  (scanner, remote, var);
 }
+
 
 
 

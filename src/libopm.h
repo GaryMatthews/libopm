@@ -5,6 +5,8 @@
 #include "opm_common.h"
 #include "opm.h"
 
+#define CBLEN 5
+
 typedef struct  _OPM_SCAN             OPM_SCAN_T;
 typedef struct  _OPM_CONNECTION       OPM_CONNECTION_T;
 typedef struct  _OPM_PROTOCOL_CONFIG  OPM_PROTOCOL_CONFIG_T;
@@ -46,7 +48,5 @@ struct _OPM_PROTOCOL
    OPM_PROXYWRITE_T *write_function;    /* Write function handler for this protocol */
    OPM_PROXYREAD_T  *read_function;     /* Read function handler for this protocol */
 };
-
-void do_error(OPM_REMOTE_T *, int);
 
 #endif /* LIBOPM_H */

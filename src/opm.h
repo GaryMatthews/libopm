@@ -16,35 +16,32 @@ typedef struct  _OPM_REMOTE           OPM_REMOTE_T;
 
 typedef         int                   OPM_ERR_T;
 
-typedef void OPM_CALLBACK_T (OPM_REMOTE_T *, int);
+typedef void OPM_CALLBACK_T (OPM_T *, OPM_REMOTE_T *, int);
 
 struct _OPM_CONFIG {
    void **vars;
 };
 
 struct _OPM {
-   OPM_CONFIG_T *config;               /* Individual scanner configuration */
-   list_t       *queue;                /* List of scans in the queue (not yet established) */
+   OPM_CONFIG_T *config;               /* Individual scanner configuration                           */
+   list_t       *queue;                /* List of scans in the queue (not yet established)           */
    list_t       *scans;                /* List of scans (each scan containing a list of connections) */
-   list_t       *protocols;            /* List of protocols this scanner handles */
-   unsigned int  fd_use;               /* Number of file descriptors in use */
+   list_t       *protocols;            /* List of protocols this scanner handles                     */
+   unsigned int  fd_use;               /* Number of file descriptors in use                          */
+
+   OPM_CALLBACK_T **callbacks;          /* Scanner wide callbacks                                     */
 };
 
 struct _OPM_REMOTE {
 
-   char                *ip;              /* Readable IP address */
+   char                *ip;              /* Readable IP address                         */
    opm_sockaddr         addr;            /* Store the IP in a sockaddr_in aswell, this is
-                                            done in opm_remote_create  */
-
-   OPM_CALLBACK_T      *fun_openproxy;   /* Callback for when an open proxy is found */
-   OPM_CALLBACK_T      *fun_negfail;     /* Callback for when negotiation with a proxy fails */
-   OPM_CALLBACK_T      *fun_end;         /* Callback for when scan on remote host is complete */
-   OPM_CALLBACK_T      *fun_error;       /* Callback for when an error has occured */
-   OPM_CALLBACK_T      *fun_timeout;     /* Callback for when a specific connection has timed out */
-
-   unsigned short int   port;            /* Port passed back on certain callbacks */
-   unsigned short int   protocol;        /* Protocol passed back on certain callbacks */
+                                            done in opm_remote_create                   */
+   unsigned short int   port;            /* Port passed back on certain callbacks       */
+   unsigned short int   protocol;        /* Protocol passed back on certain callbacks   */
    unsigned short int   bytes_read;      /* Bytes read passed back on certain callbacks */
+
+   OPM_CALLBACK_T     **callbacks;       /* Callback configuration                      */
 };
 
 OPM_T *opm_create();
@@ -57,6 +54,8 @@ OPM_ERR_T opm_config(OPM_T *, int, void *);
 OPM_ERR_T opm_scan(OPM_T *, OPM_REMOTE_T *);
 OPM_ERR_T opm_addtype(OPM_T *, int, int);
 
+OPM_ERR_T opm_remote_callback(OPM_REMOTE_T *, int, OPM_CALLBACK_T *);
+OPM_ERR_T opm_callback(OPM_T *, int, OPM_CALLBACK_T *);
 
 OPM_CONFIG_T *config_create();
 OPM_ERR_T config_set(OPM_CONFIG_T *, int , void *);
