@@ -1,5 +1,5 @@
 Overview of libopm API
-Erik Fears <strtok@blitzed.org
+Erik Fears <strtok@blitzed.org>
 
 1.0 Overview
 -------------
@@ -190,6 +190,16 @@ OPM_ERR_T opm_addtype(OPM_T *, int, int)
    protocol list. This list determines what ports the scanner will scan on,
    and what protocols it will check for on those ports. Each protocol/port will
    result in 1 file descriptor used per scan.
+
+   
+   Type                 Description
+   ---------------------------------------------------------------------
+   OPM_TYPE_HTTP        Open http proxies
+   OPM_TYPE_SOCKS4      Open socks 4 proxies
+   OPM_TYPE_SOCKS5      Open socks 5 proxies
+   OPM_TYPE_ROUTER      Routers with default passwords set (usually cisco)
+   OPM_TYPE_WINGATE     Open wingate proxy
+
 
    Example:
 
