@@ -65,11 +65,11 @@ int main(int argc, char **argv)
    }
 
    /* Setup callbacks */
-   opm_remote_callback(remote, OPM_CALLBACK_OPENPROXY, &open_proxy);
-   opm_remote_callback(remote, OPM_CALLBACK_NEGFAIL, &negotiation_failed);
-   opm_remote_callback(remote, OPM_CALLBACK_TIMEOUT, &timeout);
-   opm_remote_callback(remote, OPM_CALLBACK_END, &end);
-   opm_remote_callback(remote, OPM_CALLBACK_ERROR, &handle_error);
+   opm_callback(scanner, OPM_CALLBACK_OPENPROXY, &open_proxy);
+   opm_callback(scanner, OPM_CALLBACK_NEGFAIL, &negotiation_failed);
+   opm_callback(scanner, OPM_CALLBACK_TIMEOUT, &timeout);
+   opm_callback(scanner, OPM_CALLBACK_END, &end);
+   opm_callback(scanner, OPM_CALLBACK_ERROR, &handle_error);
  
    opm_config(scanner, OPM_CONFIG_FD_LIMIT, &fdlimit);
    opm_config(scanner, OPM_CONFIG_SCAN_IP, "203.56.139.100");
