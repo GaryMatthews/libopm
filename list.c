@@ -84,7 +84,9 @@ node_t *list_remove(list_t **list, node_t *node)
 
       if(node->next)
          node->next->prev = 0;
-      
+      else
+         (*list->tail) = 0;
+ 
       (*list)->elements--;
 
       return node;
