@@ -1,0 +1,8 @@
+Makefile
+Makefile.in
+autom4te-*
+config.log
+config.status
+configure
+libtool
+*.sw[op]
