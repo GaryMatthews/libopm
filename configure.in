@@ -20,9 +20,9 @@ AC_ARG_WITH(extra-fascism,
     [add extra gcc3-specific warning flags]),
     [CFLAGS="$CFLAGS -g -ggdb -O2 -W -Wfloat-equal -Wbad-function-cast -Wconversion -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wredundant-decls -Wnested-externs"])
 
-AC_ARG_WITH(faldo,
-    AC_HELP_STRING([--with-faldo],
-    [make some use of Nick Faldo]))
+dnl AC_ARG_WITH(faldo,
+dnl     AC_HELP_STRING([--with-faldo],
+dnl     [make some use of Nick Faldo]))
 
 dnl Checks for programs.
 AC_PROG_CC
@@ -68,14 +68,14 @@ AC_CHECK_LIB(socket, socket, AC_SUBST(LSOCKET, [-lsocket]))
 AC_CHECK_LIB(nsl, gethostbyname, AC_SUBST(LNSL, [-lnsl]))
 
 dnl teehee - taken from MRTG / Tobias Oetiker
-if test "$with_faldo" != "no"; then
- echo $ECHO_N "checking for Nick Faldo $ECHO_C"
- for bleh in 1 2 3; do
-  echo $ECHO_N "."        
-  sleep 1
- done
- AC_MSG_RESULT([ http://blitzed.org/advocacy/enjoy.jpg])
-fi
+dnl if test "$with_faldo" != "no"; then
+dnl  echo $ECHO_N "checking for Nick Faldo $ECHO_C"
+dnl  for bleh in 1 2 3; do
+dnl   echo $ECHO_N "."        
+dnl   sleep 1
+dnl  done
+dnl  AC_MSG_RESULT([ http://blitzed.org/advocacy/enjoy.jpg])
+dnl fi
 
 LTLIBOBJS=`echo "$LIB@&t@OBJS" |
            sed 's,\.[[^.]]* ,.lo ,g;s,\.[[^.]]*$,.lo,'`
