@@ -61,11 +61,11 @@ void do_openproxy(OPM_T *, OPM_SCAN_T *, OPM_CONNECTION_T *);
  */
 
 OPM_PROTOCOL_T OPM_PROTOCOLS[] = {
-    {OPM_TYPE_HTTP,               proxy_http_write, NULL},
-    {OPM_TYPE_SOCKS4,             NULL, NULL},
-    {OPM_TYPE_SOCKS5,             NULL, NULL},
-    {OPM_TYPE_WINGATE,            NULL, NULL},
-    {OPM_TYPE_ROUTER,             NULL, NULL}
+    {OPM_TYPE_HTTP,               proxy_http_write,    NULL},
+    {OPM_TYPE_SOCKS4,             proxy_socks4_write,  NULL},
+    {OPM_TYPE_SOCKS5,             proxy_socks5_write,  NULL},
+    {OPM_TYPE_WINGATE,            proxy_wingate_write, NULL},
+    {OPM_TYPE_ROUTER,             proxy_router_write,  NULL}
 };
 
 
