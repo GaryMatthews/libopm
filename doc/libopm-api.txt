@@ -217,6 +217,7 @@ OPM_ERR_T opm_scan(OPM_T *, OPM_REMOTE_T *)
    Return: OPM_ERR_T or OPM_SUCCESS on success
 
            OPM_ERR_BADADDR: The address within the OPM_REMOTE_T is not valid.
+           OPM_ERR_NOPROTOCOLS: No protocols are configured.
 
    The opm_scan functions adds a remote host object to the scanner's scan queue
    (or begins scanning on it if there is no queue).

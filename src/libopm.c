@@ -423,6 +423,11 @@ OPM_ERR_T opm_scan(OPM_T *scanner, OPM_REMOTE_T *remote)
 
    fd_limit = *(int *) libopm_config(scanner->config, OPM_CONFIG_FD_LIMIT);
 
+
+   if(LIST_SIZE(scanner->protocols) == 0)
+      return OPM_ERR_NOPROTOCOLS; 
+   
+
    scan = libopm_scan_create(scanner, remote);
 
    if(inetpton(AF_INET, remote->ip, &(scan->addr.sa4.sin_addr) ) <= 0)
@@ -600,6 +605,8 @@ void opm_cycle(OPM_T *scanner)
 static void libopm_check_queue(OPM_T *scanner)
 {
    OPM_NODE_T *node;
+   OPM_SCAN_T *scan;
+
    unsigned int protocols, projected, fd_limit;
 
    if(LIST_SIZE(scanner->queue) == 0)
@@ -607,13 +614,21 @@ static void libopm_check_queue(OPM_T *scanner)
 
    fd_limit = *(int *) libopm_config(scanner->config, OPM_CONFIG_FD_LIMIT);
 
-   protocols = LIST_SIZE(scanner->protocols);
    projected = scanner->fd_use;
 
    /* We want to keep the live scan list as small as possible, so only
       move queued scans to the live list if they will not push above fd_limit */
-   while((projected + protocols) <= fd_limit)
+   while(LIST_SIZE(scanner->queue) > 0)
    {
+
+      /* Grab the top scan */
+      scan = (OPM_SCAN_T *) scanner->queue->head->data;      
+      protocols = LIST_SIZE(scan->connections);
+
+      /* Check if it will fit in the live scan list */
+      if((protocols + projected) > fd_limit)
+         break;
+
       /* Scans on the top of the queue were added first, swap the head off the
          top of the queue and add it to the tail of the live scan list */
       node = libopm_list_remove(scanner->queue, scanner->queue->head);
