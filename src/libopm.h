@@ -1,7 +1,9 @@
+#include "config.h"
+#include "list.h"
+
 #ifndef LIBOPM_H
 #define LIBOPM_H
 
-#include "list.h"
 
 typedef struct  _OPM_CONFIG       OPM_CONFIG_T;
 typedef struct  _OPM              OPM_T;
@@ -60,5 +62,6 @@ struct _OPM_CONNECTION {
 
 OPM_T *opm_init();
 OPM_REMOTE_T *opm_new();
+int opm_config(OPM_T *scanner, int key, void *value);
 
 #endif /* LIBOPM_H */

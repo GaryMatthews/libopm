@@ -21,10 +21,10 @@
  *                  
  */
 
-#include "list.h"
+#include "config.h"
 #include "libopm.h"
 #include "malloc.h"
-#include "config.h"
+
 
 /* opm_init
  *
@@ -44,7 +44,7 @@ OPM_T *opm_init()
    ret->config = config_create();
    ret->scans  = list_create();
 
-   free(ret);
+   return ret;
 }
 
 /* opm_new
@@ -101,4 +101,24 @@ void opm_free(OPM_REMOTE_T *var)
 {
    if(var)
       MyFree(var);
+}
+
+/* opm_config
+ *
+ *    Wrapper to config_set. Set configuration variables
+ *    on the config struct.
+ *
+ * Parameters:
+ *    scanner: OPM_T struct the config struct resides in
+ *    key: Variable within the config struct to set
+ *    value: Address of value to set variable (key) to
+ *
+ * Return:
+ *    1: Config variable set
+ *    0: Some error occured
+ */
+
+int opm_config(OPM_T *scanner, int key, void *value)
+{
+   return config_set((scanner->config), key, value);
 }
