@@ -8,6 +8,8 @@
 #include <netdb.h>
 #include <fcntl.h>
 
+# include <sys/poll.h>
+
 #ifndef AF_INET6
 #define AF_INET6 10
 #endif

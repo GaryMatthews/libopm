@@ -38,8 +38,10 @@ OPM_CONNECTION_T *connection_create();
 
 void check_establish(OPM_T *);
 void check_poll(OPM_T *);
-void do_connect(OPM_CONNECTION_T *, OPM_REMOTE_T *);
 
+void do_connect(OPM_SCAN_T *, OPM_CONNECTION_T *);
+void do_readready(OPM_SCAN_T *, OPM_CONNECTION_T *);
+void do_writeready(OPM_SCAN_T *, OPM_CONNECTION_T *);
 /* OPM_PROTOCOLS hash
  *
  *    OPM_PPROTOCOLS hashes the protocol types (int) to functions
@@ -467,11 +469,13 @@ void opm_cycle(OPM_T *scanner)
 
 void check_establish(OPM_T *scanner)
 {
-   node_t *node1;
-   node_t *node2;
+   node_t *node1, *node2;
 
    OPM_SCAN_T *scan;
    OPM_CONNECTION_T *conn;
+
+   if(LIST_SIZE(scanner->scans) == 0)
+      return;
 
    LIST_FOREACH(node1, scanner->scans->head)
    {
@@ -480,7 +484,7 @@ void check_establish(OPM_T *scanner)
       {
          conn = (OPM_CONNECTION_T *) node2->data;
          if(conn->state == OPM_STATE_UNESTABLISHED)
-            do_connect(conn, scan->remote);
+            do_connect(scan, conn);
       } 
    }
 }
@@ -490,17 +494,17 @@ void check_establish(OPM_T *scanner)
  * Call socket() and connect() to start a scan.
  *
  * Parametsr:
+ *    scan: Scan struct containing the connection
  *    conn: Connection to establish
- *    remote: Information regarding remote connection (addr, and callback functions)
  * Return: 
  *    None
  */
 
-void do_connect(OPM_CONNECTION_T *conn, OPM_REMOTE_T *remote)
+void do_connect(OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
 {
    opm_sockaddr *addr;
   
-   addr = &(remote->addr); /* Already have the IP in byte format from 
+   addr = &(scan->remote->addr); /* Already have the IP in byte format from 
                               opm_remote_connect */
    addr->sa4.sin_family   = AF_INET;
    addr->sa4.sin_port     = conn->port;
@@ -536,6 +540,76 @@ void do_connect(OPM_CONNECTION_T *conn, OPM_REMOTE_T *remote)
 
 void check_poll(OPM_T *scanner)
 {
+   node_t *node1, *node2;
+   OPM_SCAN_T *scan;
+   OPM_CONNECTION_T *conn;
 
+   static struct pollfd ufds[1024]; /* REPLACE WITH MAX_POLL */
+   unsigned int size;
 
+   size = 0;
+
+   if(LIST_SIZE(scanner->scans) == 0)
+      return;
+
+   LIST_FOREACH(node1, scanner->scans->head)
+   {
+      scan = (OPM_SCAN_T *) node1->data;
+      LIST_FOREACH(node2, scan->connections->head)
+      {
+         if(size >= 1024)
+            break;
+
+         if(conn->state < OPM_STATE_ESTABLISHED ||
+            conn->state == OPM_STATE_CLOSED)
+               continue;                /* This needs work */
+
+         conn = (OPM_CONNECTION_T *) node2->data;
+         ufds[size].events = 0;
+         ufds[size].revents = 0;
+         ufds[size].fd = conn->fd;
+
+         /* Check for HUNG UP. */
+         ufds[size].events |= POLLHUP;
+         /* Check for INVALID FD */
+         ufds[size].events |= POLLNVAL;
+
+         switch(conn->state)
+         {
+            case OPM_STATE_ESTABLISHED:
+               ufds[size].events |= POLLOUT;
+               break;
+            case OPM_STATE_NEGSENT:
+               ufds[size].events |= POLLIN;
+               break;
+         }
+
+      }
+   }
+   
 }
+
+/* do_readready
+ *
+ * Readready
+ *
+ *
+ */
+
+void do_readready(OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
+{
+}
+
+
+/* do_writeready
+ *
+ *
+ *
+ *
+ *
+ */
+
+void do_writeready(OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
+{
+}
+

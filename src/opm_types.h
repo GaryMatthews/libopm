@@ -22,6 +22,7 @@
 /* States */
 #define OPM_STATE_UNESTABLISHED 0
 #define OPM_STATE_ESTABLISHED   1
-
+#define OPM_STATE_NEGSENT       2
+#define OPM_STATE_CLOSED        3
 
 #endif /* OPM_TYPES_H */
