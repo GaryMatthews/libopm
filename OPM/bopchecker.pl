@@ -28,6 +28,8 @@ use strict;
 use IO::Select;
 use OPM;
 
+$SIG{PIPE} = 'IGNORE';
+
 # Buffer of input from STDIN
 my $buffer;
 # Temp. storage of ports proxies are open on
