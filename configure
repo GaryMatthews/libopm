@@ -8141,7 +8141,8 @@ echo "$as_me: error: No select() implementation found" >&2;}
 fi
 
 
-for ac_func in inet_aton
+
+for ac_func in inet_aton inet_pton
 do
 as_ac_var=`echo "ac_cv_func_$ac_func" | $as_tr_sh`
 echo "$as_me:$LINENO: checking for $ac_func" >&5

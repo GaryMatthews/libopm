@@ -513,7 +513,7 @@ OPM_ERR_T opm_scan(OPM_T *scanner, OPM_REMOTE_T *remote)
 
    scan = libopm_scan_create(scanner, remote);
 
-   if(inetpton(AF_INET, remote->ip, &(scan->addr.sa4.sin_addr) ) <= 0)
+   if(inet_pton(AF_INET, remote->ip, &(scan->addr.sa4.sin_addr) ) <= 0)
    {
       libopm_scan_free(scan);
       return OPM_ERR_BADADDR;

@@ -30,7 +30,9 @@ struct _opm_inaddr {
         struct in_addr in4;
 };
 
-extern int inetpton(int, const char *, void *);
+#ifndef HAVE_INET_PTON
+extern int inet_pton(int, const char *, void *);
+#endif
 extern const char *inetntop(int, const void *, char *, unsigned int);
 extern struct hostent *opm_gethostbyname(const char *);
 

@@ -315,7 +315,7 @@ const char *inetntop(int af, const void *src, char *dst, unsigned int size)
  */
 
 /* int
- * inetpton(af, src, dst)
+ * inet_pton(af, src, dst)
  *      convert from presentation format (which usually means ASCII printable)
  *      to network format (which is usually some kind of binary format).
  * return:
@@ -336,6 +336,8 @@ const char *inetntop(int af, const void *src, char *dst, unsigned int size)
  * author:
  *      Paul Vixie, 1996.
  */
+
+#ifndef HAVE_INET_PTON
 
 static int inet_pton4(src, dst)
      const char *src;
@@ -477,7 +479,8 @@ int i;
     memcpy(dst, tmp, IN6ADDRSZ);
     return (1);
 }
-#endif
+#endif	/* IPv6 */
+
 int inetpton(af, src, dst) 
      int af;
      const char *src;
@@ -495,12 +498,14 @@ char tmp[HOSTIPLEN];
                 return (inet_pton6(tmp, dst));
             } else
                 return (inet_pton6(src, dst));
-#endif
+#endif	/* IPv6 */
         default:
             return (-1);
     }
     /* NOTREACHED */
 }
+
+#endif
 
 /*
  * bopm_gethostbyname
