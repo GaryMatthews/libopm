@@ -23,9 +23,29 @@
 
 #include "list.h"
 #include "libopm.h"
+#include "malloc.h"
+#include "config.h"
 
+/* opm_init
+ *
+ *    Initialize a new scanner and return a pointer to it.
+ *
+ * Parameters:
+ *    None
+ *  
+ * Return 
+ *    Pointer to new OPM_T (scanner)
+ */
 
+OPM_T *opm_init()
+{
+   OPM_T *ret;
+   ret = MyMalloc(sizeof(OPM_T));
+   ret->config = config_create();
+   ret->scans  = list_create();
 
+   free(ret);
+}
 
 /* opm_new
  *

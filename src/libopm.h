@@ -14,6 +14,7 @@ typedef void OPM_CALLBACK_T (OPM_REMOTE_T *, int);
 
 struct _OPM {
    OPM_CONFIG_T *config;
+   list_t       *scans;
 };
 
 struct _OPM_CONFIG {
@@ -57,6 +58,7 @@ struct _OPM_CONNECTION {
 };
 
 
+OPM_T *opm_init();
 OPM_REMOTE_T *opm_new();
 
 #endif /* LIBOPM_H */
