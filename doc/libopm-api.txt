@@ -30,7 +30,6 @@ OPM_REMOTE_T
 
         struct OPM_REMOTE_T {
            char              *ip;
-           opm_sockaddr       addr;
             
            unsigned short int port;
            unsigned short int protocol;
@@ -48,9 +47,6 @@ OPM_REMOTE_T
          ip
             The ip of the host in human readble form.
 
-         addr
-            The address of the host in network byte order.
-
          port
             Port used in callbacks.
 
@@ -62,7 +58,7 @@ OPM_REMOTE_T
 
          callbacks
             An array of callbacks associated with this OPM_REMOTE_T. This 
-            element is handled internally by the API and is considered private.
+            element is handled internally by the API.
 
 2.1 C API Functions
 -------------------
