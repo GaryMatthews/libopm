@@ -1,8 +1,6 @@
 #include "config.h"
 #include "list.h"
 
-#include <sys/socket.h> /* For socket typedefs */
-
 #ifndef LIBOPM_H
 #define LIBOPM_H
 
@@ -11,6 +9,9 @@
 #define OPM_TYPE_SOCKS5  3
 #define OPM_TYPE_WINGATE 4
 #define OPM_TYPE_ROUTER  5
+
+#define OPM_STATE_UNESTABLISHED 0
+#define OPM_STATE_ESTABLISHED   1
 
 typedef struct  _OPM_CONFIG           OPM_CONFIG_T;
 typedef struct  _OPM                  OPM_T;
@@ -37,7 +38,7 @@ struct _OPM {
 
 struct _OPM_SCAN { 
    OPM_REMOTE_T        *remote;
-   list_t              *scans;
+   list_t              *connections;
 };
 
 struct _OPM_REMOTE {
@@ -58,7 +59,7 @@ struct _OPM_REMOTE {
 
 struct _OPM_CONNECTION {
 
-  /* OPM_PROTOCOL       *protocol; */
+   OPM_PROTOCOL_T     *protocol; 
    int                fd;  
    unsigned short int bytes_read; 
    char               readbuf[128];

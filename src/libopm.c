@@ -26,11 +26,15 @@
 #include "malloc.h"
 #include "libopm_error.h"
 
+#include <netinet/in.h>
+
 OPM_PROTOCOL_CONFIG_T *protocol_config_create();
 void protocol_config_free(OPM_PROTOCOL_CONFIG_T *);
 
-OPM_SCAN_T *scan_create();
+OPM_SCAN_T *scan_create(OPM_T *, OPM_REMOTE_T *);
 void scan_free(OPM_SCAN_T *);
+
+OPM_CONNECTION_T *connection_create();
 
 /* OPM_PROTOCOLS hash
  *
@@ -69,7 +73,7 @@ OPM_T *opm_create()
    ret = MyMalloc(sizeof(OPM_T));
 
    ret->config = config_create();
-   ret->scans  = list_create();
+   ret->scans = list_create();
    ret->protocols = list_create();
 
    return ret;
@@ -112,6 +116,8 @@ OPM_REMOTE_T *opm_remote_create(char *ip)
    ret->port          = 0;
    ret->protocol      = 0;
    ret->bytes_read    = 0;
+
+   memset(&(ret->addr), 0, sizeof(struct sockaddr_in));
 
    return ret;
 }
@@ -303,7 +309,7 @@ OPM_ERR_T opm_scan(OPM_T *scanner, OPM_REMOTE_T *remote)
    node_t *node;     /* Node we'll add scan to
                         when we link it to scans */
 
-   scan = scan_create();
+   scan = scan_create(scanner, remote);
    node = node_create(scan);
 
    list_add(scanner->scans, node);
@@ -318,17 +324,36 @@ OPM_ERR_T opm_scan(OPM_T *scanner, OPM_REMOTE_T *remote)
  *    Create new OPM_SCAN_T struct
  *
  * Parameters: 
- *    None
+ *    scanner: Scanner the scan is being created for. This
+ *             is needed to get information on currently set
+ *             protocols/config.
+ *             
+ *    remote: Remote host this scan will be scanning
  *    
  * Return
  *    Address of new struct
  */
-OPM_SCAN_T *scan_create()
+OPM_SCAN_T *scan_create(OPM_T *scanner, OPM_REMOTE_T *remote)
 {
    OPM_SCAN_T *ret;
+
+   OPM_CONNECTION_T *conn;
+   node_t *node, *p;
+
    ret = MyMalloc(sizeof(OPM_SCAN_T));
-   ret->remote = 0;
-   ret->scans = list_create();
+
+   ret->remote = remote;
+   ret->connections = list_create();
+  
+   for(p = scanner->protocols->head; p; p = p->next)
+   {
+      conn = connection_create();
+      conn->protocol = (OPM_PROTOCOL_T *) p->data;
+
+      node = node_create(conn);
+
+      list_add(ret->connections, node);
+   }
 
    return ret;
 }
@@ -350,4 +375,51 @@ OPM_SCAN_T *scan_create()
 void scan_free(OPM_SCAN_T *scan)
 {
    MyFree(scan);
+}
+
+
+
+
+/* connection_create
+ *
+ *    Allocate new OPM_CONNECTION_T
+ *
+ * Parameters:
+ *    None
+ *
+ * Return:
+ *    Address of new OPM_CONNECTION_T
+ */
+
+OPM_CONNECTION_T *connection_create()
+{
+   OPM_CONNECTION_T *ret;
+   ret = MyMalloc(sizeof(OPM_CONNECTION_T));
+
+   ret->fd         = 0;
+   ret->bytes_read = 0;
+   ret->readlen    = 0;
+   ret->state      = OPM_STATE_UNESTABLISHED;
+   ret->protocol   = 0;
+
+   return ret;
+}
+
+
+
+
+/* connection_free
+ *
+ *    Free OPM_CONNECTION_T struct
+ *
+ * Parameters:
+ *    conn: Address of struct to free
+ *
+ * Return:
+ *    None
+ */
+
+void connection_free(OPM_CONNECTION_T *conn)
+{
+   MyFree(conn);
 }
