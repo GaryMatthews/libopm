@@ -38,6 +38,7 @@ void negotiation_failed(OPM_T *, OPM_REMOTE_T *, int, void *);
 void timeout(OPM_T *, OPM_REMOTE_T *, int, void *);
 void end(OPM_T *, OPM_REMOTE_T *, int, void *);
 void handle_error(OPM_T *, OPM_REMOTE_T *, int, void *);
+
 int complete = 0;
 
 int main(int argc, char **argv)
@@ -55,7 +56,7 @@ int main(int argc, char **argv)
    if(argc >= 2)
       remote  = opm_remote_create(argv[1]);
    else
-      remote  = opm_remote_create("208.245.162.250");
+      remote  = opm_remote_create("127.0.0.1");
 
    /* Setup callbacks */
    opm_callback(scanner, OPM_CALLBACK_OPENPROXY, &open_proxy, 0);

@@ -48,12 +48,12 @@ _defines define[] = {
    {"STATE_NEGSENT",        OPM_STATE_NEGSENT},
    {"STATE_UNESTABLISHED",  OPM_STATE_UNESTABLISHED},
    {"SUCCESS",              OPM_SUCCESS},
-   {"TYPE_CUSTOM",          OPM_TYPE_CUSTOM},
    {"TYPE_HTTP",            OPM_TYPE_HTTP},
    {"TYPE_ROUTER",          OPM_TYPE_ROUTER},
    {"TYPE_SOCKS4",          OPM_TYPE_SOCKS4},
    {"TYPE_SOCKS5",          OPM_TYPE_SOCKS5},
    {"TYPE_WINGATE",         OPM_TYPE_WINGATE},
+   {"TYPE_HTTPPOST",        OPM_TYPE_HTTPPOST},
    {NULL, 0},
 };
 
@@ -192,25 +192,6 @@ opm_addtype(scanner, type, port)
 	RETVAL
 
 OPM_Error
-opm_addcustom(scanner, type, string, port)
-	OPM_Scan *scanner   
-	SV* type
-	SV* string
-	int port
-   PREINIT:
-	STRLEN		typelen;
-	STRLEN		stringlen;
-   INPUT:
-	char *		stype = SvPV(type, typelen);
-	char *		sstring = SvPV(string, stringlen);
-   CODE:
-   	RETVAL = opm_addcustom(scanner, stype, sstring, port);
-	if(RETVAL != OPM_SUCCESS)
-	   error_check(RETVAL);
-   OUTPUT: 
-   	RETVAL
-
-OPM_Error
 opm_scan(scanner, remote)
 	OPM_Scan *scanner
 	OPM_Remote *remote
@@ -296,15 +277,13 @@ SV *
 opm_remote_protocol(remote)
 	OPM_Remote *remote
     CODE:
-	if(remote->protocol == OPM_TYPE_CUSTOM)
-	   RETVAL = newSVpv("Custom", 0);
-	else
 	   switch(remote->protocol) {
 	      case OPM_TYPE_HTTP: RETVAL = newSVpv("HTTP", 0); break;
 	      case OPM_TYPE_SOCKS4: RETVAL = newSVpv("Socks4", 0); break;
 	      case OPM_TYPE_SOCKS5: RETVAL = newSVpv("Socks5", 0); break;
 	      case OPM_TYPE_WINGATE: RETVAL = newSVpv("WinGate", 0); break;
 	      case OPM_TYPE_ROUTER: RETVAL = newSVpv("Cisco", 0); break;
+	      case OPM_TYPE_HTTPPOST: RETVAL = newSVpv("POST", 0); break;
 	   }
     OUTPUT:
 	RETVAL

@@ -29,10 +29,9 @@ $scan->addtype(OPM->TYPE_SOCKS4, 1080);
 $scan->addtype(OPM->TYPE_SOCKS5, 1080);
 $scan->addtype(OPM->TYPE_ROUTER, 23);
 $scan->addtype(OPM->TYPE_WINGATE, 23);
-
-$scan->addcustom("HTTP Post", "POST http://%i:%p/ HTTP/1.0\r\nContent-type: text/plain\r\nContent-length: 5\r\n\r\nquit\r\n\r\n", 80);
-$scan->addcustom("HTTP Post", "POST http://%i:%p/ HTTP/1.0\r\nContent-type: text/plain\r\nContent-length: 5\r\n\r\nquit\r\n\r\n", 8080);
-$scan->addcustom("HTTP Post", "POST http://%i:%p/ HTTP/1.0\r\nContent-type: text/plain\r\nContent-length: 5\r\n\r\nquit\r\n\r\n", 3128);
+$scan->addtype(OPM->TYPE_HTTPPOST, 80);
+$scan->addtype(OPM->TYPE_HTTPPOST, 3128);
+$scan->addtype(OPM->TYPE_HTTPPOST, 8080);
 
 # XXX: make configurable           "lik-m-aid.blitzed.org"
 $scan->config(OPM->CONFIG_SCAN_IP, "203.56.139.100");

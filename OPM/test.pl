@@ -27,8 +27,7 @@ $scan->addtype(OPM->TYPE_HTTP, 3128);
 $scan->addtype(OPM->TYPE_HTTP, 8080);
 $scan->addtype(OPM->TYPE_SOCKS4, 1080);
 $scan->addtype(OPM->TYPE_SOCKS5, 1080);
-
-$scan->addcustom("HTTP", "CONNECT %i:%p HTTP/1.0\r\n\r\n", 80);
+$scan->addtype(OPM->TYPE_HTTPPOST, 3128);
 
 $scan->config(OPM->CONFIG_SCAN_IP, "203.56.139.100");
 $scan->config(OPM->CONFIG_SCAN_PORT, 6667);
