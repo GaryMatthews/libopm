@@ -8,8 +8,12 @@ AM_MAINTAINER_MODE
 
 AC_ARG_WITH(extra-fascism,
     AC_HELP_STRING([--with-extra-fascism],
-    [Add extra gcc3-specific warning flags]),
+    [add extra gcc3-specific warning flags]),
     [CFLAGS="$CFLAGS -g -ggdb -O2 -W -Wfloat-equal -Wbad-function-cast -Wconversion -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wredundant-decls -Wnested-externs"])
+
+AC_ARG_WITH(faldo,
+    AC_HELP_STRING([--with-faldo],
+    [make some use of Nick Faldo]))
 
 dnl Checks for programs.
 AC_PROG_CC
@@ -39,7 +43,7 @@ if test "$have_sys_poll_h" = "no"; then
  fi
 fi
 
-AC_CHECK_FUNCS(inet_aton socket strdup strstr)
+AC_CHECK_FUNCS(inet_aton)
 
 dnl Check if we can use gethostbyname2 for ipv6
 AC_CHECK_FUNCS(gethostbyname gethostbyname2)
@@ -50,6 +54,16 @@ AC_C_BIGENDIAN
 dnl Solaris has to be weird doesn't it...
 AC_CHECK_LIB(socket, socket, AC_SUBST(LSOCKET, [-lsocket]))
 AC_CHECK_LIB(nsl, gethostbyname, AC_SUBST(LNSL, [-lnsl]))
+
+dnl teehee - taken from MRTG / Tobias Oetiker
+if test "$with_faldo" != "no"; then
+ echo $ECHO_N "checking for Nick Faldo $ECHO_C"
+ for bleh in 1 2 3; do
+  echo $ECHO_N "."        
+  sleep 1
+ done
+ AC_MSG_RESULT([ http://blitzed.org/advocacy/enjoy.jpg])
+fi
 
 AC_OUTPUT(Makefile src/Makefile)
 
