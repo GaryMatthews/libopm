@@ -25,17 +25,28 @@ my %open;
 my $numopen;
 
 my $select = new IO::Select ( \*STDIN );
+
 my $scan = OPM->new or die("Error loading OPM");
 
-for(80, 81, 3128, 6588, 8080, 8081) {
-   $scan->addtype(OPM->TYPE_HTTP, $_);
-   $scan->addtype(OPM->TYPE_HTTPPOST, $_);
-}
+sub add_default {
+   my $remote = shift;
 
-$scan->addtype(OPM->TYPE_SOCKS4, 1080);
-$scan->addtype(OPM->TYPE_SOCKS5, 1080);
-$scan->addtype(OPM->TYPE_ROUTER, 23);
-$scan->addtype(OPM->TYPE_WINGATE, 23);
+# Comman ports are: 80, 3128, 8080
+# Less common: 81, 8000, 8888, 6588
+# Quite rare: 8002, 8081 + many others
+
+# Common + Less common
+
+   for(80, 81, 3128, 6588, 8000, 8080) {
+      $remote->addtype(OPM->TYPE_HTTP, $_);
+      $remote->addtype(OPM->TYPE_HTTPPOST, $_);
+   }
+
+   $remote->addtype(OPM->TYPE_SOCKS4, 1080);
+   $remote->addtype(OPM->TYPE_SOCKS5, 1080);
+   $remote->addtype(OPM->TYPE_ROUTER, 23);
+   $remote->addtype(OPM->TYPE_WINGATE, 23);
+}
 
 # XXX: make configurable           "lik-m-aid.blitzed.org"
 $scan->config(OPM->CONFIG_SCAN_IP, "203.56.139.100");
@@ -61,13 +72,19 @@ MAIN: while(1) {
          $remote = OPM->new($proxyip);
 
          if($proxy =~ / (.+) (.+)$/) {
-            my $port = $1;
-            my $type = "TYPE_$2";
-            unless(defined *{"OPM::$type"}) {
-               print "$proxyip error Unknown protocol type\n";
-               next;
+            my @ports = split ',', $1;
+            my @types = split ',', $2;
+
+            for(0 .. $#ports) {
+               unless(OPM::constant("TYPE_$types[$_]", 0)) {
+                  print "$proxyip error Unknown protocol type ($types[$_])\n";
+                  next;
+               }
+               $remote->addtype(
+                     OPM::constant("TYPE_$types[$_]", 0), $ports[$_]);
             }
-            $remote->addtype(OPM->$type, $port);
+         }else{
+            add_default($remote);
          }
 
          my $error = $scan->scan($remote);
