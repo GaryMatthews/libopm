@@ -26,6 +26,8 @@
 #include "malloc.h"
 #include "opm_error.h"
 #include "opm_types.h"
+#include "opm_common.h"
+#include "list.h"
 
 #include <netinet/in.h>
 

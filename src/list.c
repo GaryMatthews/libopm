@@ -23,6 +23,7 @@
 
 
 #include "opm_common.h"
+#include "list.h"
 #include "malloc.h"
 
 node_t *node_create(void *data)
