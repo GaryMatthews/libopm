@@ -31,7 +31,7 @@ my $scan = OPM->new or die("Error loading OPM");
 sub add_default {
    my $remote = shift;
 
-# Comman ports are: 80, 3128, 8080
+# Common ports are: 80, 3128, 8080
 # Less common: 81, 8000, 8888, 6588
 # Quite rare: 8002, 8081 + many others
 
@@ -44,14 +44,21 @@ sub add_default {
 
    $remote->addtype(OPM->TYPE_SOCKS4, 1080);
    $remote->addtype(OPM->TYPE_SOCKS5, 1080);
+
+# These seem to be even more common than port 1080, at least on IRCnet :(
+   for(4438, 5104, 5113, 5262, 5634, 6552, 6561, 7464, 7810, 8130, 8148, 8520, 8814, 9100, 9186, 9447, 9578) {
+       $remote->addtype(OPM->TYPE_SOCKS5, $_);
+   }
+
    $remote->addtype(OPM->TYPE_ROUTER, 23);
    $remote->addtype(OPM->TYPE_WINGATE, 23);
 }
 
-# XXX: make configurable           "lik-m-aid.blitzed.org"
-$scan->config(OPM->CONFIG_SCAN_IP, "203.56.139.100");
+# XXX: make configurable           "quorn.blitzed.org"
+$scan->config(OPM->CONFIG_SCAN_IP, "212.32.4.49");
 $scan->config(OPM->CONFIG_SCAN_PORT, 6667);
-$scan->config(OPM->CONFIG_TARGET_STRING, ":lik-m-aid.ca.us.blitzed.org NOTICE AUTH :*** Looking up your hostname...");
+$scan->config(OPM->CONFIG_TARGET_STRING, ":quorn.uk.eu.blitzed.org NOTICE AUTH :*** Looking up your hostname...");
+$scan->config(OPM->CONFIG_TARGET_STRING, "ERROR :Your host is trying to (re)connect too fast -- throttled.");
 
 $scan->callback(OPM->CALLBACK_END, \&callback_end);
 $scan->callback(OPM->CALLBACK_OPENPROXY, \&callback_openproxy);
