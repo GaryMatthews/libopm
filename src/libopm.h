@@ -46,4 +46,6 @@ struct _OPM_PROTOCOL
    OPM_PROXYREAD_T  *read_function;     /* Read function handler for this protocol */
 };
 
+void do_error(OPM_REMOTE_T *, int);
+
 #endif /* LIBOPM_H */

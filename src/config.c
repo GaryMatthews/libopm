@@ -123,7 +123,7 @@ OPM_ERR_T config_set(OPM_CONFIG_T *config, int key, void *value)
    num = sizeof(HASH) / sizeof(struct CONFIG_HASH);
    
    if(key < 0 || key >= num)
-      return 1; /* Return appropriate error code eventually */  
+      return OPM_ERR_INVALIDKEY; /* Return appropriate error code eventually */  
 
    switch(config_gettype(key))
    {
@@ -142,10 +142,10 @@ OPM_ERR_T config_set(OPM_CONFIG_T *config, int key, void *value)
             (opm_sockaddr *) config->vars[key] = MyMalloc(sizeof(opm_sockaddr));
          if( inetpton(AF_INET, (char *) value, &( ((opm_sockaddr *)config->vars[key])->sa4.sin_addr))
                   <= 0)
-            return 1; /* return appropriate err code */
+            return OPM_ERR_BADADDRESS; /* return appropriate err code */
          break; 
       default:
-         return 1; /* return appropriate err code */
+         return OPM_ERR_INVALIDKEY; /* return appropriate err code */
 
    }
 

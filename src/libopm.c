@@ -212,8 +212,7 @@ void opm_free(OPM_T *scanner)
  *    value: Address of value to set variable (key) to
  *
  * Return:
- *    1: Config variable set
- *    0: Some error occured
+ *    OPM_ERR_T containing error code
  */
 
 OPM_ERR_T opm_config(OPM_T *scanner, int key, void *value)
@@ -237,7 +236,7 @@ OPM_ERR_T opm_config(OPM_T *scanner, int key, void *value)
  *    (write in future error codes)
  */
 
-int opm_addtype(OPM_T *scanner, int type, int port)
+OPM_ERR_T opm_addtype(OPM_T *scanner, int type, int port)
 {
    int i;
    node_t *node;
@@ -756,3 +755,19 @@ void do_writeready(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
    conn->state = OPM_STATE_NEGSENT;  
 }
 
+
+/* do_error
+ * 
+ *    Handle error by calling callback fun_error
+ *  
+ * Parameters:
+ *       scanner: Scanner doing the scan
+ *       scan: Specific scan
+ *       conn: Specific connection in the scan
+ *       error: OPM_ERR_T containing the error type
+ */
+
+void do_error(OPM_REMOTE_T *remote, int error)
+{
+   remote->fun_error(remote, error);
+}

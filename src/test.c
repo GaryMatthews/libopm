@@ -37,7 +37,7 @@ int main()
    return 0; 
 }
 
-void open_proxy(OPM_REMOTE_T *remote, int var)
+void open_proxy(OPM_REMOTE_T *remote, int notused)
 {
    printf("Open proxy on %s:%d [%d bytes read]\n", remote->ip, remote->port, remote->bytes_read);
 }
