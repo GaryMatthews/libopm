@@ -34,6 +34,9 @@ along with this program; if not, write to
 # include <string.h>
 # include <stdlib.h>
 #endif
+#ifdef HAVE_STRINGS_H
+# include <strings.h>
+#endif
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
