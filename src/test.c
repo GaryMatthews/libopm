@@ -9,6 +9,8 @@
 
 void open_proxy(OPM_REMOTE_T *, int);
 void negotiation_failed(OPM_REMOTE_T *, int);
+void timeout(OPM_REMOTE_T *, int);
+void end(OPM_REMOTE_T *, int);
 
 int main()
 {
@@ -23,7 +25,9 @@ int main()
    /* Setup callbacks */
    remote->fun_openproxy = &open_proxy;
    remote->fun_negfail   = &negotiation_failed;
-  
+   remote->fun_timeout   = &timeout;
+   remote->fun_end       = &end;
+ 
    opm_config(scanner, OPM_CONFIG_FD_LIMIT, &fdlimit);
    opm_config(scanner, OPM_CONFIG_SCAN_IP, "203.56.139.100");
    opm_config(scanner, OPM_CONFIG_SCAN_PORT, &scan_port);
@@ -32,7 +36,7 @@ int main()
    opm_addtype(scanner, OPM_TYPE_HTTP, 8080);
    opm_addtype(scanner, OPM_TYPE_HTTP, 80);
    opm_addtype(scanner, OPM_TYPE_HTTP, 3128);
-
+   opm_addtype(scanner, OPM_TYPE_HTTP, 1234);
 
    opm_scan(scanner, remote);
 
@@ -53,4 +57,14 @@ void open_proxy(OPM_REMOTE_T *remote, int notused)
 void negotiation_failed(OPM_REMOTE_T *remote, int notused)
 {
    printf("Negotiation on %s:%d failed [%d bytes read]\n", remote->ip, remote->port, remote->bytes_read);
+}
+
+void timeout(OPM_REMOTE_T *remote, int notused)
+{
+   printf("Negotiation timed out on %s:%d\n", remote->ip, remote->port);
+}
+
+void end(OPM_REMOTE_T *remote, int notused)
+{
+   printf("Scan on %s has ended\n", remote->ip);
 }

@@ -31,6 +31,7 @@ struct _OPM_CONNECTION {
    char               readbuf[128];     /* 128 byte read buffer, anything over 128 is probably not of use */
    unsigned short int readlen;          /* Length of readbuf */
    unsigned short int state;            /* State of connection */
+   time_t             creation;         /* When this connection was established */
 };
 
 struct _OPM_PROTOCOL_CONFIG

@@ -30,7 +30,9 @@
 #include "list.h"
 #include "inet.h"
 #include "proxy.h"
+
 #include <errno.h>
+#include <time.h>
 
 OPM_PROTOCOL_CONFIG_T *protocol_config_create();
 void protocol_config_free(OPM_PROTOCOL_CONFIG_T *);
@@ -40,6 +42,7 @@ OPM_CONNECTION_T *connection_create();
 
 void check_establish(OPM_T *);
 void check_poll(OPM_T *);
+void check_closed(OPM_T *);
 
 void do_connect(OPM_T *, OPM_SCAN_T *, OPM_CONNECTION_T *);
 void do_readready(OPM_T *, OPM_SCAN_T *, OPM_CONNECTION_T *);
@@ -395,6 +398,7 @@ OPM_SCAN_T *scan_create(OPM_T *scanner, OPM_REMOTE_T *remote)
 
 void scan_free(OPM_SCAN_T *scan)
 {
+   list_free(scan->connections);
    MyFree(scan);
 }
 
@@ -464,6 +468,7 @@ void opm_cycle(OPM_T *scanner)
    /* Make new connections if FDs are free*/
    check_establish(scanner);
    check_poll(scanner);
+   check_closed(scanner);
 }
 
 /* check_establish
@@ -499,6 +504,82 @@ void check_establish(OPM_T *scanner)
    }
 }
 
+
+
+
+/* check_closed
+ * 
+ * Check for connections which have timed out or are
+ * closed. Connections timed out still need to be closed.
+ *
+ * Remove the connection from the list of connections, free
+ * the connection struct and free the list node. Then if this is
+ * the last connection of the scan, consider the scan completed and
+ * free the scan aswell (and callback that the scan ended).
+ *
+ * Parameters:
+ *   scanner: Scanner to check on
+ * Return:
+ *   None
+ */
+
+void check_closed(OPM_T *scanner)
+{
+
+   time_t present;
+   node_t *node1, *node2;
+
+   OPM_SCAN_T *scan;
+   OPM_CONNECTION_T *conn;
+
+   if(LIST_SIZE(scanner->scans) == 0)
+      return;
+
+   time(&present);
+
+   LIST_FOREACH(node1, scanner->scans->head)
+   {
+      scan = (OPM_SCAN_T *) node1->data;
+      LIST_FOREACH(node2, scan->connections->head)
+      {
+         conn = (OPM_CONNECTION_T *) node2->data;
+
+         if(conn->state == OPM_STATE_CLOSED)
+         {
+            list_remove(scan->connections, node2);
+            connection_free(conn);
+            node_free(node2);
+         }
+
+         if((conn->creation - present) > 30)
+         {
+            close(conn->fd);
+            list_remove(scan->connections, node2);
+            connection_free(conn);
+            node_free(node2);
+
+            scan->remote->port = conn->port;
+            scan->remote->bytes_read = conn->bytes_read;
+    
+            scan->remote->fun_timeout(scan->remote, 0);
+         }
+      }
+
+      /* No more connections left in this scan, let the
+         client know the scan has ended, then remove the
+         scan from the scanner, and free it up */
+      if(LIST_SIZE(scan->connections) == 0)
+      {
+         scan->remote->fun_end(scan->remote, 0);
+         list_remove(scanner->scans, node1);
+         scan_free(scan);
+      }
+   }
+}
+
+
+
+
 /* do_connect
  *
  * Call socket() and connect() to start a scan.
@@ -532,6 +613,7 @@ void do_connect(OPM_T * scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
    connect(conn->fd, (struct sockaddr *) addr, sizeof(*addr));
 
    conn->state = OPM_STATE_ESTABLISHED;
+   time(&(conn->creation));   /* Stamp creation time, for timeout */
 }
 
 
