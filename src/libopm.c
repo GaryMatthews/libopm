@@ -1146,7 +1146,7 @@ static void libopm_check_poll(OPM_T *scanner)
 
          for(i = 0; i < size; i++)
          {
-            if(ufds[i].fd == conn->fd)
+            if((ufds[i].fd == conn->fd) && (conn->state != OPM_STATE_CLOSED))
             {
                if(ufds[i].revents & POLLIN)
                   libopm_do_readready(scanner, scan, conn);
@@ -1225,6 +1225,10 @@ static void libopm_do_readready(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION
                conn->readbuf[conn->readlen] = '\0';
                conn->readlen = 0;
                libopm_do_read(scanner, scan, conn);
+
+               if(conn->state == OPM_STATE_CLOSED)
+                  return;
+
                continue;
             }
              
@@ -1267,7 +1271,10 @@ static void libopm_do_read(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *c
    {
       target_string = (char *) node->data;
       if(strstr(conn->readbuf, target_string))
+      {
          libopm_do_openproxy(scanner, scan, conn);
+         break;
+      }
    }
 }
 

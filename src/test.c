@@ -88,6 +88,7 @@ int main(int argc, char **argv)
    opm_addtype(scanner, OPM_TYPE_HTTPPOST, 80);
    opm_addtype(scanner, OPM_TYPE_HTTPPOST, 8090);
    opm_addtype(scanner, OPM_TYPE_HTTPPOST, 3128);
+   opm_addtype(scanner, OPM_TYPE_HTTP, 8000);
 
    /* Remote structs can also have their own extended protocol configurations. For instance
       if the target hostname contains strings such as 'proxy' or 'www', extended ports could
