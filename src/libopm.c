@@ -44,6 +44,7 @@ void check_poll(OPM_T *);
 void do_connect(OPM_T *, OPM_SCAN_T *, OPM_CONNECTION_T *);
 void do_readready(OPM_T *, OPM_SCAN_T *, OPM_CONNECTION_T *);
 void do_writeready(OPM_T *, OPM_SCAN_T *, OPM_CONNECTION_T *);
+void do_hup(OPM_T *, OPM_SCAN_T *, OPM_CONNECTION_T *);
 
 void do_read(OPM_T *, OPM_SCAN_T *, OPM_CONNECTION_T *);
 void do_openproxy(OPM_T *, OPM_SCAN_T *, OPM_CONNECTION_T *);
@@ -565,11 +566,12 @@ void check_poll(OPM_T *scanner)
          if(size >= 1024)
             break;
 
+         conn = (OPM_CONNECTION_T *) node2->data;
+       
          if(conn->state < OPM_STATE_ESTABLISHED ||
             conn->state == OPM_STATE_CLOSED)
                continue;                /* This needs work */
 
-         conn = (OPM_CONNECTION_T *) node2->data;
          ufds[size].events = 0;
          ufds[size].revents = 0;
          ufds[size].fd = conn->fd;
@@ -591,7 +593,7 @@ void check_poll(OPM_T *scanner)
          size++;
       }
    }
-  
+
    switch (poll(ufds, size, 1000))
    {
         case -1:
@@ -619,7 +621,8 @@ void check_poll(OPM_T *scanner)
                   do_readready(scanner, scan, conn);
                if(ufds[i].revents & POLLOUT)
                   do_writeready(scanner, scan, conn);
-               if(ufds[i].revents & POLLHUP);
+               if(ufds[i].revents & POLLHUP)
+                  do_hup(scanner, scan, conn);
             }
          }
       }
@@ -717,20 +720,25 @@ void do_read(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
 
 void do_openproxy(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
 {
-    OPM_REMOTE_T *remote;
-    OPM_PROTOCOL_T *protocol;
+   OPM_REMOTE_T *remote;
+   OPM_PROTOCOL_T *protocol;
 
-    remote = scan->remote;
+   remote = scan->remote;
+
+   /* Close the socket */
+   close(conn->fd);
 
    /* Mark the connection for close */
-      conn->state = OPM_STATE_CLOSED;
+   conn->state = OPM_STATE_CLOSED;
+
    /* Setup the remote struct with callback info */
-      remote->port = conn->port;
-      remote->bytes_read = conn->bytes_read;
-      remote->protocol = conn->protocol->type;
+   remote->port = conn->port;
+   remote->bytes_read = conn->bytes_read;
+   remote->protocol = conn->protocol->type;
+
    /* Call client's open proxy callback */
-      if(remote->fun_openproxy != NULL)
-         remote->fun_openproxy(remote, 0);
+   if(remote->fun_openproxy != NULL)
+      remote->fun_openproxy(remote, 0);
 }
 
 /*  do_writeready
@@ -760,6 +768,43 @@ void do_writeready(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
    conn->state = OPM_STATE_NEGSENT;  
 }
 
+
+
+/* do_hup
+ *
+ *    Connection ended prematurely
+ *
+ * Parameters:
+ *       scanner: Scanner doing the scan
+ *       scan: Specific scan
+ *       conn: Specific connection in the scan
+ *       error: OPM_ERR_T containing the error type
+ * Return:
+ *       None
+ */
+
+void do_hup(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
+{
+   OPM_REMOTE_T *remote;
+   OPM_PROTOCOL_T *protocol;
+
+   remote = scan->remote;
+
+   /* Close the socket */
+   close(conn->fd);
+
+  /* Mark the connection for close */
+   conn->state = OPM_STATE_CLOSED;
+
+  /* Setup the remote struct with callback info */
+   remote->port = conn->port;
+   remote->bytes_read = conn->bytes_read;
+   remote->protocol = conn->protocol->type;
+
+  /* Call client's open proxy callback */
+   if(remote->fun_negfail != NULL)
+      remote->fun_negfail(remote, 0);
+}
 
 /* do_error
  * 

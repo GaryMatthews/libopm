@@ -8,6 +8,7 @@
 #define NODES 111
 
 void open_proxy(OPM_REMOTE_T *, int);
+void negotiation_failed(OPM_REMOTE_T *, int);
 
 int main()
 {
@@ -18,13 +19,20 @@ int main()
 
    scanner = opm_create();
    remote  = opm_remote_create("208.245.162.250");
-   remote->fun_openproxy = &open_proxy;
 
+   /* Setup callbacks */
+   remote->fun_openproxy = &open_proxy;
+   remote->fun_negfail   = &negotiation_failed;
+  
    opm_config(scanner, OPM_CONFIG_FD_LIMIT, &fdlimit);
    opm_config(scanner, OPM_CONFIG_SCAN_IP, "203.56.139.100");
    opm_config(scanner, OPM_CONFIG_SCAN_PORT, &scan_port);
    opm_config(scanner, OPM_CONFIG_TARGET_STRING, "*** Looking up your hostname...");
+
    opm_addtype(scanner, OPM_TYPE_HTTP, 8080);
+   opm_addtype(scanner, OPM_TYPE_HTTP, 80);
+   opm_addtype(scanner, OPM_TYPE_HTTP, 3128);
+
 
    opm_scan(scanner, remote);
 
@@ -40,4 +48,9 @@ int main()
 void open_proxy(OPM_REMOTE_T *remote, int notused)
 {
    printf("Open proxy on %s:%d [%d bytes read]\n", remote->ip, remote->port, remote->bytes_read);
+}
+
+void negotiation_failed(OPM_REMOTE_T *remote, int notused)
+{
+   printf("Negotiation on %s:%d failed [%d bytes read]\n", remote->ip, remote->port, remote->bytes_read);
 }
