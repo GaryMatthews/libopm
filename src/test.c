@@ -112,7 +112,7 @@ int main(int argc, char **argv)
       opm_cycle(scanner);
    
    opm_free(scanner);
-   
+   while(1); 
    return 0; 
 }
 

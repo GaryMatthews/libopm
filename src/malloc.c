@@ -29,6 +29,7 @@
 
 RCSID("$Id$");
 
+
 /* MyMalloc
  *  
  *   A wrapper function for malloc(), for catching memory issues
@@ -49,7 +50,6 @@ void *libopm_MyMalloc(size_t bytes)
 
    return ret;
 }
-
 
 
 

@@ -881,7 +881,7 @@ static void libopm_check_closed(OPM_T *scanner)
          scan from the scanner, and free it up */
       if(LIST_SIZE(scan->connections) == 0)
       {
-         libopm_do_callback(scanner, libopm_setup_remote(scan->remote, conn), OPM_CALLBACK_END, 0);
+         libopm_do_callback(scanner, scan->remote, OPM_CALLBACK_END, 0);
 
          libopm_list_remove(scanner->scans, node1);
          libopm_scan_free(scan);
