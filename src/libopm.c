@@ -26,6 +26,23 @@
 #include "malloc.h"
 
 
+/* OPM_PROTOCOLS hash
+ *
+ *    OPM_PPROTOCOLS hashes the protocol types (int) to functions
+ *    which handle the protocol (sending/receiving protocol specific
+ *    data).
+ *
+ */
+
+OPM_PROTOCOL_T OPM_PROTOCOLS[] = {
+    {OPM_TYPE_HTTP,               0},
+    {OPM_TYPE_SOCKS4,             0},
+    {OPM_TYPE_SOCKS5,             0},
+    {OPM_TYPE_WINGATE,            0},
+    {OPM_TYPE_ROUTER,             0}
+};
+
+
 /* opm_init
  *
  *    Initialize a new scanner and return a pointer to it.
@@ -43,6 +60,7 @@ OPM_T *opm_init()
    ret = MyMalloc(sizeof(OPM_T));
    ret->config = config_create();
    ret->scans  = list_create();
+   ret->protocols = list_create();
 
    return ret;
 }
@@ -103,6 +121,9 @@ void opm_free(OPM_REMOTE_T *var)
       MyFree(var);
 }
 
+
+
+
 /* opm_config
  *
  *    Wrapper to config_set. Set configuration variables
@@ -121,4 +142,61 @@ void opm_free(OPM_REMOTE_T *var)
 int opm_config(OPM_T *scanner, int key, void *value)
 {
    return config_set((scanner->config), key, value);
+}
+
+
+
+
+/* opm_addtype
+ *
+ *    Add a proxy type and port to the list of protocols 
+ *    a scanner will use.
+ * 
+ * Parameters:
+ *    scanner: pointer to scanner struct
+ *    type:    type of proxy to scan (used in hashing to the functions)
+ *    port:    port this specific type/protocol will scan on
+ * Return:
+ *    (write in future error codes)
+ */
+
+int opm_addtype(OPM_T *scanner, int type, int port)
+{
+   int i;
+   node_t *node;
+   OPM_PROTOCOL_CONFIG_T *protocol;
+
+   for(i = 0; i < sizeof(OPM_PROTOCOLS) / sizeof(OPM_PROTOCOL_T); i++)
+   {
+      if(type == OPM_PROTOCOLS[i].type)
+      {
+         protocol = protocol_config_create();
+
+         protocol->type = &OPM_PROTOCOLS[i];
+         protocol->port = port;
+  
+         node = node_create(protocol);
+         list_add(scanner->protocols, node);
+
+      }
+   }
+}
+
+/* protocol_config_create
+ *
+ *    Allocate and return address of a new OPM_PROTOCOL_CONFIG_T
+ *
+ * Parameters:
+ *    None
+ *
+ * Return:
+ *    Address of new OPM_PROTOCOL_CONFIG_T
+ */
+
+OPM_PROTOCOL_CONFIG_T *protocol_config_create()
+{
+   OPM_PROTOCOL_CONFIG_T *ret;
+   ret = MyMalloc(sizeof(OPM_PROTOCOL_CONFIG_T));
+
+   return ret;
 }
