@@ -23,11 +23,11 @@
 
 
 #include "list.h"
-#include <stdio.h>
+#include "malloc.h"
 
 node_t *node_create(void *data)
 {
-   node_t *node = (node_t *) malloc(sizeof(node_t));
+   node_t *node = (node_t *) MyMalloc(sizeof(node_t));
    node->next = 0;
    node->prev = 0;  
    node->data = (void *) data;
@@ -37,7 +37,7 @@ node_t *node_create(void *data)
 
 list_t *list_create()
 {
-   list_t *list = (list_t *) malloc(sizeof(list_t));
+   list_t *list = (list_t *) MyMalloc(sizeof(list_t));
 
    list->head = 0;
    list->tail = 0;
@@ -112,4 +112,14 @@ node_t *list_remove(list_t **list, node_t *node)
    }
 
    return 0;
+}
+
+void list_free(list_t *list)
+{
+   MyFree(list);
+}
+
+void node_free(node_t *node)
+{
+   MyFree(node);
 }
