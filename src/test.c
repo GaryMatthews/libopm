@@ -34,6 +34,8 @@
 
 RCSID("$Id$");
 
+#define ARRAY_SIZEOF(x) (sizeof(x) / sizeof((x)[0]))
+
 void open_proxy(OPM_T *, OPM_REMOTE_T *, int, void *);
 void negotiation_failed(OPM_T *, OPM_REMOTE_T *, int, void *);
 void timeout(OPM_T *, OPM_REMOTE_T *, int, void *);
@@ -49,7 +51,32 @@ int main(int argc, char **argv)
    int scan_port = 6667;
    int max_read = 4096;
    int scantimeout  = 10;
-  
+   unsigned int i, s;
+
+   unsigned short http_ports[] = {
+      8000, 8080, 3128, 80
+   };
+
+   unsigned short wingate_ports[] = {
+      23
+   };
+
+   unsigned short router_ports[] = {
+      23
+   };
+   
+   unsigned short socks4_ports[] = {
+      1080
+   };
+
+   unsigned short socks5_ports[] = {
+      1080
+   };
+
+   unsigned short httppost_ports[] = {
+      80, 8090, 3128
+   };
+   
    OPM_T *scanner;
    OPM_REMOTE_T *remote;
 
@@ -78,18 +105,30 @@ int main(int argc, char **argv)
    opm_config(scanner, OPM_CONFIG_MAX_READ, &max_read);
 
    /* Setup the protocol configuration */
-   opm_addtype(scanner, OPM_TYPE_HTTP, 8080);
-   opm_addtype(scanner, OPM_TYPE_HTTP, 80);
-   opm_addtype(scanner, OPM_TYPE_HTTP, 3128);
-   opm_addtype(scanner, OPM_TYPE_WINGATE, 23);
-   opm_addtype(scanner, OPM_TYPE_ROUTER, 23);
-   opm_addtype(scanner, OPM_TYPE_SOCKS4, 1080);
-   opm_addtype(scanner, OPM_TYPE_SOCKS5, 1080);
-   opm_addtype(scanner, OPM_TYPE_HTTPPOST, 80);
-   opm_addtype(scanner, OPM_TYPE_HTTPPOST, 8090);
-   opm_addtype(scanner, OPM_TYPE_HTTPPOST, 3128);
-   opm_addtype(scanner, OPM_TYPE_HTTP, 8000);
-
+   for (s = ARRAY_SIZEOF(http_ports), i = 0; i < s; i++) {
+      opm_addtype(scanner, OPM_TYPE_HTTP, http_ports[i]);
+   }
+   
+   for (s = ARRAY_SIZEOF(wingate_ports), i = 0; i < s; i++) {
+      opm_addtype(scanner, OPM_TYPE_WINGATE, wingate_ports[i]);
+   }
+   
+   for (s = ARRAY_SIZEOF(router_ports), i = 0; i < s; i++) {
+      opm_addtype(scanner, OPM_TYPE_ROUTER, router_ports[i]);
+   }
+   
+   for (s = ARRAY_SIZEOF(socks4_ports), i = 0; i < s; i++) {
+      opm_addtype(scanner, OPM_TYPE_SOCKS4, socks4_ports[i]);
+   }
+   
+   for (s = ARRAY_SIZEOF(socks5_ports), i = 0; i < s; i++) {
+      opm_addtype(scanner, OPM_TYPE_SOCKS5, socks5_ports[i]);
+   }
+   
+   for (s = ARRAY_SIZEOF(httppost_ports), i = 0; i < s; i++) {
+      opm_addtype(scanner, OPM_TYPE_HTTPPOST, httppost_ports[i]);
+   }
+   
    /* Remote structs can also have their own extended protocol configurations. For instance
       if the target hostname contains strings such as 'proxy' or 'www', extended ports could
       be scanned. */
@@ -119,20 +158,32 @@ int main(int argc, char **argv)
    return 0; 
 }
 
-void open_proxy(OPM_T *scanner, OPM_REMOTE_T *remote, int notused, void *data)
+void open_proxy(OPM_T *scanner, OPM_REMOTE_T *remote, int notused,
+      void *data)
 {
-   printf("Open proxy on %s:%d [%d bytes read]\n", remote->ip, remote->port, remote->bytes_read);
+   printf("Open proxy on %s:%d [%d bytes read]\n", remote->ip,
+         remote->port, remote->bytes_read);
    opm_end(scanner, remote);
+   USE_VAR(notused);
+   USE_VAR(data);
 }
 
-void negotiation_failed(OPM_T *scanner, OPM_REMOTE_T *remote, int notused, void *data)
+void negotiation_failed(OPM_T *scanner, OPM_REMOTE_T *remote, int notused,
+      void *data)
 {
-   printf("Negotiation on %s:%d failed [%d bytes read]\n", remote->ip, remote->port, remote->bytes_read);
+   printf("Negotiation on %s:%d failed [%d bytes read]\n", remote->ip,
+         remote->port, remote->bytes_read);
+   USE_VAR(scanner);
+   USE_VAR(notused);
+   USE_VAR(data);
 }
 
 void timeout(OPM_T *scanner, OPM_REMOTE_T *remote, int notused, void *data)
 {
    printf("Negotiation timed out on %s:%d\n", remote->ip, remote->port);
+   USE_VAR(scanner);
+   USE_VAR(notused);
+   USE_VAR(data);
 }
 
 void end(OPM_T *scanner, OPM_REMOTE_T *remote, int notused, void *data)
@@ -140,6 +191,9 @@ void end(OPM_T *scanner, OPM_REMOTE_T *remote, int notused, void *data)
    printf("Scan on %s has ended\n", remote->ip);
    opm_remote_free(remote);
    complete = 1;
+   USE_VAR(scanner);
+   USE_VAR(notused);
+   USE_VAR(data);
 }
 
 void handle_error(OPM_T *scanner, OPM_REMOTE_T *remote, int err, void *data)
@@ -153,9 +207,14 @@ void handle_error(OPM_T *scanner, OPM_REMOTE_T *remote, int err, void *data)
          printf("Unable to bind for %s:%d\n", remote->ip, remote->port);
          break;
       case OPM_ERR_NOFD:
-         printf("Unable to allocate file descriptor for %s:%d\n", remote->ip, remote->port);
+         printf("Unable to allocate file descriptor for %s:%d\n",
+               remote->ip, remote->port);
          break;
       default:
-         printf("Unknown error on %s:%d, err = %d\n", remote->ip, remote->port, err);
+         printf("Unknown error on %s:%d, err = %d\n", remote->ip,
+               remote->port, err);
    }
+
+   USE_VAR(scanner);
+   USE_VAR(data);
 }

@@ -74,6 +74,7 @@ extern const unsigned char ToLowerTab[];
 /* 
  * From: Thomas Helvey <tomh@inxpress.net>
  */
+#if 0
 static const char *IpQuadTab[] = {
     "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
     "10", "11", "12", "13", "14", "15", "16", "17", "18", "19",
@@ -102,7 +103,7 @@ static const char *IpQuadTab[] = {
     "240", "241", "242", "243", "244", "245", "246", "247", "248", "249",
     "250", "251", "252", "253", "254", "255"
 };
-
+#endif
 
 /*
  * inetntoa - in_addr to string
@@ -113,8 +114,12 @@ static const char *IpQuadTab[] = {
  *      internet number
  *      argv 11/90).
  *  inet_ntoa --  its broken on some Ultrix/Dynix too. -avalon
+ *
+ *  XXX - Again not used anywhere?
+ *  -grifferz
  */
 
+#if 0
 static char *inetntoa(char *in)
 {
     static char buf[16];
@@ -140,6 +145,7 @@ static char *inetntoa(char *in)
     *bufptr = '\0';
     return buf;
 }
+#endif
 
 /*
  * Copyright (c) 1996-1999 by Internet Software Consortium.
@@ -163,7 +169,14 @@ static char *inetntoa(char *in)
  * sizeof(int) < 4.  sizeof(int) > 4 is fine; all the world's not a VAX.
  */
 
+/*
+ * XXX - this does not seem to be used anywhere currently.
+ *  -grifferz
+ */
+#if 0
 static const char *inet_ntop4(const u_char *src, char *dst, unsigned int size);
+#endif
+
 #ifdef IPV6
 static const char *inet_ntop6(const u_char *src, char *dst, unsigned int size);
 #endif
@@ -178,13 +191,18 @@ static const char *inet_ntop6(const u_char *src, char *dst, unsigned int size);
  *      (2) takes a u_char* not an in_addr as input
  * author:
  *      Paul Vixie, 1996.
+ *
+ * XXX - this does not seem to be used anywhere currently.
+ *  -grifferz
  */
+#if 0
 static const char *inet_ntop4(const unsigned char *src, char *dst, unsigned int size)
 {
     if (size < 15)
         return NULL;
     return strcpy(dst, inetntoa((char *) src));
 }
+#endif
 
 /* const char *
  * inet_ntop6(src, dst, size)

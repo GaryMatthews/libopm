@@ -45,13 +45,25 @@
 # endif
 #endif
 
+#include <unistd.h>
+
+#ifdef HAVE_STRING_H
+# include <string.h>
+#endif
+
 RCSID("$Id$");
 
 static OPM_PROTOCOL_CONFIG_T *libopm_protocol_config_create(void);
 static void libopm_protocol_config_free(OPM_PROTOCOL_CONFIG_T *);
 
+/*
+ * XXX - does not appear to be used anywhere?
+ * -grifferz
+ */
+#if 0
 static OPM_PROTOCOL_T *libopm_protocol_create(void);
 static void libopm_protocol_free(OPM_PROTOCOL_T *);
+#endif
 
 static OPM_SCAN_T *libopm_scan_create(OPM_T *, OPM_REMOTE_T *);
 static void libopm_scan_free(OPM_SCAN_T *);
@@ -73,7 +85,8 @@ static void libopm_do_openproxy(OPM_T *, OPM_SCAN_T *, OPM_CONNECTION_T *);
 
 static void libopm_do_callback(OPM_T *, OPM_REMOTE_T *, int, int);
 
-static OPM_REMOTE_T *libopm_setup_remote(OPM_REMOTE_T *remote, OPM_CONNECTION_T *conn);
+static OPM_REMOTE_T *libopm_setup_remote(OPM_REMOTE_T *, OPM_CONNECTION_T *);
+
 
 /* OPM_PROTOCOLS hash
  *
@@ -146,9 +159,8 @@ OPM_T *opm_create()
  *
  */
 
-OPM_REMOTE_T *opm_remote_create(char *ip)
+OPM_REMOTE_T *opm_remote_create(const char *ip)
 { 
-   int i;
    OPM_REMOTE_T *ret;
 
 
@@ -246,8 +258,6 @@ OPM_ERR_T opm_callback(OPM_T *scanner, int type, OPM_CALLBACK_FUNC *function, vo
 
 void opm_free(OPM_T *scanner)
 {
-   int i;
-
    OPM_NODE_T *p, *next;
    OPM_PROTOCOL_CONFIG_T *ppc;
    OPM_SCAN_T *scan;
@@ -328,7 +338,7 @@ OPM_ERR_T opm_config(OPM_T *scanner, int key, void *value)
 
 OPM_ERR_T opm_addtype(OPM_T *scanner, int type, unsigned short int port)
 {
-   int i;
+   unsigned int i;
 
    OPM_NODE_T *node;
    OPM_PROTOCOL_CONFIG_T *protocol_config;
@@ -370,7 +380,7 @@ OPM_ERR_T opm_addtype(OPM_T *scanner, int type, unsigned short int port)
 
 OPM_ERR_T opm_remote_addtype(OPM_REMOTE_T *remote, int type, unsigned short int port)
 {
-   int i;
+   unsigned int i;
 
    OPM_NODE_T *node;
    OPM_PROTOCOL_CONFIG_T *protocol_config;
@@ -404,8 +414,12 @@ OPM_ERR_T opm_remote_addtype(OPM_REMOTE_T *remote, int type, unsigned short int 
  *    None
  * Return:
  *    Pointer to new struct
+ *
+ * XXX - does not appear to be used anywhere?
+ * -grifferz
  */
 
+#if 0
 static OPM_PROTOCOL_T *libopm_protocol_create(void)
 {
    OPM_PROTOCOL_T *ret;
@@ -417,7 +431,7 @@ static OPM_PROTOCOL_T *libopm_protocol_create(void)
    
    return ret;
 }
-
+#endif
 
 
 /* libopm_protocol_free
@@ -431,13 +445,17 @@ static OPM_PROTOCOL_T *libopm_protocol_create(void)
  * 
  * Return:
  *    None
+ *
+ * XXX - apparently no longer used?
+ *  -grifferz
  */
 
+#if 0
 static void libopm_protocol_free(OPM_PROTOCOL_T *protocol)
 {
    MyFree(protocol);
 }
-
+#endif
 
 
 
@@ -637,14 +655,12 @@ void opm_endscan(OPM_T *scanner, OPM_REMOTE_T *remote)
 
    Return:
       Number of active scans, both queued and active.
-
 */
 
 size_t opm_active(OPM_T *scanner)
 {
     return LIST_SIZE(scanner->queue) + LIST_SIZE(scanner->scans);
 }
-
 
 
 
@@ -1078,7 +1094,7 @@ static void libopm_check_poll(OPM_T *scanner)
    size = 0;
 
    /* Grow pollfd array (ufds) as needed */
-   if(ufds_size < (*(int *) libopm_config(scanner->config, OPM_CONFIG_FD_LIMIT)))
+   if(ufds_size < (*(unsigned int *) libopm_config(scanner->config, OPM_CONFIG_FD_LIMIT)))
    {
       MyFree(ufds);
       ufds = MyMalloc(sizeof(struct pollfd) * (*(int *) libopm_config(scanner->config, OPM_CONFIG_FD_LIMIT)));
@@ -1296,7 +1312,6 @@ static void libopm_do_read(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *c
 static void libopm_do_openproxy(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
 {
    OPM_REMOTE_T *remote;
-   OPM_PROTOCOL_T *protocol;
 
    remote = scan->remote;
 
@@ -1357,7 +1372,6 @@ static void libopm_do_writeready(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTIO
 static void libopm_do_hup(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
 {
    OPM_REMOTE_T *remote;
-   OPM_PROTOCOL_T *protocol;
 
    remote = scan->remote;
 

@@ -175,7 +175,7 @@ void libopm_config_free(OPM_CONFIG_T *config)
 OPM_ERR_T libopm_config_set(OPM_CONFIG_T *config, int key, void *value)
 {
 
-   int num, i;
+   int num;
    OPM_NODE_T *node;
 
    num = sizeof(HASH) / sizeof(OPM_CONFIG_HASH_T);

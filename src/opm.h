@@ -61,7 +61,7 @@ struct _OPM_REMOTE {
 OPM_T *opm_create(void);
 void opm_free(OPM_T *);
 
-OPM_REMOTE_T *opm_remote_create(char *);
+OPM_REMOTE_T *opm_remote_create(const char *);
 void opm_remote_free(OPM_REMOTE_T *);
 
 OPM_ERR_T opm_config(OPM_T *, int, void *);
@@ -74,5 +74,7 @@ OPM_ERR_T opm_remote_addtype(OPM_REMOTE_T *, int, unsigned short int);
 OPM_ERR_T opm_callback(OPM_T *, int, OPM_CALLBACK_FUNC *, void *);
 
 void opm_cycle(OPM_T *);
+
+size_t opm_active(OPM_T *);
 
 #endif /* OPM_H */

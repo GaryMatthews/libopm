@@ -1,3 +1,5 @@
+/* vim: set shiftwidth=3 softtabstop=3 expandtab: */
+
 /* Copyright (C) 2002  Erik Fears
  *
  * This program is free software; you can redistribute it and/or
@@ -22,6 +24,13 @@
 
 #include "setup.h"
 
+#include <stdio.h>
+
+#ifdef STDC_HEADERS
+# include <stdlib.h>
+# include <string.h>
+#endif
+
 #include "inet.h"
 #include "compat.h"
 #include "config.h"
@@ -44,6 +53,7 @@ int libopm_proxy_http_write(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *
    if(send(conn->fd, SENDBUF, strlen(SENDBUF), 0) == -1)
       return 0; /* Return error code ? */
 
+   USE_VAR(scan);
    return OPM_SUCCESS;
 }
 
@@ -69,9 +79,6 @@ int libopm_proxy_socks4_write(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T
    scan_ip = (char *) libopm_config(scanner->config, OPM_CONFIG_SCAN_IP);
    scan_port = *(int *) libopm_config(scanner->config, OPM_CONFIG_SCAN_PORT);
 
-   if (inet_aton(scan_ip, &addr) == 0)
-       ; /* handle error */
-
    laddr = htonl(addr.s_addr);
 
    len = snprintf(SENDBUF, SENDBUFLEN, "%c%c%c%c%c%c%c%c%c",  4, 1,
@@ -80,7 +87,9 @@ int libopm_proxy_socks4_write(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T
                  (char) (laddr >> 24) & 0xFF, (char) (laddr >> 16) & 0xFF,
                  (char) (laddr >> 8) & 0xFF, (char) laddr & 0xFF, 0);
 
-   send(conn->fd, SENDBUF, len, 0);
+   send(conn->fd, SENDBUF, (unsigned int)len, 0);
+
+   USE_VAR(scan);
 
    return OPM_SUCCESS;
 }
@@ -136,16 +145,12 @@ int libopm_proxy_socks5_write(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T
    scan_ip = (char *) libopm_config(scanner->config, OPM_CONFIG_SCAN_IP);
    scan_port = *(int *) libopm_config(scanner->config, OPM_CONFIG_SCAN_PORT);
 
-
-   if (inet_aton(scan_ip, &addr) == 0) 
-       ; /* handle error */
-
    laddr = htonl(addr.s_addr);
 
    /* Form authentication string */
    /* Version 5, 1 number of methods, 0 method (no auth). */
    len = snprintf(SENDBUF, SENDBUFLEN, "%c%c%c", 5, 1, 0);
-   send(conn->fd, SENDBUF, len, 0);
+   send(conn->fd, SENDBUF, (unsigned int)len, 0);
 
    /* Form request string */
 
@@ -158,9 +163,11 @@ int libopm_proxy_socks5_write(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T
                  (((unsigned short) scan_port) >> 8) & 0xFF,
                  (((unsigned short) scan_port) & 0xFF));
 
-   send(conn->fd, SENDBUF, len, 0);
-   return OPM_SUCCESS;
+   send(conn->fd, SENDBUF, (unsigned int)len, 0);
 
+   USE_VAR(scan);
+   
+   return OPM_SUCCESS;
 }
 
 /*
@@ -177,7 +184,9 @@ int libopm_proxy_wingate_write(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_
    scan_port = *(int *) libopm_config(scanner->config, OPM_CONFIG_SCAN_PORT);
 
    len = snprintf(SENDBUF, SENDBUFLEN, "%s:%d\r\n", scan_ip, scan_port);
-   send(conn->fd, SENDBUF, len, 0);
+   send(conn->fd, SENDBUF, (unsigned int)len, 0);
+
+   USE_VAR(scan);
 
    return OPM_SUCCESS;
 }
@@ -200,10 +209,12 @@ int libopm_proxy_router_write(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T
    scan_port = *(int *) libopm_config(scanner->config, OPM_CONFIG_SCAN_PORT);
 
    len = snprintf(SENDBUF, SENDBUFLEN, "cisco\r\n");
-   send(conn->fd, SENDBUF, len, 0);
+   send(conn->fd, SENDBUF, (unsigned int)len, 0);
 
    len = snprintf(SENDBUF, SENDBUFLEN, "telnet %s %d\r\n", scan_ip, scan_port);
-   send(conn->fd, SENDBUF, len, 0);
+   send(conn->fd, SENDBUF, (unsigned int)len, 0);
+
+   USE_VAR(scan);
 
    return OPM_SUCCESS;
 }
@@ -228,6 +239,9 @@ int libopm_proxy_httppost_write(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION
             "quit\r\n\r\n",
             scan_ip, scan_port);
 
-   send(conn->fd, SENDBUF, len, 0);
-   return(1);
+   send(conn->fd, SENDBUF, (unsigned int)len, 0);
+
+   USE_VAR(scan);
+
+   return OPM_SUCCESS;
 }
