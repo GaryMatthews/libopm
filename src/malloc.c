@@ -66,5 +66,6 @@ void *libopm_MyMalloc(size_t bytes)
 
 void libopm_MyFree(void *var)
 {
+   if(var != NULL)
       free(var);
 }
