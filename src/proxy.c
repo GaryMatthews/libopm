@@ -22,6 +22,7 @@
 
 #include "setup.h"
 
+#include "inet.h"
 #include "compat.h"
 #include "config.h"
 #include "proxy.h"
@@ -29,7 +30,6 @@
 #include "opm_types.h"
 #include "opm_error.h"
 #include "libopm.h"
-#include "inet.h"
 
 RCSID("$Id$");
 

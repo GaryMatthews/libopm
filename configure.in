@@ -29,7 +29,8 @@ AC_PROG_CC
 AC_PROG_LIBTOOL
 AC_SUBST(LIBTOOL_DEPS)
 
-dnl Checks for libraries.
+dnl check if we need -lsocket or -lnsl
+ETR_SOCKET_NSL
 
 dnl Checks for header files.
 AC_HEADER_STDC
