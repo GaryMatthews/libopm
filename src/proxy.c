@@ -46,6 +46,8 @@ static char SENDBUF[SENDBUFLEN + 1];
 
 int libopm_proxy_http_write(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
 {
+   USE_VAR(scan);
+
    snprintf(SENDBUF, SENDBUFLEN, "CONNECT %s:%d HTTP/1.0\r\n\r\n",
       (char *) libopm_config(scanner->config, OPM_CONFIG_SCAN_IP), 
       *(int *) libopm_config(scanner->config, OPM_CONFIG_SCAN_PORT));
@@ -53,7 +55,6 @@ int libopm_proxy_http_write(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *
    if(send(conn->fd, SENDBUF, strlen(SENDBUF), 0) == -1)
       return 0; /* Return error code ? */
 
-//   USE_VAR(scan);
    return OPM_SUCCESS;
 }
 
