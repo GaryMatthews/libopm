@@ -102,7 +102,6 @@ OPM_NODE_T *libopm_list_remove(OPM_LIST_T *list, OPM_NODE_T *node)
    {
       node->prev->next = node->next;
       node->next->prev = node->prev;
-      list->elements--;
    }
 
    list->elements--;
