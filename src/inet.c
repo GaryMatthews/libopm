@@ -115,7 +115,7 @@ static const char *IpQuadTab[] = {
  *  inet_ntoa --  its broken on some Ultrix/Dynix too. -avalon
  */
 
-char *inetntoa(char *in)
+static char *inetntoa(char *in)
 {
     static char buf[16];
     register char *bufptr = buf;
@@ -280,6 +280,13 @@ static const char *inet_ntop6(const unsigned char *src, char *dst, unsigned int 
 }
 #endif
 
+#if 0
+
+/*
+ * This code doesn't seem to be used anywhere currently?
+ * -grifferz
+ */
+
 /* char *
  * inetntop(af, src, dst, size)
  *      convert a network format address to presentation format.
@@ -308,6 +315,7 @@ const char *inetntop(int af, const void *src, char *dst, unsigned int size)
     }
     /* NOTREACHED */
 }
+#endif
 
 /*
  * WARNING: Don't even consider trying to compile this on a system where
@@ -506,31 +514,3 @@ char tmp[HOSTIPLEN];
 }
 
 #endif
-
-/*
- * bopm_gethostbyname
- *
- * This is a function to be able to use gethostbyname2
- * as provided by some operating systems. This has the
- * ability to resolve hostnames in ipv6.
- * -TimeMr14C
- */
-
-struct hostent *bopm_gethostbyname(const char *name)
-{
-struct hostent *he;
-
-#if defined(HAVE_GETHOSTBYNAME2)
-    if (strchr(name, ':')) {
-        return gethostbyname2(name, AF_INET6);
-    } else {
-	he = gethostbyname2(name, AF_INET);
-	if (h_errno == NO_ADDRESS) {
-	    return gethostbyname2(name, AF_INET6);
-	} else
-	    return he;
-    }	
-#else
-    return gethostbyname(name);
-#endif
-}

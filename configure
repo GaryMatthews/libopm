@@ -8842,6 +8842,10 @@ if test "$with_faldo" != "no"; then
 echo "${ECHO_T} http://blitzed.org/advocacy/enjoy.jpg" >&6
 fi
 
+LTLIBOBJS=`echo "$LIBOBJS" |
+           sed 's,\.[^.]* ,.lo ,g;s,\.[^.]*$,.lo,'`
+
+
 ac_config_files="$ac_config_files Makefile src/Makefile doc/Makefile doc/Doxyfile"
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -9481,6 +9485,7 @@ s,@LIBTOOL_DEPS@,$LIBTOOL_DEPS,;t t
 s,@LIBOBJS@,$LIBOBJS,;t t
 s,@LSOCKET@,$LSOCKET,;t t
 s,@LNSL@,$LNSL,;t t
+s,@LTLIBOBJS@,$LTLIBOBJS,;t t
 CEOF
 
 _ACEOF

@@ -43,7 +43,7 @@ RCSID("$Id$");
  * An implementation of inet_aton for those systems that don't have it
  * (Solaris, ...)
  */
-int inet_aton(const char *cp, struct in_addr *inp)
+int libopm_inet_aton(const char *cp, struct in_addr *inp)
 {
 	unsigned int a1, a2, a3, a4;
 	unsigned long ret;

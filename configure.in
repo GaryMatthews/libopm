@@ -76,6 +76,10 @@ if test "$with_faldo" != "no"; then
  AC_MSG_RESULT([ http://blitzed.org/advocacy/enjoy.jpg])
 fi
 
+LTLIBOBJS=`echo "$LIB@&t@OBJS" |
+           sed 's,\.[[^.]]* ,.lo ,g;s,\.[[^.]]*$,.lo,'`
+AC_SUBST(LTLIBOBJS)
+
 AC_OUTPUT(Makefile src/Makefile doc/Makefile doc/Doxyfile)
 
 echo "##############################################################################"

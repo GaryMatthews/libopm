@@ -81,6 +81,7 @@ LIBTOOL_DEPS = @LIBTOOL_DEPS@
 LNSL = @LNSL@
 LN_S = @LN_S@
 LSOCKET = @LSOCKET@
+LTLIBOBJS = @LTLIBOBJS@
 MAINT = @MAINT@
 OBJDUMP = @OBJDUMP@
 PACKAGE = @PACKAGE@
@@ -99,16 +100,16 @@ libopm_la_SOURCES = compat.c compat.h config.c config.h inet.c inet.h \
 
 include_HEADERS = opm.h opm_error.h opm_types.h opm_common.h
 
-libopm_la_LIBADD = @LNSL@ @LSOCKET@
+libopm_la_LIBADD = @LNSL@ @LSOCKET@ @LTLIBOBJS@
 
 noinst_PROGRAMS = test test_debug
 test_SOURCES = test.c
-test_LDADD = libopm.la compat.o
+test_LDADD = libopm.la compat.o @LIBOBJS@
 
 
 # An easier-to-debug version of test
 test_debug_SOURCES = test.c
-test_debug_LDADD = libopm.la compat.o
+test_debug_LDADD = libopm.la compat.o @LIBOBJS@
 test_debug_LDFLAGS = -static
 subdir = src
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
@@ -117,7 +118,7 @@ CONFIG_CLEAN_FILES =
 LTLIBRARIES = $(lib_LTLIBRARIES)
 
 libopm_la_LDFLAGS =
-libopm_la_DEPENDENCIES =
+libopm_la_DEPENDENCIES = @LTLIBOBJS@
 am_libopm_la_OBJECTS = compat.lo config.lo inet.lo libopm.lo list.lo \
 	malloc.lo proxy.lo
 libopm_la_OBJECTS = $(am_libopm_la_OBJECTS)
@@ -126,11 +127,11 @@ PROGRAMS = $(noinst_PROGRAMS)
 
 am_test_OBJECTS = test.$(OBJEXT)
 test_OBJECTS = $(am_test_OBJECTS)
-test_DEPENDENCIES = libopm.la compat.o
+test_DEPENDENCIES = libopm.la compat.o @LIBOBJS@
 test_LDFLAGS =
 am_test_debug_OBJECTS = test.$(OBJEXT)
 test_debug_OBJECTS = $(am_test_debug_OBJECTS)
-test_debug_DEPENDENCIES = libopm.la compat.o
+test_debug_DEPENDENCIES = libopm.la compat.o @LIBOBJS@
 
 DEFS = @DEFS@
 DEFAULT_INCLUDES =  -I. -I$(srcdir) -I.
@@ -139,7 +140,8 @@ LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
-@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/compat.Plo ./$(DEPDIR)/config.Plo \
+@AMDEP_TRUE@DEP_FILES = $(DEPDIR)/snprintf.Plo $(DEPDIR)/snprintf.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/compat.Plo ./$(DEPDIR)/config.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/inet.Plo ./$(DEPDIR)/libopm.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/list.Plo ./$(DEPDIR)/malloc.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/proxy.Plo ./$(DEPDIR)/test.Po
@@ -155,7 +157,8 @@ DIST_SOURCES = $(libopm_la_SOURCES) $(test_SOURCES) \
 	$(test_debug_SOURCES)
 HEADERS = $(include_HEADERS)
 
-DIST_COMMON = $(include_HEADERS) Makefile.am Makefile.in setup.h.in
+DIST_COMMON = $(include_HEADERS) Makefile.am Makefile.in setup.h.in \
+	snprintf.c
 SOURCES = $(libopm_la_SOURCES) $(test_SOURCES) $(test_debug_SOURCES)
 
 all: setup.h
@@ -235,6 +238,8 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/snprintf.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/snprintf.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/compat.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/config.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/inet.Plo@am__quote@
@@ -245,7 +250,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test.Po@am__quote@
 
 distclean-depend:
-	-rm -rf ./$(DEPDIR)
+	-rm -rf $(DEPDIR) ./$(DEPDIR)
 
 .c.o:
 @AMDEP_TRUE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@

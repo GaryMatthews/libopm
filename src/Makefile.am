@@ -6,14 +6,14 @@ libopm_la_SOURCES = compat.c compat.h config.c config.h inet.c inet.h \
 
 include_HEADERS = opm.h opm_error.h opm_types.h opm_common.h
 
-libopm_la_LIBADD = @LNSL@ @LSOCKET@
+libopm_la_LIBADD = @LNSL@ @LSOCKET@ @LTLIBOBJS@
 
 noinst_PROGRAMS = test test_debug
 test_SOURCES = test.c
-test_LDADD = libopm.la compat.o
+test_LDADD = libopm.la compat.o @LIBOBJS@
 
 # An easier-to-debug version of test
 
 test_debug_SOURCES = test.c
-test_debug_LDADD = libopm.la compat.o
+test_debug_LDADD = libopm.la compat.o @LIBOBJS@
 test_debug_LDFLAGS = -static
