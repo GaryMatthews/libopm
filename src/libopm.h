@@ -1,21 +1,32 @@
 #ifndef LIBOPM_H
 #define LIBOPM_H
 
-typedef struct  _OPM        OPM_T;
-typedef struct  _OPM_REMOTE OPM_REMOTE_T;
-typedef struct  _OPM_SCAN   OPM_SCAN_T;
+#include "list.h"
+
+typedef struct  _OPM_CONFIG       OPM_CONFIG_T;
+typedef struct  _OPM              OPM_T;
+typedef struct  _OPM_SCAN         OPM_SCAN_T;
+typedef struct  _OPM_REMOTE       OPM_REMOTE_T;
+typedef struct  _OPM_CONNECTION   OPM_CONNECTION_T;
 
 typedef void OPM_CALLBACK_T (OPM_REMOTE_T *, int);
 
-struct _OPM {            
 
-   OPM_T               *next;
-   OPM_T               *last;
+struct _OPM {
+   OPM_CONFIG_T *config;
+};
 
+struct _OPM_CONFIG {
+   char *bind_ip;
+   char *dnsbl_host;
+   int fd_limit;
+};
+
+
+struct _OPM_SCAN {
    //struct sockaddr_in addr;   
-
    OPM_REMOTE_T        *remote;
-   OPM_SCAN_T          *scans;
+   list_t              *scans;
 };
 
 struct _OPM_REMOTE {
@@ -33,10 +44,7 @@ struct _OPM_REMOTE {
    int                bytes_read; 
 };
 
-struct _OPM_SCAN {
-
-   OPM_SCAN_T           *next;
-   OPM_SCAN_T           *last;
+struct _OPM_CONNECTION {
 
   /* OPM_PROTOCOL       *protocol; */
    int                fd;  

@@ -21,6 +21,7 @@
  *                  
  */
 
+#include "list.h"
 #include "libopm.h"
 
 
@@ -39,7 +40,7 @@
  *
  */
 
-OPM_REMOTE_T *opm_new(char *ip)
+OPM_REMOTE_T *opm_remote(char *ip)
 { 
 
    OPM_REMOTE_T *ret;
