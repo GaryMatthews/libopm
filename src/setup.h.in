@@ -27,6 +27,9 @@
 /* Define to 1 if you have the `select' function. */
 #undef HAVE_SELECT
 
+/* Define to 1 if you have the `snprintf' function. */
+#undef HAVE_SNPRINTF
+
 /* Define to 1 if you have the <stdint.h> header file. */
 #undef HAVE_STDINT_H
 
@@ -54,6 +57,9 @@
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
 
+/* Define to 1 if you have the `vsnprintf' function. */
+#undef HAVE_VSNPRINTF
+
 /* Name of package */
 #undef PACKAGE
 
@@ -71,6 +77,9 @@
 
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
+
+/* "enable replacement (v)snprintf if system (v)snprintf is broken" */
+#undef PREFER_PORTABLE_SNPRINTF
 
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS

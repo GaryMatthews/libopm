@@ -8063,6 +8063,209 @@ _ACEOF
 fi
 
 
+
+
+for ac_func in snprintf vsnprintf
+do
+as_ac_var=`echo "ac_cv_func_$ac_func" | $as_tr_sh`
+echo "$as_me:$LINENO: checking for $ac_func" >&5
+echo $ECHO_N "checking for $ac_func... $ECHO_C" >&6
+if eval "test \"\${$as_ac_var+set}\" = set"; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+#include "confdefs.h"
+/* System header to define __stub macros and hopefully few prototypes,
+    which can conflict with char $ac_func (); below.  */
+#include <assert.h>
+/* Override any gcc2 internal prototype to avoid an error.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+/* We use char because int might match the return type of a gcc2
+   builtin and then its argument prototype would still apply.  */
+char $ac_func ();
+char (*f) ();
+
+#ifdef F77_DUMMY_MAIN
+#  ifdef __cplusplus
+     extern "C"
+#  endif
+   int F77_DUMMY_MAIN() { return 1; }
+#endif
+int
+main ()
+{
+/* The GNU C library defines this for functions which it implements
+    to always fail with ENOSYS.  Some functions are actually named
+    something starting with __ and the normal name is an alias.  */
+#if defined (__stub_$ac_func) || defined (__stub___$ac_func)
+choke me
+#else
+f = $ac_func;
+#endif
+
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+         { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  eval "$as_ac_var=yes"
+else
+  echo "$as_me: failed program was:" >&5
+cat conftest.$ac_ext >&5
+eval "$as_ac_var=no"
+fi
+rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
+fi
+echo "$as_me:$LINENO: result: `eval echo '${'$as_ac_var'}'`" >&5
+echo "${ECHO_T}`eval echo '${'$as_ac_var'}'`" >&6
+if test `eval echo '${'$as_ac_var'}'` = yes; then
+  cat >>confdefs.h <<_ACEOF
+#define `echo "HAVE_$ac_func" | $as_tr_cpp` 1
+_ACEOF
+
+fi
+done
+
+echo "$as_me:$LINENO: checking for working snprintf" >&5
+echo $ECHO_N "checking for working snprintf... $ECHO_C" >&6
+if test "${ac_cv_have_working_snprintf+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  if test "$cross_compiling" = yes; then
+  ac_cv_have_working_snprintf=cross
+else
+  cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+#include "confdefs.h"
+#include <stdio.h>
+
+int main(void)
+{
+    char bufs[5] = { 'x', 'x', 'x', '\0', '\0' };
+    char bufd[5] = { 'x', 'x', 'x', '\0', '\0' };
+    int i;
+    i = snprintf (bufs, 2, "%s", "111");
+    if (strcmp (bufs, "1")) exit (1);
+    if (i != 3) exit (1);
+    i = snprintf (bufd, 2, "%d", 111);
+    if (strcmp (bufd, "1")) exit (1);
+    if (i != 3) exit (1);
+    exit(0);
+}
+_ACEOF
+rm -f conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && { ac_try='./conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_have_working_snprintf=yes
+else
+  echo "$as_me: program exited with status $ac_status" >&5
+echo "$as_me: failed program was:" >&5
+cat conftest.$ac_ext >&5
+( exit $ac_status )
+ac_cv_have_working_snprintf=no
+fi
+rm -f core core.* *.core conftest$ac_exeext conftest.$ac_objext conftest.$ac_ext
+fi
+fi
+
+echo "$as_me:$LINENO: result: $ac_cv_have_working_snprintf" >&5
+echo "${ECHO_T}$ac_cv_have_working_snprintf" >&6
+echo "$as_me:$LINENO: checking for working vsnprintf" >&5
+echo $ECHO_N "checking for working vsnprintf... $ECHO_C" >&6
+if test "${ac_cv_have_working_vsnprintf+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  if test "$cross_compiling" = yes; then
+  ac_cv_have_working_vsnprintf=cross
+else
+  cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+#include "confdefs.h"
+#include <stdio.h>
+#include <stdarg.h>
+
+int my_vsnprintf (char *buf, const char *tmpl, ...)
+{
+    int i;
+    va_list args;
+    va_start (args, tmpl);
+    i = vsnprintf (buf, 2, tmpl, args);
+    va_end (args);
+    return i;
+}
+
+int main(void)
+{
+    char bufs[5] = { 'x', 'x', 'x', '\0', '\0' };
+    char bufd[5] = { 'x', 'x', 'x', '\0', '\0' };
+    int i;
+    i = my_vsnprintf (bufs, "%s", "111");
+    if (strcmp (bufs, "1")) exit (1);
+    if (i != 3) exit (1);
+    i = my_vsnprintf (bufd, "%d", 111);
+    if (strcmp (bufd, "1")) exit (1);
+    if (i != 3) exit (1);
+    exit(0);
+}
+_ACEOF
+rm -f conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && { ac_try='./conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_have_working_vsnprintf=yes
+else
+  echo "$as_me: program exited with status $ac_status" >&5
+echo "$as_me: failed program was:" >&5
+cat conftest.$ac_ext >&5
+( exit $ac_status )
+ac_cv_have_working_vsnprintf=no
+fi
+rm -f core core.* *.core conftest$ac_exeext conftest.$ac_objext conftest.$ac_ext
+fi
+fi
+
+echo "$as_me:$LINENO: result: $ac_cv_have_working_vsnprintf" >&5
+echo "${ECHO_T}$ac_cv_have_working_vsnprintf" >&6
+if test x$ac_cv_have_working_snprintf$ac_cv_have_working_vsnprintf != "xyesyes"; then
+  LIBOBJS="$LIBOBJS snprintf.$ac_objext"
+  { echo "$as_me:$LINENO: WARNING: Replacing missing/broken (v)snprintf() with version from http://www.ijs.si/software/snprintf/." >&5
+echo "$as_me: WARNING: Replacing missing/broken (v)snprintf() with version from http://www.ijs.si/software/snprintf/." >&2;}
+
+cat >>confdefs.h <<\_ACEOF
+#define PREFER_PORTABLE_SNPRINTF 1
+_ACEOF
+
+fi
+
 if test "$have_sys_poll_h" = "no"; then
 
 for ac_func in select
@@ -9275,6 +9478,7 @@ s,@ac_ct_RANLIB@,$ac_ct_RANLIB,;t t
 s,@CPP@,$CPP,;t t
 s,@LIBTOOL@,$LIBTOOL,;t t
 s,@LIBTOOL_DEPS@,$LIBTOOL_DEPS,;t t
+s,@LIBOBJS@,$LIBOBJS,;t t
 s,@LSOCKET@,$LSOCKET,;t t
 s,@LNSL@,$LNSL,;t t
 CEOF
