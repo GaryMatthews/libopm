@@ -46,4 +46,7 @@ void opm_remote_free(OPM_REMOTE_T *);
 OPM_ERR_T opm_config(OPM_T *, int, void *);
 OPM_ERR_T opm_scan(OPM_T *, OPM_REMOTE_T *);
 
+OPM_CONFIG_T *config_create();
+OPM_ERR_T config_set(OPM_CONFIG_T *, int , void *);
+
 #endif /* OPM_H */

@@ -3,6 +3,4 @@
 
 #define OPM_SUCCESS 0
 
-
-
 #endif /* LIBOPM_ERROR_H */

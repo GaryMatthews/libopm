@@ -1,9 +1,9 @@
+#ifndef LIBOPM_H
+#define LIBOPM_H
+
 #include "config.h"
 #include "opm_common.h"
 #include "opm.h"
-
-#ifndef LIBOPM_H
-#define LIBOPM_H
 
 typedef struct  _OPM_SCAN             OPM_SCAN_T;
 typedef struct  _OPM_CONNECTION       OPM_CONNECTION_T;
