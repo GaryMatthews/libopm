@@ -159,15 +159,6 @@ OPM_REMOTE_T *opm_remote_create(char *ip)
 
    ret->ip = (char*) strdup(ip);  /* replace with custom strdup function */
  
-   /* Setup callbacks */
-   ret->callbacks = MyMalloc(sizeof(OPM_CALLBACK_T) * CBLEN);
-
-   for(i = 0; i < CBLEN; i++)
-   {
-      ret->callbacks[i].func = NULL;
-      ret->callbacks[i].data = NULL;
-   }
-
    ret->port          = 0;
    ret->protocol      = 0;
    ret->bytes_read    = 0;
@@ -191,39 +182,12 @@ OPM_REMOTE_T *opm_remote_create(char *ip)
 void opm_remote_free(OPM_REMOTE_T *remote)
 {
 
-   MyFree(remote->callbacks);
-
    if(remote->ip)
       MyFree(remote->ip);
 
    MyFree(remote);
 }
 
-
-
-
-/* opm_remote_callback
- *
- * Register remote level callback 
- *
- * Parameters:
- *    remote: remote struct 
- *    type:   callback type
- * Return:
- *    Error code
- */
-
-OPM_ERR_T opm_remote_callback(OPM_REMOTE_T *remote, int type, OPM_CALLBACK_FUNC *function,
-      void *data)
-{
-   if(type < 0 || type >= (CBLEN + 1))
-      return OPM_ERR_CBNOTFOUND;
-
-   remote->callbacks[type].func = function;
-   remote->callbacks[type].data = data;
-
-   return OPM_SUCCESS;
-}
 
 
 
@@ -1248,8 +1212,6 @@ static void libopm_do_callback(OPM_T *scanner, OPM_REMOTE_T *remote, int type, i
 
    if(scanner->callbacks[type].func)
       (scanner->callbacks[type].func) (scanner, remote, var, scanner->callbacks[type].data);
-   if(remote->callbacks[type].func)
-      (remote->callbacks[type].func)  (scanner, remote, var, remote->callbacks[type].data);
 }
 
 

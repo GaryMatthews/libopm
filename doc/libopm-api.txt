@@ -237,7 +237,6 @@ OPM_ERR_T opm_scan(OPM_T *, OPM_REMOTE_T *)
 
 
 OPM_ERR_T opm_callback(OPM_T *, int, OPM_CALLBACK_T)
-          opm_remote_callback(OPM_T *, int, OPM_CALLBACK_T)
 
    Parameters: OPM_T: Scanner to set callbacks on
                int: Callback type
