@@ -22,3 +22,4 @@ OPM.x
 core
 core.*perl.*.?
 *perl.core
+Makefile
