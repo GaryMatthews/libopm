@@ -38,10 +38,6 @@ OPM_REMOTE_T
            OPM_CALLBACK_T     *callbacks;   
          }
 
-         struct opm_sockaddr {
-            struct sockaddr_in sa4;
-         }
-
          The members of the OPM_REMOTE_T structure are:
 
          ip
@@ -100,7 +96,7 @@ OPM_REMOTE_T *opm_remote_create(char *)
 
 
 
-void opm_free(OPM_REMOTE_T *)
+void opm_remote_free(OPM_REMOTE_T *)
 
    Parameters: OPM_REMOTE_T object to free
    Return: None
