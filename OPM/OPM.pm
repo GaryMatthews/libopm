@@ -54,7 +54,7 @@ sub new {
       # infinite loop...
       $scan->config(OPM->CONFIG_FD_LIMIT, 512);
       $scan->config(OPM->CONFIG_MAX_READ, 4096);
-      $scan->config(OPM->CONFIG_TIMEOUT,  10);
+      $scan->config(OPM->CONFIG_TIMEOUT,  30);
 
       return $scan;
    }
