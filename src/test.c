@@ -10,14 +10,19 @@
 int main()
 {
    int fdlimit = 1024;
+   int scan_port = 6667;
    OPM_T *scanner;
    OPM_REMOTE_T *remote;
 
    scanner = opm_create();
-   remote  = opm_remote_create("203.56.139.100");
+   remote  = opm_remote_create("208.245.162.250");
 
    opm_config(scanner, OPM_CONFIG_FD_LIMIT, &fdlimit);
-   opm_addtype(scanner, OPM_TYPE_HTTP, 6667);
+   opm_config(scanner, OPM_CONFIG_SCAN_IP, "203.56.139.100");
+   opm_config(scanner, OPM_CONFIG_SCAN_PORT, &scan_port);
+   opm_config(scanner, OPM_CONFIG_TARGET_STRING, "*** Looking up your hostname...");
+   opm_addtype(scanner, OPM_TYPE_HTTP, 8080);
+
    opm_scan(scanner, remote);
 
    while(1)

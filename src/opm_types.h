@@ -2,10 +2,12 @@
 #define OPM_TYPES_H
 
 /* Configuration Directives */
-#define OPM_CONFIG_FD_LIMIT     0
-#define OPM_CONFIG_BIND_IP      1
-#define OPM_CONFIG_DNSBL_HOST   2
-
+#define OPM_CONFIG_FD_LIMIT      0
+#define OPM_CONFIG_BIND_IP       1
+#define OPM_CONFIG_DNSBL_HOST    2
+#define OPM_CONFIG_TARGET_STRING 3
+#define OPM_CONFIG_SCAN_IP       4
+#define OPM_CONFIG_SCAN_PORT     5
 
 /* Configuration Variable Types */
 #define OPM_TYPE_INT            1

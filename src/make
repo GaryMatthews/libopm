@@ -4,6 +4,7 @@ gcc -g -o malloc.o -c malloc.c
 gcc -g -o list.o -c list.c
 gcc -g -o config.o -c config.c
 gcc -g -o inet.o -c inet.c
-ar rcs libopm.a libopm.o malloc.o list.o config.o inet.o
+gcc -g -o proxy.o -c proxy.c
+ar rcs libopm.a libopm.o malloc.o list.o config.o inet.o proxy.o
 gcc -g test.c -o test -L. -lopm
 

@@ -29,7 +29,9 @@
 #include "opm_common.h"
 #include "list.h"
 #include "inet.h"
+#include "proxy.h"
 #include <errno.h>
+
 OPM_PROTOCOL_CONFIG_T *protocol_config_create();
 void protocol_config_free(OPM_PROTOCOL_CONFIG_T *);
 OPM_SCAN_T *scan_create(OPM_T *, OPM_REMOTE_T *);
@@ -39,9 +41,13 @@ OPM_CONNECTION_T *connection_create();
 void check_establish(OPM_T *);
 void check_poll(OPM_T *);
 
-void do_connect(OPM_SCAN_T *, OPM_CONNECTION_T *);
-void do_readready(OPM_SCAN_T *, OPM_CONNECTION_T *);
-void do_writeready(OPM_SCAN_T *, OPM_CONNECTION_T *);
+void do_connect(OPM_T *, OPM_SCAN_T *, OPM_CONNECTION_T *);
+void do_readready(OPM_T *, OPM_SCAN_T *, OPM_CONNECTION_T *);
+void do_writeready(OPM_T *, OPM_SCAN_T *, OPM_CONNECTION_T *);
+
+void do_read(OPM_T *, OPM_SCAN_T *, OPM_CONNECTION_T *);
+void do_openproxy(OPM_T *, OPM_SCAN_T *, OPM_CONNECTION_T *);
+
 /* OPM_PROTOCOLS hash
  *
  *    OPM_PPROTOCOLS hashes the protocol types (int) to functions
@@ -51,11 +57,11 @@ void do_writeready(OPM_SCAN_T *, OPM_CONNECTION_T *);
  */
 
 OPM_PROTOCOL_T OPM_PROTOCOLS[] = {
-    {OPM_TYPE_HTTP,               0},
-    {OPM_TYPE_SOCKS4,             0},
-    {OPM_TYPE_SOCKS5,             0},
-    {OPM_TYPE_WINGATE,            0},
-    {OPM_TYPE_ROUTER,             0}
+    {OPM_TYPE_HTTP,               proxy_http_write, NULL},
+    {OPM_TYPE_SOCKS4,             NULL, NULL},
+    {OPM_TYPE_SOCKS5,             NULL, NULL},
+    {OPM_TYPE_WINGATE,            NULL, NULL},
+    {OPM_TYPE_ROUTER,             NULL, NULL}
 };
 
 
@@ -367,7 +373,6 @@ OPM_SCAN_T *scan_create(OPM_T *scanner, OPM_REMOTE_T *remote)
    }
 
    
-
    return ret;
 }
 
@@ -484,7 +489,7 @@ void check_establish(OPM_T *scanner)
       {
          conn = (OPM_CONNECTION_T *) node2->data;
          if(conn->state == OPM_STATE_UNESTABLISHED)
-            do_connect(scan, conn);
+            do_connect(scanner, scan, conn);
       } 
    }
 }
@@ -500,7 +505,7 @@ void check_establish(OPM_T *scanner)
  *    None
  */
 
-void do_connect(OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
+void do_connect(OPM_T * scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
 {
    struct sockaddr_in *addr;
   
@@ -590,7 +595,7 @@ void check_poll(OPM_T *scanner)
                 return;
         case 0:
                 /* Nothing to do */
-               /* return; */
+                return;
                 /* Pass pointer to connection to handler. */
    }
 
@@ -607,9 +612,9 @@ void check_poll(OPM_T *scanner)
             if(ufds[i].fd == conn->fd)
             {
                if(ufds[i].revents & POLLIN)
-                  do_readready(scan, conn);
+                  do_readready(scanner, scan, conn);
                if(ufds[i].revents & POLLOUT)
-                  do_writeready(scan, conn);
+                  do_writeready(scanner, scan, conn);
                if(ufds[i].revents & POLLHUP);
             }
          }
@@ -619,25 +624,121 @@ void check_poll(OPM_T *scanner)
 
 /* do_readready
  *
- * Readready
+ *    Remote connection is read ready, read the data into a buffer and check it against 
+ *    the target_string if neccessary 
  *
+ *    Parameters:
+ *       scanner: Scanner doing the scan
+ *       scan: Specific scan
+ *       conn: Specific connection in the scan
  *
+ *    Return:
+ *       None
  */
 
-void do_readready(OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
+void do_readready(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
 {
+   char c;
+   while(1)
+   {
+      switch (read(conn->fd, &c, 1))
+      {
+         case  0:
+         case -1:
+            return;
+
+         default:
+
+            conn->bytes_read++;
+
+            if(c == 0 || c == '\r')
+               continue;
+
+            if(c == '\n')
+            {
+               conn->readbuf[conn->readlen] = '\0';
+               conn->readlen = 0;
+               do_read(scanner, scan, conn);
+               continue;
+            }
+
+            if(conn->readlen < 128) 
+            {  /* -1 to pad for null term */
+               conn->readbuf[++(conn->readlen) - 1] = c;
+            }
+      }
+   }
+}
+
+/* do_read
+ *
+ *    A line of data has been read from the socket, check it against
+ *    target string.
+ *
+ *    
+ *
+ *    Parameters:
+ *       scanner: Scanner doing the scan
+ *       scan: Specific scan
+ *       conn: Specific connection in the scan
+ *
+ *    Return:
+ *       None
+ */
+
+void do_read(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
+{
+   char *target_string;
+ 
+   target_string = (char *) config(scanner->config, OPM_CONFIG_TARGET_STRING);
+
+   if(strstr(conn->readbuf, target_string))
+      do_openproxy(scanner, scan, conn);
 }
 
 
-/* do_writeready
+/* do_openproxy
  *
+ *    An open proxy was found on connection conn. Cleanup the connection and 
+ *    call the appropriate callback to let the client know the proxy was found.
  *
+ *    Parameters:
+ *       scanner: Scanner doing the scan
+ *       scan: Specific scan
+ *       conn: Specific connection in the scan
  *
- *
- *
+ *    Return:
+ *       None
  */
 
-void do_writeready(OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
+void do_openproxy(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
 {
+}
+
+/*  do_writeready
+ *
+ *    Remote connection is write ready, call the specific protocol
+ *    function for writing to this socket.
+ *
+ *    Parameters:
+ *       scanner: Scanner doing the scan
+ *       scan: Specific scan
+ *       conn: Specific connection in the scan
+ *
+ *    Return:
+ *       None
+ */
+
+void do_writeready(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
+{
+   OPM_PROTOCOL_T *protocol;
+
+   protocol = conn->protocol;
+
+   /* Call write function for specific protocol */
+   protocol->write_function(scanner, scan, conn);
+
+   /* Flag as NEGSENT so we don't have to send data again*/
+   conn->state = OPM_STATE_NEGSENT;  
 }
 
