@@ -48,4 +48,6 @@ struct _OPM_SCAN {
 };
 
 
+OPM_REMOTE_T *opm_new();
+
 #endif /* LIBOPM_H */
