@@ -60,11 +60,11 @@ int main(int argc, char **argv)
       remote  = opm_remote_create("127.0.0.1");
 
    /* Setup callbacks */
-   opm_callback(scanner, OPM_CALLBACK_OPENPROXY, &open_proxy, 0);
-   opm_callback(scanner, OPM_CALLBACK_NEGFAIL, &negotiation_failed, 0);
-   opm_callback(scanner, OPM_CALLBACK_TIMEOUT, &timeout, 0);
-   opm_callback(scanner, OPM_CALLBACK_END, &end, 0);
-   opm_callback(scanner, OPM_CALLBACK_ERROR, &handle_error, 0);
+   opm_callback(scanner, OPM_CALLBACK_OPENPROXY, &open_proxy, NULL);
+   opm_callback(scanner, OPM_CALLBACK_NEGFAIL, &negotiation_failed, NULL);
+   opm_callback(scanner, OPM_CALLBACK_TIMEOUT, &timeout, NULL);
+   opm_callback(scanner, OPM_CALLBACK_END, &end, NULL);
+   opm_callback(scanner, OPM_CALLBACK_ERROR, &handle_error, NULL);
 
 
    /* Setup the scanner configuration */ 

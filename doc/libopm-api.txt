@@ -241,11 +241,12 @@ OPM_ERR_T opm_scan(OPM_T *, OPM_REMOTE_T *)
 
 
 
-OPM_ERR_T opm_callback(OPM_T *, int, OPM_CALLBACK_T)
+OPM_ERR_T opm_callback(OPM_T *, int, OPM_CALLBACK_T, void *)
 
    Parameters: OPM_T: Scanner to set callbacks on
                int: Callback type
                OPM_CALLBACK_T: Pointer to custom callback function
+               void *: Pointer to be passed back, this is generally NULL
 
    Return: OPM_ERR_T or OPM_SUCCESS on success
 
@@ -282,6 +283,7 @@ OPM_ERR_T opm_callback(OPM_T *, int, OPM_CALLBACK_T)
                                          opm_remote_free
 
    OPM_CALLBACK_ERROR                    An error has occured.
+
 
 
 
