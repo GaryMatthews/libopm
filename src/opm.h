@@ -23,18 +23,19 @@ struct _OPM {
 
 struct _OPM_REMOTE {
 
-   char               *ip;              /* Readable IP address */
-   struct sockaddr_in *addr;
+   char                *ip;              /* Readable IP address */
+   struct opm_sockaddr *addr;            /* Store the IP in a sockaddr_in aswell, this is
+                                            done in opm_remote_create  */
 
-   OPM_CALLBACK_T     *fun_openproxy;   /* Callback for when an open proxy is found */
-   OPM_CALLBACK_T     *fun_negfail;     /* Callback for when negotiation with a proxy fails */
-   OPM_CALLBACK_T     *fun_end;         /* Callback for when scan on remote host is complete */
-   OPM_CALLBACK_T     *fun_error;       /* Callback for when an error has occured */
-   OPM_CALLBACK_T     *fun_timeout;     /* Callback for when a specific connection has timed out */
+   OPM_CALLBACK_T      *fun_openproxy;   /* Callback for when an open proxy is found */
+   OPM_CALLBACK_T      *fun_negfail;     /* Callback for when negotiation with a proxy fails */
+   OPM_CALLBACK_T      *fun_end;         /* Callback for when scan on remote host is complete */
+   OPM_CALLBACK_T      *fun_error;       /* Callback for when an error has occured */
+   OPM_CALLBACK_T      *fun_timeout;     /* Callback for when a specific connection has timed out */
 
-   unsigned short int  port;            /* Port passed back on certain callbacks */
-   unsigned short int  protocol;        /* Protocol passed back on certain callbacks */
-   unsigned short int  bytes_read;      /* Bytes read passed back on certain callbacks */
+   unsigned short int   port;            /* Port passed back on certain callbacks */
+   unsigned short int   protocol;        /* Protocol passed back on certain callbacks */
+   unsigned short int   bytes_read;      /* Bytes read passed back on certain callbacks */
 };
 
 OPM_T *opm_create();

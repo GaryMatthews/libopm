@@ -28,8 +28,7 @@
 #include "opm_types.h"
 #include "opm_common.h"
 #include "list.h"
-
-#include <netinet/in.h>
+#include "inet.h"
 
 OPM_PROTOCOL_CONFIG_T *protocol_config_create();
 void protocol_config_free(OPM_PROTOCOL_CONFIG_T *);
@@ -105,10 +104,11 @@ OPM_REMOTE_T *opm_remote_create(char *ip)
    ret = MyMalloc(sizeof(OPM_REMOTE_T));
 
    /* Do initializations */
-   if(ip)
-      ret->ip = (char*) strdup(ip);  /* replace with custom strdup function */
-   else
-      ret->ip = 0;
+   if(ip == NULL)
+      return NULL;
+
+   ret->ip = (char*) strdup(ip);  /* replace with custom strdup function */
+ 
 
    ret->fun_openproxy = 0;
    ret->fun_negfail   = 0;
@@ -120,7 +120,13 @@ OPM_REMOTE_T *opm_remote_create(char *ip)
    ret->protocol      = 0;
    ret->bytes_read    = 0;
 
-   memset(&(ret->addr), 0, sizeof(struct sockaddr_in));
+   memset(&(ret->addr), 0, sizeof(opm_sockaddr));
+
+   if(inetpton(AF_INET, ret->ip, &(ret->addr->sa4.sin_addr) ) <= 0)
+   {
+      opm_remote_free(ret);
+      return NULL;
+   }
 
    return ret;
 }

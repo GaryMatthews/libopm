@@ -137,7 +137,8 @@ OPM_ERR_T config_set(OPM_CONFIG_T *config, int key, void *value)
       case OPM_TYPE_ADDRESS:
          if(!((opm_sockaddr *) config->vars[key]))
             (opm_sockaddr *) config->vars[key] = MyMalloc(sizeof(opm_sockaddr));
-         if(!inetpton(AF_INET, (char *) value, &( ((opm_sockaddr *)config->vars[key])->sa4.sin_addr.s_addr)))
+         if( inetpton(AF_INET, (char *) value, &( ((opm_sockaddr *)config->vars[key])->sa4.sin_addr))
+                  <= 0)
             return 1; /* return appropriate err code */
          break; 
       default:
