@@ -511,11 +511,28 @@ OPM_ERR_T opm_scan(OPM_T *scanner, OPM_REMOTE_T *remote)
    return OPM_SUCCESS;
 }
 
-/* active: returns the number of active scans */
+
+
+
+/* opm_active 
+
+      Return number of scans in a scanner left.
+
+   Parameters:
+      scanner: Scanner to return active scans on
+
+   Return:
+      Number of active scans, both queued and active.
+
+*/
+
 size_t opm_active(OPM_T *scanner)
 {
     return LIST_SIZE(scanner->queue) + LIST_SIZE(scanner->scans);
 }
+
+
+
 
 /* scan_create
  *
