@@ -119,9 +119,12 @@ OPM_T *opm_create()
    ret->fd_use = 0;
 
    /* Setup callbacks */
-   ret->callbacks = MyMalloc(sizeof(OPM_CALLBACK_T *) * CBLEN);
+   ret->callbacks = MyMalloc(sizeof(OPM_CALLBACK_T) * CBLEN);
    for(i = 0; i < CBLEN; i++)
-      ret->callbacks[i] = NULL;
+   {
+      ret->callbacks[i].func = NULL;
+      ret->callbacks[i].data = NULL;
+   }
 
    return ret;
 }
@@ -157,10 +160,13 @@ OPM_REMOTE_T *opm_remote_create(char *ip)
    ret->ip = (char*) strdup(ip);  /* replace with custom strdup function */
  
    /* Setup callbacks */
-   ret->callbacks = MyMalloc(sizeof(OPM_CALLBACK_T *) * CBLEN);
+   ret->callbacks = MyMalloc(sizeof(OPM_CALLBACK_T) * CBLEN);
 
    for(i = 0; i < CBLEN; i++)
-      ret->callbacks[i] = NULL;   
+   {
+      ret->callbacks[i].func = NULL;
+      ret->callbacks[i].data = NULL;
+   }
 
    ret->port          = 0;
    ret->protocol      = 0;
@@ -207,12 +213,14 @@ void opm_remote_free(OPM_REMOTE_T *remote)
  *    Error code
  */
 
-OPM_ERR_T opm_remote_callback(OPM_REMOTE_T *remote, int type, OPM_CALLBACK_T *function)
+OPM_ERR_T opm_remote_callback(OPM_REMOTE_T *remote, int type, OPM_CALLBACK_FUNC *function,
+      void *data)
 {
    if(type < 0 || type >= (CBLEN + 1))
       return OPM_ERR_CBNOTFOUND;
 
-   remote->callbacks[type] = function;
+   remote->callbacks[type].func = function;
+   remote->callbacks[type].data = data;
 
    return OPM_SUCCESS;
 }
@@ -229,12 +237,13 @@ OPM_ERR_T opm_remote_callback(OPM_REMOTE_T *remote, int type, OPM_CALLBACK_T *fu
  *    Error code
  */
 
-OPM_ERR_T opm_callback(OPM_T *scanner, int type, OPM_CALLBACK_T *function)
+OPM_ERR_T opm_callback(OPM_T *scanner, int type, OPM_CALLBACK_FUNC *function, void *data)
 {
    if(type < 0 || type >= (CBLEN + 1))
       return OPM_ERR_CBNOTFOUND;
 
-   scanner->callbacks[type] = function;
+   scanner->callbacks[type].func = function;
+   scanner->callbacks[type].data = data;
 
    return OPM_SUCCESS;
 }
@@ -1228,10 +1237,10 @@ static void libopm_do_callback(OPM_T *scanner, OPM_REMOTE_T *remote, int type, i
    if(type < 0 || type >= (CBLEN + 1))
       return;
 
-   if(scanner->callbacks[type])
-      (scanner->callbacks[type]) (scanner, remote, var);
-   if(remote->callbacks[type])
-      (remote->callbacks[type])  (scanner, remote, var);
+   if(scanner->callbacks[type].func)
+      (scanner->callbacks[type].func) (scanner, remote, var, scanner->callbacks[type].data);
+   if(remote->callbacks[type].func)
+      (remote->callbacks[type].func)  (scanner, remote, var, remote->callbacks[type].data);
 }
 
 
