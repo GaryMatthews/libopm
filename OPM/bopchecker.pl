@@ -103,7 +103,7 @@ MAIN: while(1) {
          ($proxyip) = $proxy =~ /^([^ ]+)/;
          $remote = OPM->new($proxyip);
          
-         if($proxy !~ / / or $proxy =~ / default/) {
+         if($proxy !~ / / or $proxy =~ s/ default//) {
             add_default($remote);
          }
 
