@@ -78,6 +78,9 @@ int main(int argc, char **argv)
    opm_addtype(scanner, OPM_TYPE_ROUTER, 23);
    opm_addtype(scanner, OPM_TYPE_SOCKS4, 1080);
    opm_addtype(scanner, OPM_TYPE_SOCKS5, 1080);
+   opm_addtype(scanner, OPM_TYPE_HTTPPOST, 80);
+   opm_addtype(scanner, OPM_TYPE_HTTPPOST, 8090);
+   opm_addtype(scanner, OPM_TYPE_HTTPPOST, 3128);
 
 
    switch(opm_scan(scanner, remote))

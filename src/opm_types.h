@@ -22,6 +22,7 @@
 #define OPM_TYPE_SOCKS5          3
 #define OPM_TYPE_WINGATE         4
 #define OPM_TYPE_ROUTER          5
+#define OPM_TYPE_HTTPPOST        6
 
 /* States */
 #define OPM_STATE_UNESTABLISHED  1

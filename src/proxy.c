@@ -211,3 +211,26 @@ int libopm_proxy_router_write(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T
    return OPM_SUCCESS;
 }
 
+
+/*
+ * HTTP POST Scanning
+ *
+ */
+
+int libopm_proxy_httppost_write(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
+{
+   int len, scan_port;
+   char *scan_ip;
+
+   scan_ip = (char *) libopm_config(scanner->config, OPM_CONFIG_SCAN_IP);
+   scan_port = *(int *) libopm_config(scanner->config, OPM_CONFIG_SCAN_PORT);
+
+   len = snprintf(SENDBUFF, 128, "POST http://%s:%d/ HTTP/1.0\r\n"
+            "Content-type: text/plain\r\n"
+            "Content-length: 5\r\n\r\n"
+            "quit\r\n\r\n",
+            scan_ip, scan_port);
+
+   send(conn->fd, SENDBUFF, len, 0);
+   return(1);
+}
