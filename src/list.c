@@ -93,34 +93,21 @@ OPM_NODE_T *libopm_list_remove(OPM_LIST_T *list, OPM_NODE_T *node)
          node->next->prev = NULL;
       else
          list->tail = NULL;
- 
-      list->elements--;
-
-      return node;
    }
    else if(node == list->tail)
    {
       list->tail = list->tail->prev;
       list->tail->next = NULL;
-  
-      list->elements--;
-
-      return node;
    }
-
-
-   for(p = list->head; p != NULL; p = p->next)
+   else
    {
-      if(p == node)
-      {        
-         p->prev->next = p->next;
-         p->next->prev = p->prev;
-         list->elements--;
-         return p;
-      }
+      node->prev->next = node->next;
+      node->next->prev = node->prev;
+      list->elements--;
    }
 
-   return NULL;
+   list->elements--;
+   return node;
 }
 
 void libopm_list_free(OPM_LIST_T *list)
