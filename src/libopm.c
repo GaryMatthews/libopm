@@ -29,7 +29,8 @@
 OPM_PROTOCOL_CONFIG_T *protocol_config_create();
 void protocol_config_free(OPM_PROTOCOL_CONFIG_T *);
 
-
+OPM_SCAN_T *scan_create();
+void scan_free(OPM_SCAN_T *);
 
 /* OPM_PROTOCOLS hash
  *
@@ -279,3 +280,74 @@ void protocol_config_free(OPM_PROTOCOL_CONFIG_T *protocol)
    MyFree(protocol);
 }
 
+
+
+
+/* opm_scan
+ *
+ *    Scan remote host. The opm_scan function takes an OPM_REMOTE_T
+ *    struct, calculates the in_addr of the remote host, and creates
+ *    a scan list based on protocols defined in the scanner.
+ *
+ * Parameters:
+ *    scanner: Scanner to scan host on
+ *    remote:  OPM_REMOTE_T defining remote host
+ *    
+ * Return:
+ *    (to be written)
+ */
+
+OPM_ERR_T opm_scan(OPM_T *scanner, OPM_REMOTE_T *remote)
+{
+   OPM_SCAN_T *scan; /* New scan for OPM_T */
+   node_t *node;     /* Node we'll add scan to
+                        when we link it to scans */
+
+   scan = scan_create();
+   node = node_create(scan);
+
+   list_add(scanner->scans, node);
+
+   return OPM_SUCCESS;
+}
+
+
+
+/* scan_create
+ *
+ *    Create new OPM_SCAN_T struct
+ *
+ * Parameters: 
+ *    None
+ *    
+ * Return
+ *    Address of new struct
+ */
+OPM_SCAN_T *scan_create()
+{
+   OPM_SCAN_T *ret;
+   ret = MyMalloc(sizeof(OPM_SCAN_T));
+   ret->remote = 0;
+   ret->scans = list_create();
+
+   return ret;
+}
+
+
+
+
+/* scan_free
+ *
+ *    Free and cleanup OPM_SCAN_T struct
+ *
+ * Parametsr:
+ *    scan: Scan struct to free
+ * 
+ * Return:
+ *    None
+ */
+
+void scan_free(OPM_SCAN_T *scan)
+{
+   MyFree(scan);
+}
