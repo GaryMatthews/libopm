@@ -27,7 +27,9 @@
 #include "opm.h"
 #include "opm_error.h"
 #include "opm_types.h"
-#include <unistd.h>
+#ifdef HAVE_UNISTD_H
+# include <unistd.h>
+#endif
 
 RCSID("$Id$");
 
