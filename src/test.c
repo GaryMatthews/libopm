@@ -23,14 +23,17 @@
 
 #include "setup.h"
 
+#ifdef HAVE_UNISTD_H
+# include <unistd.h>
+#endif
+
 #include <stdio.h>
+
 #include "opm.h"
 #include "opm_error.h"
 #include "opm_types.h"
 #include "compat.h"
-#ifdef HAVE_UNISTD_H
-# include <unistd.h>
-#endif
+#include "defs.h"
 
 RCSID("$Id$");
 

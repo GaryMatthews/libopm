@@ -1,6 +1,6 @@
 /* vim: set shiftwidth=3 softtabstop=3 expandtab: */
 
-/* Copyright (C) 2002  Erik Fears
+/* Copyright (C) 2002-2003  Erik Fears
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -39,6 +39,7 @@
 #include "opm_types.h"
 #include "opm_error.h"
 #include "libopm.h"
+#include "defs.h"
 
 RCSID("$Id$");
 

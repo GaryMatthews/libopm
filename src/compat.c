@@ -34,7 +34,7 @@
 #endif
 
 #include "compat.h"
-#include "opm.h"
+#include "defs.h"
 
 RCSID("$Id$");
 

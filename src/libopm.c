@@ -1,3 +1,5 @@
+/* vim: set shiftwidth=3 softtabstop=3 expandtab: */
+
 /*
  * Copyright (C) 2002-2003  Erik Fears
  *
@@ -32,6 +34,7 @@
 #include "list.h"
 #include "inet.h"
 #include "proxy.h"
+#include "defs.h"
 
 #include <errno.h>
 #ifdef TIME_WITH_SYS_TIME

@@ -1,3 +1,5 @@
+/* vim: set shiftwidth=3 softtabstop=3 expandtab: */
+
 /*
 Copyright (C) 2002 by the past and present ircd coders, and others.
 
@@ -44,6 +46,7 @@ along with this program; if not, write to
 
 #include "inet.h"
 #include "opm.h"
+#include "defs.h"
 
 #ifndef INADDRSZ
 #define INADDRSZ 4
