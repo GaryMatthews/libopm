@@ -9,10 +9,12 @@
 #include <fcntl.h>
 #include <sys/types.h>
 
+#ifdef HAVE_SYS_POLL_H
 # include <sys/poll.h>
+#endif
 
 #ifndef AF_INET6
-#define AF_INET6 10
+# define AF_INET6 10
 #endif
 
 typedef struct _opm_sockaddr opm_sockaddr;
