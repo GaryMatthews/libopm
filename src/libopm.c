@@ -567,7 +567,8 @@ void check_closed(OPM_T *scanner)
             node_free(node2);
          }
 
-         if((present - conn->creation) > timeout)
+         if(((present - conn->creation) > timeout) && 
+              conn->state != OPM_STATE_UNESTABLISHED)
          {
 
             close(conn->fd);
