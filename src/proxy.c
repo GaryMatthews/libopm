@@ -64,7 +64,7 @@ int libopm_proxy_custom(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn
    sblen = fmpos = 0;
    SENDBUFF[0] = '\0';
 
-   while((c = protocol->format[fmpos++]) != '\0')
+   while((c = protocol->format[fmpos++]) != '\0' && sblen < 512)
    {
       if(c == '%')
       {
