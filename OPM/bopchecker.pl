@@ -4,7 +4,7 @@
 
 # Basic protocol: (>> sent to bopchecker, << recived from bopchker).
 # >> ip.ad.re.ss
-# << ip.ad.re.ss open protocol,protocolN port,portN
+# << ip.ad.re.ss open port,portN protocol,protocolN 
 # << ip.ad.re.ss closed
 # << ip.ad.re.ss error string
 
