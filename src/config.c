@@ -29,9 +29,9 @@
 #include <string.h>
 
 struct CONFIG_HASH HASH[] = {
-   {CONFIG_FD_LIMIT,       TYPE_INT},
-   {CONFIG_BIND_IP ,       TYPE_ADDRESS},
-   {CONFIG_DNSBL_HOST,     TYPE_STRING},
+   {OPM_CONFIG_FD_LIMIT,       OPM_TYPE_INT},
+   {OPM_CONFIG_BIND_IP ,       OPM_TYPE_ADDRESS},
+   {OPM_CONFIG_DNSBL_HOST,     OPM_TYPE_STRING},
 };
 
 
@@ -124,22 +124,21 @@ OPM_ERR_T config_set(OPM_CONFIG_T *config, int key, void *value)
 
    switch(config_gettype(key))
    {
-      case TYPE_STRING:
+      case OPM_TYPE_STRING:
          if((char *) config->vars[key])
             MyFree((char *) config->vars[key]);
          (char *) config->vars[key] = strdup((char *) value);
          break;
-      case TYPE_INT:
+      case OPM_TYPE_INT:
          if(!((int *) config->vars[key]))
             (int *) config->vars[key] = MyMalloc(sizeof(int));
          *(int *) config->vars[key] = *(int *) value;
          break;
-      case TYPE_ADDRESS:
+      case OPM_TYPE_ADDRESS:
          if(!((opm_sockaddr *) config->vars[key]))
             (opm_sockaddr *) config->vars[key] = MyMalloc(sizeof(opm_sockaddr));
          if(!inetpton(AF_INET, (char *) value, &( ((opm_sockaddr *)config->vars[key])->sa4.sin_addr.s_addr)))
             return 1; /* return appropriate err code */
-         printf("CONFIG SET TO %d\n", ((opm_sockaddr *)config->vars[key])->sa4.sin_addr.s_addr);
          break; 
       default:
          return 1; /* return appropriate err code */

@@ -40,7 +40,7 @@ struct _OPM_REMOTE {
 OPM_T *opm_create();
 void opm_free(OPM_T *);
 
-OPM_REMOTE_T *opm_remote_create();
+OPM_REMOTE_T *opm_remote_create(char *);
 void opm_remote_free(OPM_REMOTE_T *);
 
 OPM_ERR_T opm_config(OPM_T *, int, void *);
@@ -48,5 +48,7 @@ OPM_ERR_T opm_scan(OPM_T *, OPM_REMOTE_T *);
 
 OPM_CONFIG_T *config_create();
 OPM_ERR_T config_set(OPM_CONFIG_T *, int , void *);
+
+void opm_cycle();
 
 #endif /* OPM_H */

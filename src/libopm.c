@@ -352,9 +352,10 @@ OPM_SCAN_T *scan_create(OPM_T *scanner, OPM_REMOTE_T *remote)
    for(p = scanner->protocols->head; p; p = p->next)
    {
       conn = connection_create();
+
       conn->protocol = ((OPM_PROTOCOL_CONFIG_T *) p->data)->type;
       conn->port     = ((OPM_PROTOCOL_CONFIG_T *) p->data)->port;
-
+ 
       node = node_create(conn);
 
       list_add(ret->connections, node);
@@ -430,4 +431,20 @@ OPM_CONNECTION_T *connection_create()
 void connection_free(OPM_CONNECTION_T *conn)
 {
    MyFree(conn);
+}
+
+
+/* opm_cycle
+ *
+ *   Perform tasks (called by a loop)
+ *
+ * Parameters:
+ *   None
+ *  Return:
+ *    None
+ */
+
+void opm_cycle()
+{
+
 }
