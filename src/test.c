@@ -19,7 +19,7 @@ int main()
    opm_config(scanner, OPM_CONFIG_FD_LIMIT, &fdlimit);
 
 
-   while(1)
+   while(0)
       opm_cycle();
    
    opm_remote_free(remote);

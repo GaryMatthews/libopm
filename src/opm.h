@@ -2,6 +2,7 @@
 #define OPM_H
 
 #include "opm_common.h"
+#include "inet.h"
 
 typedef struct  _OPM_CONFIG           OPM_CONFIG_T;
 typedef struct  _OPM                  OPM_T;
@@ -24,7 +25,7 @@ struct _OPM {
 struct _OPM_REMOTE {
 
    char                *ip;              /* Readable IP address */
-   struct opm_sockaddr *addr;            /* Store the IP in a sockaddr_in aswell, this is
+   opm_sockaddr         addr;            /* Store the IP in a sockaddr_in aswell, this is
                                             done in opm_remote_create  */
 
    OPM_CALLBACK_T      *fun_openproxy;   /* Callback for when an open proxy is found */

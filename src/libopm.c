@@ -122,7 +122,7 @@ OPM_REMOTE_T *opm_remote_create(char *ip)
 
    memset(&(ret->addr), 0, sizeof(opm_sockaddr));
 
-   if(inetpton(AF_INET, ret->ip, &(ret->addr->sa4.sin_addr) ) <= 0)
+   if(inetpton(AF_INET, ret->ip, &(ret->addr.sa4.sin_addr) ) <= 0)
    {
       opm_remote_free(ret);
       return NULL;
@@ -174,17 +174,12 @@ void opm_free(OPM_T *scanner)
 
    config_free(scanner->config);
 
-   p = scanner->protocols->head;
-   while(p)
+   LIST_FOREACH_SAFE(p, next, scanner->protocols->head)
    {
-      next = p->next;
       ppc = (OPM_PROTOCOL_CONFIG_T *) p->data;
-
       protocol_config_free(ppc);
       list_remove(scanner->protocols, p);
       node_free(p);
-
-      p = next;
    }
 
    list_free(scanner->protocols);
@@ -355,7 +350,7 @@ OPM_SCAN_T *scan_create(OPM_T *scanner, OPM_REMOTE_T *remote)
    ret->connections = list_create();
  
    /* Setup list of connections, one for each protocol */ 
-   for(p = scanner->protocols->head; p; p = p->next)
+   LIST_FOREACH(p, scanner->protocols->head)
    {
       conn = connection_create();
 
