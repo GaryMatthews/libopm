@@ -67,6 +67,7 @@ node_t *list_add(list_t **list, node_t *node)
       node->next = 0;
    }
 
+   (*list)->elements++;
    return node;
 }
 
@@ -83,6 +84,8 @@ node_t *list_remove(list_t **list, node_t *node)
 
       if(node->next)
          node->next->prev = 0;
+      
+      (*list)->elements--;
 
       return node;
    }
@@ -90,6 +93,9 @@ node_t *list_remove(list_t **list, node_t *node)
    {
       (*list)->tail = (*list)->tail->prev;
       (*list)->tail->next = 0;
+  
+      (*list)->elements--;
+
       return node;
    }
 
@@ -100,6 +106,7 @@ node_t *list_remove(list_t **list, node_t *node)
       {        
          p->prev->next = p->next;
          p->next->prev = p->prev;
+         (*list)->elements--;
          return p;
       }
    }
