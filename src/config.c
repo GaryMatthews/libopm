@@ -48,6 +48,23 @@ OPM_CONFIG_T *config_create()
    return ret;
 }
 
+
+
+
+/*
+ *
+ *
+ *
+ *
+ *
+ */
+
+void config_free(OPM_CONFIG_T *config)
+{
+   /* cleanup */
+}
+
+
 /* config_set
  *
  *    Set configuration options on config struct.

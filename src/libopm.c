@@ -106,19 +106,34 @@ OPM_REMOTE_T *opm_remote(char *ip)
 
 /* opm_free
  *
- *    Free OPM_REMOTE_T and cleanup
+ *    Free OPM_T (scanner) and cleanup
  *
  * Parameters:
- *    var: Address of OPM_REMOTE_T to cleanup
+ *    scanner: Address of OPM_T to cleanup
  *
  * Return:
  *    None
  */
 
-void opm_free(OPM_REMOTE_T *var)
+void opm_free(OPM_T *scanner)
 {
-   if(var)
-      MyFree(var);
+   node_t *p, *next;
+   OPM_PROTOCOL_CONFIG_T *ppc;
+
+   /* Free config */
+   config_free(scanner->config);
+
+   /* Traverse protocol list_t and free
+    * each node, then free the list */
+   
+   for(p = scanner->protocols->head; p;)
+   {
+      next = p->next;
+      list_remove(scanner->protocols, p);
+      p = next;
+   }
+   list_free(scanner->protocols);
+
 }
 
 
@@ -182,6 +197,9 @@ int opm_addtype(OPM_T *scanner, int type, int port)
    }
 }
 
+
+
+
 /* protocol_config_create
  *
  *    Allocate and return address of a new OPM_PROTOCOL_CONFIG_T
@@ -200,3 +218,23 @@ OPM_PROTOCOL_CONFIG_T *protocol_config_create()
 
    return ret;
 }
+
+
+
+
+/* protocol_config_free
+ *
+ *    Free OPM_PROTOCOL_CONFIG_T struct
+ *
+ * Parameters:
+ *    protocol: struct to free
+ *
+ * Return:
+ *    None
+ */
+
+void protocol_config_free(OPM_PROTOCOL_CONFIG_T *protocol)
+{
+   MyFree(protocol);
+}
+

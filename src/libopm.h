@@ -86,5 +86,6 @@ OPM_REMOTE_T *opm_new();
 int opm_config(OPM_T *scanner, int key, void *value);
 
 OPM_PROTOCOL_CONFIG_T *protocol_config_create();
+void protocol_config_free(OPM_PROTOCOL_CONFIG_T *);
 
 #endif /* LIBOPM_H */

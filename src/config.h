@@ -17,6 +17,7 @@ struct CONFIG_HASH {
 };
 
 OPM_CONFIG_T *config_create();
+void config_free(OPM_CONFIG_T *);
 int config_set(OPM_CONFIG_T *, int , void *);
 
 #endif /* CONFIG_H */
