@@ -8,11 +8,21 @@
 # << ip.ad.re.ss closed
 # << ip.ad.re.ss error string
 #
-# You can also specify an additional port to scan as instead of the default ones
-# or add default to say scan in addition to the default ports.
-#  >> ip.ad.re.ss [default] port protocol
-#  << ip.ad.re.ss open port,portN protocol,protocolN 
-#  (and other values as above)
+# You can also specify additional ports and protocols to test:
+#  >> ip.ad.re.ss [default] [port_list] [protocol_list]
+# Or use UNKNOWN as a protocol to try every protocol on that port:
+#  >> ip.ad.re.ss [port] UNKNOWN
+#
+# Examples:
+#
+# Test all the default ports/protocols on 1.2.3.4
+# >> 1.2.3.4 default
+#
+# Test only HTTP CONNECT on port 5678 of host 1.2.3.4
+# >> 1.2.3.4 5678 HTTP
+#
+# Test all default ports/protocols, plus every protocol on port 5678
+# >> 1.2.3.4 default 5678 UNKNOWN
 
 use strict;
 use IO::Select;
@@ -102,6 +112,15 @@ MAIN: while(1) {
             my @types = split ',', $2;
 
             for(0 .. $#ports) {
+# Make protocol 'UNKNOWN' be a shortcut for all protocols.
+               if ($types[$_] eq 'UNKNOWN') {
+                   my $p = $_;
+                   for('HTTP','HTTPPOST','SOCKS4','SOCKS5','ROUTER','WINGATE') {
+                       $remote->addtype(OPM::constant("TYPE_$_", 0), $p);
+                   }
+                   next;
+               }
+
                unless(OPM::constant("TYPE_$types[$_]", 0)) {
                   print "$proxyip error Unknown protocol type ($types[$_])\n";
                   next;
