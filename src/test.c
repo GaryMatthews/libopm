@@ -48,7 +48,7 @@ int main(int argc, char **argv)
    int scan_port = 6667;
    int max_read = 4096;
    int scantimeout  = 10;
-
+  
    OPM_T *scanner;
    OPM_REMOTE_T *remote;
 
@@ -111,7 +111,7 @@ int main(int argc, char **argv)
 
    while(!complete)
       opm_cycle(scanner);
-   
+
    opm_free(scanner);
 
    return 0; 

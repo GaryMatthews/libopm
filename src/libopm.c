@@ -1068,10 +1068,20 @@ static void libopm_check_poll(OPM_T *scanner)
    OPM_NODE_T *node1, *node2;
    OPM_SCAN_T *scan;
    OPM_CONNECTION_T *conn;
-  
-   static struct pollfd ufds[1024]; /* REPLACE WITH MAX_POLL */
+
+   static unsigned int ufds_size;  
+   static struct pollfd *ufds = NULL; 
+
    unsigned int size, i;
    size = 0;
+
+   /* Grow pollfd array (ufds) as needed */
+   if(ufds_size < (*(int *) libopm_config(scanner->config, OPM_CONFIG_FD_LIMIT)))
+   {
+      MyFree(ufds);
+      ufds = MyMalloc(sizeof(struct pollfd) * (*(int *) libopm_config(scanner->config, OPM_CONFIG_FD_LIMIT)));
+      ufds_size = (*(int *) libopm_config(scanner->config, OPM_CONFIG_FD_LIMIT));
+   }
 
    if(LIST_SIZE(scanner->scans) == 0)
       return;
