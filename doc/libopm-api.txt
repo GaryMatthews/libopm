@@ -125,8 +125,10 @@ OPM_ERR_T opm_config(OPM_T *, int, void *)
                int: configuration option to set
                void *: Pointer to data to set the data to
 
-   Return: OPM_ERR_T code if there are any errors, otherwise
-           OPM_SUCCESS
+   Return: OPM_ERR_T or OPM_SUCCESS on success
+
+           OPM_ERR_BADVALUE: Unable to set the given value (bad formatting).
+           OPM_ERR_BADKEY: The key (configuration option) is unknown.
 
    The opm_config function sets various options on the individual scanner 
    objects. A pointer to the data to set the option to is required. The scanner
@@ -180,7 +182,9 @@ OPM_ERR_T opm_addtype(OPM_T *, int, int)
                int: type to add
                int: port of type to add
 
-   Return: OPM_ERR_T describing an error, or OPM_SUCCESS on success
+   Return: OPM_ERR_T  or OPM_SUCCESS on success
+
+           OPM_ERR_BADPROTOCOL: Bad protocol type
 
    The opm_addtype function adds a protocol type and port to the scanner's
    protocol list. This list determines what ports the scanner will scan on,
@@ -208,7 +212,7 @@ OPM_ERR_T opm_scan(OPM_T *, OPM_REMOTE_T *)
    Parameters: OPM_T: Scanner to scan on
                OPM_REMOTE_T: Object containing information on remote host to scan
  
-   Return: OPM_ERR_T describing an error, or OPM_SUCCESS on success
+   Return: OPM_ERR_T or OPM_SUCCESS on success
 
    The opm_scan functions adds a remote host object to the scanner's scan queue
    (or begins scanning on it if there is no queue).
@@ -233,6 +237,12 @@ OPM_ERR_T opm_callback(OPM_T *, int, OPM_CALLBACK_T)
    Parameters: OPM_T: Scanner to set callbacks on
                int: Callback type
                OPM_CALLBACK_T: Pointer to custom callback function
+
+   Return: OPM_ERR_T or OPM_SUCCESS on success
+
+           OPM_ERR_CBNOTFOUND: The given callback type is unknown
+
+
 
    typedef void OPM_CALLBACK_T (OPM_T *, OPM_REMOTE_T *, int);
 
