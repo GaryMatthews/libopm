@@ -4,3 +4,6 @@ Makefile
 *.la
 setup.h
 stamp-h*
+.deps
+.libs
+test
