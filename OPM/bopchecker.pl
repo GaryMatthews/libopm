@@ -58,7 +58,7 @@ MAIN: while(1) {
          my($remote, $proxy, $proxyip);
          $proxy = $1;
 
-         ($proxyip) = $proxy =~ /^([^:]+)/;
+         ($proxyip) = $proxy =~ /^([^ ]+)/;
          $remote = OPM->new($proxyip);
 
          if($proxy =~ / (.+) (.+)$/) {
