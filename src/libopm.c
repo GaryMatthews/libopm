@@ -559,7 +559,7 @@ void check_closed(OPM_T *scanner)
 {
 
    time_t present;
-   node_t *node1, *node2;
+   node_t *node1, *node2, *next1, *next2;
    int timeout;
 
    OPM_SCAN_T *scan;
@@ -571,36 +571,39 @@ void check_closed(OPM_T *scanner)
    time(&present);
    timeout = *(int *) config(scanner->config, OPM_CONFIG_TIMEOUT);
 
-   LIST_FOREACH(node1, scanner->scans->head)
+   LIST_FOREACH_SAFE(node1, next1, scanner->scans->head)
    {
       scan = (OPM_SCAN_T *) node1->data;
-      LIST_FOREACH(node2, scan->connections->head)
+      LIST_FOREACH_SAFE(node2, next2, scan->connections->head)
       {
          conn = (OPM_CONNECTION_T *) node2->data;
 
          if(conn->state == OPM_STATE_CLOSED)
          {
 
-            close(conn->fd);
-            scanner->fd_use--;
+              close(conn->fd);
+              scanner->fd_use--;
 
-            list_remove(scan->connections, node2);
-            connection_free(conn);
-            node_free(node2);
+              list_remove(scan->connections, node2);
+              connection_free(conn);
+              node_free(node2);
+              continue;
          }
 
          if(((present - conn->creation) > timeout) && 
               conn->state != OPM_STATE_UNESTABLISHED)
          {
 
-            close(conn->fd);
-            scanner->fd_use--;         
+              close(conn->fd);
+              scanner->fd_use--;         
 
-            list_remove(scan->connections, node2);
-            connection_free(conn);
-            node_free(node2);
-
-            scan->remote->fun_timeout(setup_remote(scan->remote, conn), 0);
+              list_remove(scan->connections, node2);
+              connection_free(conn);
+              node_free(node2);
+              
+              if(scan->remote->fun_timeout != NULL)
+                 scan->remote->fun_timeout(setup_remote(scan->remote, conn), 0);
+              continue;
          }
       }
 
@@ -609,7 +612,8 @@ void check_closed(OPM_T *scanner)
          scan from the scanner, and free it up */
       if(LIST_SIZE(scan->connections) == 0)
       {
-         scan->remote->fun_end(scan->remote, 0);
+         if(scan->remote->fun_end != NULL)
+            scan->remote->fun_end(scan->remote, 0);
          list_remove(scanner->scans, node1);
          scan_free(scan);
       }
@@ -936,7 +940,8 @@ void do_hup(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
 
 void do_error(OPM_REMOTE_T *remote, int error)
 {
-   remote->fun_error(remote, error);
+   if(remote->fun_error != NULL)
+      remote->fun_error(remote, error);
 }
 
 
