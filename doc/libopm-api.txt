@@ -265,7 +265,11 @@ void opm_scanend(OPM_T *, OPM_REMOTE_T *)
    struct exists, but it is also known that the scan has already active.
    Using opm_scanend will save time by not traversing the queue list.
 
-
+   IMPORTANT: If the opm_end function ends any scans in the queue, the
+              OPM_CALLBACK_END callback will be called immadiately for
+              those scans. Any scans in the active scan list will be set
+              OPM_STATE_CLOSED and OPM_CALLBACK_END for those scans will
+              be called on the next opm_cycle.
 
 
 OPM_ERR_T opm_callback(OPM_T *, int, OPM_CALLBACK_T, void *)
