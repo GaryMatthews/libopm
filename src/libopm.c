@@ -1123,7 +1123,7 @@ static void libopm_check_poll(OPM_T *scanner)
 
    }
 
-   switch (poll(ufds, size, 1000))
+   switch (poll(ufds, size, 0))
    {
         case -1:
                 /* error in select/poll */
