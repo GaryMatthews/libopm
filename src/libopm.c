@@ -57,11 +57,13 @@ OPM_PROTOCOL_T OPM_PROTOCOLS[] = {
 OPM_T *opm_init()
 {
    OPM_T *ret;
+
    ret = MyMalloc(sizeof(OPM_T));
+
    ret->config = config_create();
    ret->scans  = list_create();
    ret->protocols = list_create();
-
+  
    return ret;
 }
 
@@ -125,15 +127,23 @@ void opm_free(OPM_T *scanner)
 
    /* Traverse protocol list_t and free
     * each node, then free the list */
-   
+
    for(p = scanner->protocols->head; p;)
    {
+    
       next = p->next;
+      ppc = (OPM_PROTOCOL_CONFIG_T *) p->data;
+
+      protocol_config_free(ppc);
       list_remove(scanner->protocols, p);
+      node_free(p);
+
       p = next;
    }
-   list_free(scanner->protocols);
 
+   list_free(scanner->protocols);
+   list_free(scanner->scans);
+   MyFree(scanner);
 }
 
 

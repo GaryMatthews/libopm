@@ -83,7 +83,8 @@ struct _OPM_PROTOCOL
 
 OPM_T *opm_init();
 OPM_REMOTE_T *opm_new();
-int opm_config(OPM_T *scanner, int key, void *value);
+void opm_free(OPM_T *);
+int opm_config(OPM_T *, int, void *);
 
 OPM_PROTOCOL_CONFIG_T *protocol_config_create();
 void protocol_config_free(OPM_PROTOCOL_CONFIG_T *);

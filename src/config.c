@@ -61,7 +61,8 @@ OPM_CONFIG_T *config_create()
 
 void config_free(OPM_CONFIG_T *config)
 {
-   /* cleanup */
+   if(config->bind_ip)
+      MyFree(config->bind_ip);
 }
 
 

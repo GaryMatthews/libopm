@@ -41,9 +41,12 @@ void *MyMalloc(size_t bytes)
    void *ret = malloc(bytes);
 
    if(!ret) ;  /* Insert Error Handling */
-      
+
    return ret;
 }
+
+
+
 
 /*  MyFree
  *
@@ -58,6 +61,5 @@ void *MyMalloc(size_t bytes)
 
 void MyFree(void *var)
 {
-   if(var)
       free(var);
 }
