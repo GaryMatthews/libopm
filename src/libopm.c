@@ -1265,7 +1265,7 @@ static void libopm_do_read(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *c
    OPM_NODE_T *node;
    char *target_string;
 
-   //Check readbuf against target strings 
+   /* Check readbuf against target strings */
    list = (OPM_LIST_T *) libopm_config(scanner->config, OPM_CONFIG_TARGET_STRING);
    LIST_FOREACH(node, list->head)
    {
