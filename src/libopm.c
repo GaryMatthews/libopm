@@ -52,6 +52,8 @@ void do_hup(OPM_T *, OPM_SCAN_T *, OPM_CONNECTION_T *);
 void do_read(OPM_T *, OPM_SCAN_T *, OPM_CONNECTION_T *);
 void do_openproxy(OPM_T *, OPM_SCAN_T *, OPM_CONNECTION_T *);
 
+OPM_REMOTE_T *setup_remote(OPM_REMOTE_T *remote, OPM_CONNECTION_T *conn);
+
 /* OPM_PROTOCOLS hash
  *
  *    OPM_PPROTOCOLS hashes the protocol types (int) to functions
@@ -528,6 +530,7 @@ void check_closed(OPM_T *scanner)
 
    time_t present;
    node_t *node1, *node2;
+   int timeout;
 
    OPM_SCAN_T *scan;
    OPM_CONNECTION_T *conn;
@@ -536,6 +539,7 @@ void check_closed(OPM_T *scanner)
       return;
 
    time(&present);
+   timeout = *(int *) config(scanner->config, OPM_CONFIG_TIMEOUT);
 
    LIST_FOREACH(node1, scanner->scans->head)
    {
@@ -546,23 +550,20 @@ void check_closed(OPM_T *scanner)
 
          if(conn->state == OPM_STATE_CLOSED)
          {
+            close(conn->fd);
             list_remove(scan->connections, node2);
             connection_free(conn);
             node_free(node2);
          }
 
-         if((present - conn->creation) > 30)
+         if((present - conn->creation) > timeout)
          {
             close(conn->fd);
             list_remove(scan->connections, node2);
             connection_free(conn);
             node_free(node2);
 
-            scan->remote->port = conn->port;
-            scan->remote->bytes_read = conn->bytes_read;
-            scan->remote->protocol = conn->protocol->type;
- 
-            scan->remote->fun_timeout(scan->remote, 0);
+            scan->remote->fun_timeout(setup_remote(scan->remote, conn), 0);
          }
       }
 
@@ -728,7 +729,11 @@ void check_poll(OPM_T *scanner)
 
 void do_readready(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
 {
+   int max_read;
    char c;
+
+   max_read = *(int *) config(scanner->config, OPM_CONFIG_MAX_READ);
+
    while(1)
    {
       switch (read(conn->fd, &c, 1))
@@ -741,6 +746,13 @@ void do_readready(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
 
             conn->bytes_read++;
 
+            if(conn->bytes_read >= max_read)
+            {
+               do_error(setup_remote(scan->remote, conn), OPM_ERR_MAX_READ);
+               conn->state = OPM_STATE_CLOSED;
+               return;
+            }
+
             if(c == 0 || c == '\r')
                continue;
 
@@ -751,7 +763,7 @@ void do_readready(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
                do_read(scanner, scan, conn);
                continue;
             }
-
+             
             if(conn->readlen < 128) 
             {  /* -1 to pad for null term */
                conn->readbuf[++(conn->readlen) - 1] = c;
@@ -808,20 +820,12 @@ void do_openproxy(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
 
    remote = scan->remote;
 
-   /* Close the socket */
-   close(conn->fd);
-
    /* Mark the connection for close */
    conn->state = OPM_STATE_CLOSED;
 
-   /* Setup the remote struct with callback info */
-   remote->port = conn->port;
-   remote->bytes_read = conn->bytes_read;
-   remote->protocol = conn->protocol->type;
-
    /* Call client's open proxy callback */
    if(remote->fun_openproxy != NULL)
-      remote->fun_openproxy(remote, 0);
+      remote->fun_openproxy(setup_remote(scan->remote, conn), 0);
 }
 
 /*  do_writeready
@@ -873,20 +877,12 @@ void do_hup(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
 
    remote = scan->remote;
 
-   /* Close the socket */
-   close(conn->fd);
-
   /* Mark the connection for close */
    conn->state = OPM_STATE_CLOSED;
 
-  /* Setup the remote struct with callback info */
-   remote->port = conn->port;
-   remote->bytes_read = conn->bytes_read;
-   remote->protocol = conn->protocol->type;
-
   /* Call client's open proxy callback */
    if(remote->fun_negfail != NULL)
-      remote->fun_negfail(remote, 0);
+      remote->fun_negfail(setup_remote(scan->remote, conn), 0);
 }
 
 /* do_error
@@ -903,4 +899,26 @@ void do_hup(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
 void do_error(OPM_REMOTE_T *remote, int error)
 {
    remote->fun_error(remote, error);
+}
+
+
+
+/* setup_remote
+ *
+ * Setup an OPM_REMOTE_T with information from an OPM_CONNECTION_T
+ * for callback
+ *
+ * Parameters:
+ *    remote, conn
+ * 
+ * Return:
+ *    remote
+ */
+
+OPM_REMOTE_T *setup_remote(OPM_REMOTE_T *remote, OPM_CONNECTION_T *conn)
+{
+   remote->port = conn->port;
+   remote->bytes_read = conn->bytes_read;
+   remote->protocol = conn->protocol->type;
+   return remote;
 }

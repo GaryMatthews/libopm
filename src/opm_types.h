@@ -8,6 +8,8 @@
 #define OPM_CONFIG_TARGET_STRING 3
 #define OPM_CONFIG_SCAN_IP       4
 #define OPM_CONFIG_SCAN_PORT     5
+#define OPM_CONFIG_MAX_READ      6
+#define OPM_CONFIG_TIMEOUT       7
 
 /* Configuration Variable Types */
 #define OPM_TYPE_INT            1
