@@ -551,7 +551,7 @@ void check_closed(OPM_T *scanner)
             node_free(node2);
          }
 
-         if((conn->creation - present) > 30)
+         if((present - conn->creation) > 30)
          {
             close(conn->fd);
             list_remove(scan->connections, node2);
@@ -560,7 +560,8 @@ void check_closed(OPM_T *scanner)
 
             scan->remote->port = conn->port;
             scan->remote->bytes_read = conn->bytes_read;
-    
+            scan->remote->protocol = conn->protocol->type;
+ 
             scan->remote->fun_timeout(scan->remote, 0);
          }
       }

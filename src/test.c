@@ -74,4 +74,5 @@ void timeout(OPM_REMOTE_T *remote, int notused)
 void end(OPM_REMOTE_T *remote, int notused)
 {
    printf("Scan on %s has ended\n", remote->ip);
+   opm_remote_free(remote);
 }
