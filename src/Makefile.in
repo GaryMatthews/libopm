@@ -89,9 +89,9 @@ am__quote = @am__quote@
 install_sh = @install_sh@
 lib_LTLIBRARIES = libopm.la
 
-libopm_la_SOURCES = config.c config.h inet.c inet.h libopm.c libopm.h \
-    list.c list.h malloc.c malloc.h opm_common.h opm_error.h opm.h \
-    opm_types.h proxy.c proxy.h setup.h
+libopm_la_SOURCES = compat.c compat.h config.c config.h inet.c inet.h \
+    libopm.c libopm.h list.c list.h malloc.c malloc.h opm_common.h \
+    opm_error.h opm.h opm_types.h proxy.c proxy.h setup.h
 
 
 libopm_la_LIBADD = @LNSL@ @LSOCKET@
@@ -113,8 +113,8 @@ LTLIBRARIES = $(lib_LTLIBRARIES)
 
 libopm_la_LDFLAGS =
 libopm_la_DEPENDENCIES =
-am_libopm_la_OBJECTS = config.lo inet.lo libopm.lo list.lo malloc.lo \
-	proxy.lo
+am_libopm_la_OBJECTS = compat.lo config.lo inet.lo libopm.lo list.lo \
+	malloc.lo proxy.lo
 libopm_la_OBJECTS = $(am_libopm_la_OBJECTS)
 noinst_PROGRAMS = test$(EXEEXT) test_debug$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
@@ -134,10 +134,10 @@ LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
-@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/config.Plo ./$(DEPDIR)/inet.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/libopm.Plo ./$(DEPDIR)/list.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/malloc.Plo ./$(DEPDIR)/proxy.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/test.Po
+@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/compat.Plo ./$(DEPDIR)/config.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/inet.Plo ./$(DEPDIR)/libopm.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/list.Plo ./$(DEPDIR)/malloc.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/proxy.Plo ./$(DEPDIR)/test.Po
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) \
@@ -228,6 +228,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/compat.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/config.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/inet.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libopm.Plo@am__quote@
