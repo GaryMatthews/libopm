@@ -35,7 +35,7 @@
  *    ip: IP of remote host
  *
  * Return:
- *    None
+ *    Address of OPM_REMOTE_T created
  *
  */
 
