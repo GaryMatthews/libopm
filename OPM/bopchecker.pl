@@ -52,18 +52,18 @@ sub add_default {
    }
 
    for(889, 1080, 1180, 4914, 6826, 7198, 7366, 9036) {
-       $remote->addtype(OPM->TYPE_SOCKS4, 1080);
+       $remote->addtype(OPM->TYPE_SOCKS4, $_);
    }
 
 # These seem to be even more common than port 1080, at least on IRCnet :(
    for(1080, 1813, 4438, 5104, 5113, 5262, 5634, 6552, 6561, 7464, 7810, 8130, 8148, 8175, 8520, 8814, 9100, 9186, 9447, 9578, 25791) {
-       $remote->addtype(OPM->TYPE_SOCKS5, 1080);
+       $remote->addtype(OPM->TYPE_SOCKS5, $_);
    }
 
    $remote->addtype(OPM->TYPE_ROUTER, 23);
 
    for(23, 1181) {
-       $remote->addtype(OPM->TYPE_WINGATE, 23);
+       $remote->addtype(OPM->TYPE_WINGATE, $_);
    }
 }
 
