@@ -196,7 +196,7 @@ OPM_ERR_T libopm_config_set(OPM_CONFIG_T *config, int key, void *value)
          break;
 
       case OPM_TYPE_ADDRESS:
-         if( inetpton(AF_INET, (char *) value, &( ((opm_sockaddr *)config->vars[key])->sa4.sin_addr))
+         if( inet_pton(AF_INET, (char *) value, &( ((opm_sockaddr *)config->vars[key])->sa4.sin_addr))
                   <= 0)
             return OPM_ERR_BADVALUE; /* return appropriate err code */
          break; 
