@@ -1,3 +1,5 @@
+/* vim: set shiftwidth=3 softtabstop=3 cinoptions=(0 expandtab: */
+
 /*
  * Copyright (C) 2002  Erik Fears
  *
@@ -17,7 +19,6 @@
  *       The Free Software Foundation, Inc.
  *       59 Temple Place - Suite 330
  *       Boston, MA  02111-1307, USA.
- *
  *
  */
 
@@ -108,50 +109,51 @@ int main(int argc, char **argv)
 
    /* Setup the protocol configuration */
    for (s = ARRAY_SIZEOF(http_ports), i = 0; i < s; i++) {
-      opm_addtype(scanner, OPM_TYPE_HTTP, http_ports[i]);
+      opm_addtype(scanner, "HTTP", http_ports[i]);
    }
    
    for (s = ARRAY_SIZEOF(wingate_ports), i = 0; i < s; i++) {
-      opm_addtype(scanner, OPM_TYPE_WINGATE, wingate_ports[i]);
+      opm_addtype(scanner, "WINGATE", wingate_ports[i]);
    }
    
    for (s = ARRAY_SIZEOF(router_ports), i = 0; i < s; i++) {
-      opm_addtype(scanner, OPM_TYPE_ROUTER, router_ports[i]);
+      opm_addtype(scanner, "ROUTER", router_ports[i]);
    }
    
    for (s = ARRAY_SIZEOF(socks4_ports), i = 0; i < s; i++) {
-      opm_addtype(scanner, OPM_TYPE_SOCKS4, socks4_ports[i]);
+      opm_addtype(scanner, "SOCKS4", socks4_ports[i]);
    }
    
    for (s = ARRAY_SIZEOF(socks5_ports), i = 0; i < s; i++) {
-      opm_addtype(scanner, OPM_TYPE_SOCKS5, socks5_ports[i]);
+      opm_addtype(scanner, "SOCKS5", socks5_ports[i]);
    }
    
    for (s = ARRAY_SIZEOF(httppost_ports), i = 0; i < s; i++) {
-      opm_addtype(scanner, OPM_TYPE_HTTPPOST, httppost_ports[i]);
+      opm_addtype(scanner, "HTTPPOST", httppost_ports[i]);
    }
    
    /* Remote structs can also have their own extended protocol configurations. For instance
       if the target hostname contains strings such as 'proxy' or 'www', extended ports could
       be scanned. */
-   opm_remote_addtype(remote, OPM_TYPE_HTTP, 8001);
-   opm_remote_addtype(remote, OPM_TYPE_HTTP, 8002);
+   opm_remote_addtype(remote, "HTTP", 8001);
+   opm_remote_addtype(remote, "HTTP", 8002);
 
    switch(err = opm_scan(scanner, remote))
    {
       case OPM_SUCCESS:
-                       break;
+         break;
+         
       case OPM_ERR_BADADDR:
-                       printf("Bad address\n");
-                       opm_free(scanner);
-                       opm_remote_free(remote);
-                       return 0;
+         printf("Bad address\n");
+         opm_free(scanner);
+         opm_remote_free(remote);
+         return 0;
+         
       default:
-                       printf("Unknown Error %d\n", err);
-                       return 0;
+         printf("Unknown Error %d\n", err);
+         return 0;
    }
    
-
    while(!complete)
       opm_cycle(scanner);
 
@@ -161,25 +163,25 @@ int main(int argc, char **argv)
 }
 
 void open_proxy(OPM_T *scanner, OPM_REMOTE_T *remote, int notused,
-      void *data)
+		void *data)
 {
    USE_VAR(notused);
    USE_VAR(data);
 
-   printf("Open proxy on %s:%d [%d bytes read]\n", remote->ip,
-         remote->port, remote->bytes_read);
+   printf("Open proxy on %s:%d (%s) [%d bytes read]\n", remote->ip,
+	  remote->port, remote->protocol, remote->bytes_read);
    opm_end(scanner, remote);
 }
 
 void negotiation_failed(OPM_T *scanner, OPM_REMOTE_T *remote, int notused,
-      void *data)
+			void *data)
 {
    USE_VAR(scanner);
    USE_VAR(notused);
    USE_VAR(data);
 
    printf("Negotiation on %s:%d failed [%d bytes read]\n", remote->ip,
-         remote->port, remote->bytes_read);
+          remote->port, remote->bytes_read);
 }
 
 void timeout(OPM_T *scanner, OPM_REMOTE_T *remote, int notused, void *data)
@@ -212,15 +214,18 @@ void handle_error(OPM_T *scanner, OPM_REMOTE_T *remote, int err, void *data)
       case OPM_ERR_MAX_READ:
          printf("Reached MAX READ on %s:%d\n", remote->ip, remote->port);
          break;
+         
       case OPM_ERR_BIND:
          printf("Unable to bind for %s:%d\n", remote->ip, remote->port);
          break;
+         
       case OPM_ERR_NOFD:
          printf("Unable to allocate file descriptor for %s:%d\n",
-               remote->ip, remote->port);
+                remote->ip, remote->port);
          break;
+         
       default:
          printf("Unknown error on %s:%d, err = %d\n", remote->ip,
-               remote->port, err);
+                remote->port, err);
    }
 }

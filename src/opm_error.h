@@ -1,3 +1,5 @@
+/* vim: set shiftwidth=3 softtabstop=3 cinoptions=(0 expandtab: */
+
 #ifndef LIBOPM_ERROR_H
 #define LIBOPM_ERROR_H
 
@@ -25,7 +27,11 @@
 #define OPM_ERR_BIND              11 /* Error binding to BIND_IP */
 #define OPM_ERR_NOFD              12 /* Unable to allocate file descriptor */
 
+/* Protocol registration errors. */
+#define OPM_ERR_DUPEPROTO         13 /* Attermpt to register duplicate
+					protocol */
+
 /* other errors */
-#define OPM_ERR_UNKNOWN           13 /* Unknown error */
+#define OPM_ERR_UNKNOWN           14 /* Unknown error */
 
 #endif /* LIBOPM_ERROR_H */

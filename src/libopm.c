@@ -1,4 +1,4 @@
-/* vim: set shiftwidth=3 softtabstop=3 expandtab: */
+/* vim: set shiftwidth=3 softtabstop=3 cinoptions=(0 expandtab: */
 
 /*
  * Copyright (C) 2002-2003  Erik Fears
@@ -54,6 +54,8 @@
 # include <string.h>
 #endif
 
+#include <stdio.h>
+
 RCSID("$Id$");
 
 static OPM_PROTOCOL_CONFIG_T *libopm_protocol_config_create(void);
@@ -97,16 +99,8 @@ extern int libopm_trojan_mindjail_read(OPM_T *, OPM_SCAN_T *, OPM_CONNECTION_T *
  *
  */
 
-static OPM_PROTOCOL_T OPM_PROTOCOLS[] = {
-    {OPM_TYPE_HTTP,               libopm_proxy_http_write,     NULL},
-    {OPM_TYPE_SOCKS4,             libopm_proxy_socks4_write,   NULL},
-    {OPM_TYPE_SOCKS5,             libopm_proxy_socks5_write,   NULL},
-    {OPM_TYPE_ROUTER,             libopm_proxy_router_write,   NULL},
-    {OPM_TYPE_WINGATE,            libopm_proxy_wingate_write,  NULL},
-    {OPM_TYPE_HTTPPOST,           libopm_proxy_httppost_write, NULL},
-    {OPM_TYPE_HTTPGET,            libopm_proxy_httpget_write,  NULL},
-    {OPM_TYPE_MINDJAIL, libopm_trojan_mindjail_write, libopm_trojan_mindjail_read},
-};
+/* List of protocols registered. */
+OPM_LIST_T *OPM_PROTOCOLS = NULL;
 
 
 /* opm_create
@@ -132,6 +126,18 @@ OPM_T *opm_create()
    ret->queue = libopm_list_create();
    ret->protocols = libopm_list_create();
    ret->fd_use = 0;
+
+   /* Setup protocols. */
+   OPM_PROTOCOLS = libopm_list_create();
+   libopm_protocol_add("HTTP", libopm_proxy_http_write, NULL);
+   libopm_protocol_add("SOCKS4", libopm_proxy_socks4_write, NULL);
+   libopm_protocol_add("SOCKS5", libopm_proxy_socks5_write, NULL);
+   libopm_protocol_add("ROUTER", libopm_proxy_router_write, NULL);
+   libopm_protocol_add("WINGATE", libopm_proxy_wingate_write, NULL);
+   libopm_protocol_add("HTTPPOST", libopm_proxy_httppost_write, NULL);
+   libopm_protocol_add("HTTPGET", libopm_proxy_httpget_write, NULL);
+   libopm_protocol_add("MINDJAIL", libopm_trojan_mindjail_write, NULL);
+
 
    /* Setup callbacks */
    ret->callbacks = MyMalloc(sizeof(OPM_CALLBACK_T) * LIBOPM_CBLEN);
@@ -263,6 +269,7 @@ void opm_free(OPM_T *scanner)
    OPM_NODE_T *p, *next;
    OPM_PROTOCOL_CONFIG_T *ppc;
    OPM_SCAN_T *scan;
+   OPM_PROTOCOL_T *pp;
 
    libopm_config_free(scanner->config);
 
@@ -297,6 +304,16 @@ void opm_free(OPM_T *scanner)
 
    MyFree(scanner->callbacks);
    MyFree(scanner);
+
+   LIST_FOREACH_SAFE(p, next, OPM_PROTOCOLS->head)
+   {
+      pp = p->data;
+      MyFree(pp->type);
+      libopm_list_remove(OPM_PROTOCOLS, p);
+      libopm_node_free(p);
+   }
+   
+   libopm_list_free(OPM_PROTOCOLS);
 }
 
 
@@ -336,12 +353,51 @@ OPM_ERR_T opm_config(OPM_T *scanner, const char *key, void *value)
  *    type: type of data the key holds
  *
  * Return:
- *    OPM_ERR_T contianing error code (or OPM_SUCCESS)
+ *    OPM_ERR_T containing error code (or OPM_SUCCESS)
  */
 
 OPM_ERR_T opm_config_add(OPM_T *scanner, const char *key, int type)
 {
    return libopm_config_add(scanner->config, key, type);
+}
+
+
+
+/*
+ * libopm_protocol_add
+ *
+ *    Register a new protocol with libopm.
+ *
+ * Parameters:
+ *    type: Type (name) of the protocol
+ *    write: Protocol's write function
+ *    read: Protocol's read function
+ *
+ * Return:
+ *    OPM_ERR_T containing error code (or OPM_SUCCESS)
+ */
+OPM_ERR_T libopm_protocol_add(const char *type, OPM_PROXYWRITE_T *write,
+                              OPM_PROXYREAD_T *read)
+{
+   OPM_NODE_T *p;
+   OPM_PROTOCOL_T *pp;
+
+   LIST_FOREACH(p, OPM_PROTOCOLS->head)
+   {
+      pp = p->data;
+      
+      if(strcmp(type, pp->type) == 0)
+         return OPM_ERR_DUPEPROTO;
+   }
+
+   pp = MyMalloc(sizeof *pp);
+   pp->type = strdup(type);
+   pp->write_function = write;
+   pp->read_function = read;
+   p = libopm_node_create(pp);
+   libopm_list_add(OPM_PROTOCOLS, p);
+
+   return OPM_SUCCESS;
 }
 
 
@@ -361,22 +417,24 @@ OPM_ERR_T opm_config_add(OPM_T *scanner, const char *key, int type)
  *    OPM_ERR_BADPROTOCOL: Protocol is unknown
  */
 
-OPM_ERR_T opm_addtype(OPM_T *scanner, int type, unsigned short int port)
+OPM_ERR_T opm_addtype(OPM_T *scanner, const char *type,
+                      unsigned short int port)
 {
-   unsigned int i;
-
-   OPM_NODE_T *node;
+   OPM_NODE_T *node, *p;
    OPM_PROTOCOL_CONFIG_T *protocol_config;
+   OPM_PROTOCOL_T *pp;
 
-   for(i = 0; i < sizeof(OPM_PROTOCOLS) / sizeof(OPM_PROTOCOL_T); i++)
+   LIST_FOREACH(p, OPM_PROTOCOLS->head)
    {
-      if(type == OPM_PROTOCOLS[i].type)
+      pp = p->data;
+
+      if(strcmp(type, pp->type) == 0)
       {
          protocol_config = libopm_protocol_config_create();
 
-         protocol_config->type = &OPM_PROTOCOLS[i];
+         protocol_config->type = pp;
          protocol_config->port = port;
-  
+
          node = libopm_node_create(protocol_config);
          libopm_list_add(scanner->protocols, node);
 
@@ -403,20 +461,22 @@ OPM_ERR_T opm_addtype(OPM_T *scanner, int type, unsigned short int port)
  *    OPM_ERR_BADPROTOCOL: Protocol is unknown
  */
 
-OPM_ERR_T opm_remote_addtype(OPM_REMOTE_T *remote, int type, unsigned short int port)
+OPM_ERR_T opm_remote_addtype(OPM_REMOTE_T *remote, const char *type,
+                             unsigned short int port)
 {
-   unsigned int i;
-
-   OPM_NODE_T *node;
+   OPM_NODE_T *node, *p;
    OPM_PROTOCOL_CONFIG_T *protocol_config;
+   OPM_PROTOCOL_T *pp;
 
-   for(i = 0; i < sizeof(OPM_PROTOCOLS) / sizeof(OPM_PROTOCOL_T); i++)
+   LIST_FOREACH(p, OPM_PROTOCOLS->head)
    {
-      if(type == OPM_PROTOCOLS[i].type)
+      pp = p->data;
+
+      if(strcmp(type, pp->type) == 0)
       {
          protocol_config = libopm_protocol_config_create();
 
-         protocol_config->type = &OPM_PROTOCOLS[i];
+         protocol_config->type = pp;
          protocol_config->port = port;
 
          node = libopm_node_create(protocol_config);
@@ -425,62 +485,10 @@ OPM_ERR_T opm_remote_addtype(OPM_REMOTE_T *remote, int type, unsigned short int 
          return OPM_SUCCESS;
       }
    }
+
    return OPM_ERR_BADPROTOCOL;
 }
 
-
-
-
-/* libopm_protocol_create
- *
- *    Create OPM_PROTOCOL_T struct.
- *
- * Parameters:
- *    None
- * Return:
- *    Pointer to new struct
- *
- * XXX - does not appear to be used anywhere?
- * -grifferz
- */
-
-#if 0
-static OPM_PROTOCOL_T *libopm_protocol_create(void)
-{
-   OPM_PROTOCOL_T *ret;
-   ret = MyMalloc(sizeof(OPM_PROTOCOL_T));
-
-   ret->type           = 0;
-   ret->write_function = NULL;
-   ret->read_function  = NULL;
-   
-   return ret;
-}
-#endif
-
-
-/* libopm_protocol_free
- *
- *    Free an OPM_PROTOCOL_T struct. Assume that if 
- *    format is not NULL, it is pointed to dynamically 
- *    allocated memory and free it.
- * 
- * Parameters:
- *    protocol: struct to free
- * 
- * Return:
- *    None
- *
- * XXX - apparently no longer used?
- *  -grifferz
- */
-
-#if 0
-static void libopm_protocol_free(OPM_PROTOCOL_T *protocol)
-{
-   MyFree(protocol);
-}
-#endif
 
 
 

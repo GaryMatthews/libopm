@@ -1,4 +1,4 @@
-/* vim: set shiftwidth=3 softtabstop=3 expandtab: */ 
+/* vim: set shiftwidth=3 softtabstop=3 cinoptions=(0 expandtab: */
 
 /** \file opm.h
  *  \brief Main header for libopm.
@@ -52,9 +52,9 @@ struct _OPM_REMOTE {
    char *ip;
 
    /* Port passed back on certain callbacks. */
-   unsigned short int  port;
+   unsigned short int port;
    /* Protocol passed back on certain callbacks. */
-   unsigned short int protocol;
+   const char *protocol;
    /* Bytes read passed back on certain callbacks. */
    unsigned short int bytes_read;
 
@@ -77,8 +77,9 @@ OPM_ERR_T opm_scan(OPM_T *, OPM_REMOTE_T *);
 void opm_end(OPM_T *, OPM_REMOTE_T *);
 void opm_endscan(OPM_T *, OPM_REMOTE_T *);
 
-OPM_ERR_T opm_addtype(OPM_T *, int, unsigned short int);
-OPM_ERR_T opm_remote_addtype(OPM_REMOTE_T *, int, unsigned short int);
+OPM_ERR_T opm_addtype(OPM_T *, const char *, unsigned short int);
+OPM_ERR_T opm_remote_addtype(OPM_REMOTE_T *, const char *,
+                             unsigned short int);
 OPM_ERR_T opm_callback(OPM_T *, int, OPM_CALLBACK_FUNC *, void *);
 
 void opm_cycle(OPM_T *);
