@@ -93,6 +93,7 @@ OPM_T *opm_create()
    ret->config = config_create();
    ret->scans = list_create();
    ret->protocols = list_create();
+   ret->fd_use = 0;
 
    return ret;
 }
@@ -487,6 +488,7 @@ void opm_cycle(OPM_T *scanner)
 void check_establish(OPM_T *scanner)
 {
    node_t *node1, *node2;
+   unsigned int fd_limit;
 
    OPM_SCAN_T *scan;
    OPM_CONNECTION_T *conn;
@@ -494,11 +496,17 @@ void check_establish(OPM_T *scanner)
    if(LIST_SIZE(scanner->scans) == 0)
       return;
 
+   fd_limit = *(int *) config(scanner->config, OPM_CONFIG_FD_LIMIT);
+
    LIST_FOREACH(node1, scanner->scans->head)
    {
       scan = (OPM_SCAN_T *) node1->data;
       LIST_FOREACH(node2, scan->connections->head)
       {
+         /* Only scan if we have free file descriptors */
+         if(scanner->fd_use >= fd_limit)
+            return;
+
          conn = (OPM_CONNECTION_T *) node2->data;
          if(conn->state == OPM_STATE_UNESTABLISHED)
             do_connect(scanner, scan, conn);
@@ -550,7 +558,10 @@ void check_closed(OPM_T *scanner)
 
          if(conn->state == OPM_STATE_CLOSED)
          {
+
             close(conn->fd);
+            scanner->fd_use--;
+
             list_remove(scan->connections, node2);
             connection_free(conn);
             node_free(node2);
@@ -558,7 +569,10 @@ void check_closed(OPM_T *scanner)
 
          if((present - conn->creation) > timeout)
          {
+
             close(conn->fd);
+            scanner->fd_use--;         
+
             list_remove(scan->connections, node2);
             connection_free(conn);
             node_free(node2);
@@ -616,6 +630,7 @@ void do_connect(OPM_T * scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
 
    conn->state = OPM_STATE_ESTABLISHED;
    time(&(conn->creation));   /* Stamp creation time, for timeout */
+   scanner->fd_use++;         /* Increase file descriptor use */
 }
 
 

@@ -20,6 +20,7 @@ struct _OPM {
    OPM_CONFIG_T *config;               /* Individual scanner configuration */
    list_t       *scans;                /* List of scans (each scan containing a list of connections) */
    list_t       *protocols;            /* List of protocols this scanner handles */
+   unsigned int  fd_use;               /* Number of file descriptors in use */
 };
 
 struct _OPM_REMOTE {
