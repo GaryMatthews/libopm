@@ -1115,7 +1115,7 @@ static void libopm_do_readready(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION
                continue;
             }
              
-            if(conn->readlen < 128) 
+            if(conn->readlen < READBUFLEN) 
             {  /* -1 to pad for null term */
                conn->readbuf[++(conn->readlen) - 1] = c;
             }

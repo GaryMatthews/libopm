@@ -5,7 +5,9 @@
 #include "opm_common.h"
 #include "opm.h"
 
-#define CBLEN 5
+#define CBLEN 5            /* Number of callback functions  */
+#define READBUFLEN 128     /* Size of conn->readbuf         */
+#define SENDBUFLEN 512     /* Size of sendbuffer in proxy.c */
 
 typedef struct  _OPM_SCAN             OPM_SCAN_T;
 typedef struct  _OPM_CONNECTION       OPM_CONNECTION_T;
@@ -31,7 +33,7 @@ struct _OPM_CONNECTION {
 
    int                fd;               /* Allocated file descriptor, 0 if not yet allocated */
    unsigned short int bytes_read;       /* Bytes read so far in this connection */
-   char               readbuf[128];     /* 128 byte read buffer, anything over 128 is probably not of use */
+   char               readbuf[READBUFLEN + 1]; /* 128 byte read buffer, anything over 128 is probably not of use */
    unsigned short int readlen;          /* Length of readbuf */
    unsigned short int state;            /* State of connection */
    time_t             creation;         /* When this connection was established */

@@ -35,16 +35,15 @@
 
 RCSID("$Id$");
 
-static char SENDBUFF[512];
-
+static char SENDBUF[SENDBUFLEN + 1];
 
 int libopm_proxy_http_write(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
 {
-   snprintf(SENDBUFF, 128, "CONNECT %s:%d HTTP/1.0\r\n\r\n",
+   snprintf(SENDBUF, SENDBUFLEN, "CONNECT %s:%d HTTP/1.0\r\n\r\n",
       (char *) libopm_config(scanner->config, OPM_CONFIG_SCAN_IP), 
       *(int *) libopm_config(scanner->config, OPM_CONFIG_SCAN_PORT));
  
-   if(send(conn->fd, SENDBUFF, strlen(SENDBUFF), 0) == -1)
+   if(send(conn->fd, SENDBUF, strlen(SENDBUF), 0) == -1)
       return 0; /* Return error code ? */
 
    return OPM_SUCCESS;
@@ -77,13 +76,13 @@ int libopm_proxy_socks4_write(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T
 
    laddr = htonl(addr.s_addr);
 
-   len = snprintf(SENDBUFF, 512, "%c%c%c%c%c%c%c%c%c",  4, 1,
+   len = snprintf(SENDBUF, SENDBUFLEN, "%c%c%c%c%c%c%c%c%c",  4, 1,
                  (((unsigned short) scan_port) >> 8) & 0xFF,
                  (((unsigned short) scan_port) & 0xFF),
                  (char) (laddr >> 24) & 0xFF, (char) (laddr >> 16) & 0xFF,
                  (char) (laddr >> 8) & 0xFF, (char) laddr & 0xFF, 0);
 
-   send(conn->fd, SENDBUFF, len, 0);
+   send(conn->fd, SENDBUF, len, 0);
 
    return OPM_SUCCESS;
 }
@@ -147,21 +146,21 @@ int libopm_proxy_socks5_write(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T
 
    /* Form authentication string */
    /* Version 5, 1 number of methods, 0 method (no auth). */
-   len = snprintf(SENDBUFF, 512, "%c%c%c", 5, 1, 0);
-   send(conn->fd, SENDBUFF, len, 0);
+   len = snprintf(SENDBUF, SENDBUFLEN, "%c%c%c", 5, 1, 0);
+   send(conn->fd, SENDBUF, len, 0);
 
    /* Form request string */
 
    /* Will need to write ipv6 support here in future
     * as socks5 is ipv6 compatible
     */
-   len = snprintf(SENDBUFF, 512, "%c%c%c%c%c%c%c%c%c%c", 5, 1, 0, 1,
+   len = snprintf(SENDBUF, SENDBUFLEN, "%c%c%c%c%c%c%c%c%c%c", 5, 1, 0, 1,
                  (char) (laddr >> 24) & 0xFF, (char) (laddr >> 16) & 0xFF,
                  (char) (laddr >> 8) & 0xFF, (char) laddr & 0xFF,
                  (((unsigned short) scan_port) >> 8) & 0xFF,
                  (((unsigned short) scan_port) & 0xFF));
 
-   send(conn->fd, SENDBUFF, len, 0);
+   send(conn->fd, SENDBUF, len, 0);
    return OPM_SUCCESS;
 
 }
@@ -179,8 +178,8 @@ int libopm_proxy_wingate_write(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_
    scan_ip = (char *) libopm_config(scanner->config, OPM_CONFIG_SCAN_IP);
    scan_port = *(int *) libopm_config(scanner->config, OPM_CONFIG_SCAN_PORT);
 
-   len = snprintf(SENDBUFF, 512, "%s:%d\r\n", scan_ip, scan_port);
-   send(conn->fd, SENDBUFF, len, 0);
+   len = snprintf(SENDBUF, SENDBUFLEN, "%s:%d\r\n", scan_ip, scan_port);
+   send(conn->fd, SENDBUF, len, 0);
 
    return OPM_SUCCESS;
 }
@@ -202,11 +201,11 @@ int libopm_proxy_router_write(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T
    scan_ip = (char *) libopm_config(scanner->config, OPM_CONFIG_SCAN_IP);
    scan_port = *(int *) libopm_config(scanner->config, OPM_CONFIG_SCAN_PORT);
 
-   len = snprintf(SENDBUFF, 512, "cisco\r\n");
-   send(conn->fd, SENDBUFF, len, 0);
+   len = snprintf(SENDBUF, SENDBUFLEN, "cisco\r\n");
+   send(conn->fd, SENDBUF, len, 0);
 
-   len = snprintf(SENDBUFF, 512, "telnet %s %d\r\n", scan_ip, scan_port);
-   send(conn->fd, SENDBUFF, len, 0);
+   len = snprintf(SENDBUF, SENDBUFLEN, "telnet %s %d\r\n", scan_ip, scan_port);
+   send(conn->fd, SENDBUF, len, 0);
 
    return OPM_SUCCESS;
 }
@@ -225,12 +224,12 @@ int libopm_proxy_httppost_write(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION
    scan_ip = (char *) libopm_config(scanner->config, OPM_CONFIG_SCAN_IP);
    scan_port = *(int *) libopm_config(scanner->config, OPM_CONFIG_SCAN_PORT);
 
-   len = snprintf(SENDBUFF, 128, "POST http://%s:%d/ HTTP/1.0\r\n"
+   len = snprintf(SENDBUF, SENDBUFLEN, "POST http://%s:%d/ HTTP/1.0\r\n"
             "Content-type: text/plain\r\n"
             "Content-length: 5\r\n\r\n"
             "quit\r\n\r\n",
             scan_ip, scan_port);
 
-   send(conn->fd, SENDBUFF, len, 0);
+   send(conn->fd, SENDBUF, len, 0);
    return(1);
 }
