@@ -29,7 +29,7 @@
 #include "opm_common.h"
 #include "list.h"
 #include "inet.h"
-
+#include <errno.h>
 OPM_PROTOCOL_CONFIG_T *protocol_config_create();
 void protocol_config_free(OPM_PROTOCOL_CONFIG_T *);
 OPM_SCAN_T *scan_create(OPM_T *, OPM_REMOTE_T *);
@@ -502,28 +502,25 @@ void check_establish(OPM_T *scanner)
 
 void do_connect(OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
 {
-   opm_sockaddr *addr;
+   struct sockaddr_in *addr;
   
-   addr = &(scan->remote->addr); /* Already have the IP in byte format from 
-                              opm_remote_connect */
-   addr->sa4.sin_family   = AF_INET;
-   addr->sa4.sin_port     = conn->port;
-
-   printf("do_connect ON %s PORT %d\n",  inet_ntoa(addr->sa4.sin_addr), conn->port);
+   addr = (struct sockaddr_in *) &(scan->remote->addr.sa4); /* Already have the IP in byte format from 
+                                    opm_remote_connect */
+   addr->sin_family   = AF_INET;
+   addr->sin_port     = htons(conn->port);
 
    /* Do bind */
 
-   conn->fd = socket(AF_INET, SOCK_STREAM, 0);
+   conn->fd = socket(PF_INET, SOCK_STREAM, 0);
 
    if(conn->fd == -1)
       ; /* Handle error */
 
    /* Set socket non blocking */
    fcntl(conn->fd, F_SETFL, O_NONBLOCK);
-  
-   connect(conn->fd, (struct sockaddr *) &(addr->sa4),
-            sizeof(struct sockaddr));
-   
+
+   connect(conn->fd, (struct sockaddr *) addr, sizeof(*addr));
+
    conn->state = OPM_STATE_ESTABLISHED;
 }
 
@@ -545,8 +542,7 @@ void check_poll(OPM_T *scanner)
    OPM_CONNECTION_T *conn;
 
    static struct pollfd ufds[1024]; /* REPLACE WITH MAX_POLL */
-   unsigned int size;
-
+   unsigned int size, i;
    size = 0;
 
    if(LIST_SIZE(scanner->scans) == 0)
@@ -583,10 +579,42 @@ void check_poll(OPM_T *scanner)
                ufds[size].events |= POLLIN;
                break;
          }
-
+         size++;
       }
    }
-   
+  
+   switch (poll(ufds, size, 1000))
+   {
+        case -1:
+                /* error in select/poll */
+                return;
+        case 0:
+                /* Nothing to do */
+               /* return; */
+                /* Pass pointer to connection to handler. */
+   }
+
+   LIST_FOREACH(node1, scanner->scans->head)
+   {
+      scan = (OPM_SCAN_T *) node1->data;
+ 
+      LIST_FOREACH(node2, scan->connections->head)
+      {
+         conn = (OPM_CONNECTION_T *) node2->data;
+
+         for(i = 0; i < size; i++)
+         {
+            if(ufds[i].fd == conn->fd)
+            {
+               if(ufds[i].revents & POLLIN)
+                  do_readready(scan, conn);
+               if(ufds[i].revents & POLLOUT)
+                  do_writeready(scan, conn);
+               if(ufds[i].revents & POLLHUP);
+            }
+         }
+      }
+   }
 }
 
 /* do_readready

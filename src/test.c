@@ -14,10 +14,10 @@ int main()
    OPM_REMOTE_T *remote;
 
    scanner = opm_create();
-   remote  = opm_remote_create("127.0.0.1");
+   remote  = opm_remote_create("203.56.139.100");
 
    opm_config(scanner, OPM_CONFIG_FD_LIMIT, &fdlimit);
-   opm_addtype(scanner, OPM_TYPE_HTTP, 80);
+   opm_addtype(scanner, OPM_TYPE_HTTP, 6667);
    opm_scan(scanner, remote);
 
    while(1)
