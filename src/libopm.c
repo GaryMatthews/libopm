@@ -120,11 +120,11 @@ OPM_REMOTE_T *opm_remote_create(char *ip)
    ret->ip = (char*) strdup(ip);  /* replace with custom strdup function */
  
 
-   ret->fun_openproxy = 0;
-   ret->fun_negfail   = 0;
-   ret->fun_end       = 0;
-   ret->fun_error     = 0;
-   ret->fun_timeout   = 0;
+   ret->fun_openproxy = NULL;
+   ret->fun_negfail   = NULL;
+   ret->fun_end       = NULL;
+   ret->fun_error     = NULL;
+   ret->fun_timeout   = NULL;
  
    ret->port          = 0;
    ret->protocol      = 0;
@@ -713,6 +713,20 @@ void do_read(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
 
 void do_openproxy(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
 {
+    OPM_REMOTE_T *remote;
+    OPM_PROTOCOL_T *protocol;
+
+    remote = scan->remote;
+
+   /* Mark the connection for close */
+      conn->state = OPM_STATE_CLOSED;
+   /* Setup the remote struct with callback info */
+      remote->port = conn->port;
+      remote->bytes_read = conn->bytes_read;
+      remote->protocol = conn->protocol->type;
+   /* Call client's open proxy callback */
+      if(remote->fun_openproxy != NULL)
+         remote->fun_openproxy(remote, 0);
 }
 
 /*  do_writeready
