@@ -47,12 +47,9 @@ struct _OPM_PROTOCOL_CONFIG
 struct _OPM_PROTOCOL
 {
    int type;                            /* Protocol type */
+
    OPM_PROXYWRITE_T *write_function;    /* Write function handler for this protocol */
    OPM_PROXYREAD_T  *read_function;     /* Read function handler for this protocol */
-
-   char *id;
-   char *format;                        /* Custom formatting if this is a custom protocol 
-                                           this is only valid if type == OPM_TYPE_CUSTOM */
 };
 
 #endif /* LIBOPM_H */

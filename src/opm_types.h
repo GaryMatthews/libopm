@@ -17,12 +17,11 @@
 #define OPM_TYPE_ADDRESS         3
 
 /* Protocols */
-#define OPM_TYPE_CUSTOM          1
-#define OPM_TYPE_HTTP            2
-#define OPM_TYPE_SOCKS4          3
-#define OPM_TYPE_SOCKS5          4
-#define OPM_TYPE_WINGATE         5
-#define OPM_TYPE_ROUTER          6
+#define OPM_TYPE_HTTP            1
+#define OPM_TYPE_SOCKS4          2
+#define OPM_TYPE_SOCKS5          3
+#define OPM_TYPE_WINGATE         4
+#define OPM_TYPE_ROUTER          5
 
 /* States */
 #define OPM_STATE_UNESTABLISHED  1

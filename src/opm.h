@@ -58,8 +58,6 @@ OPM_ERR_T opm_config(OPM_T *, int, void *);
 OPM_ERR_T opm_scan(OPM_T *, OPM_REMOTE_T *);
 
 OPM_ERR_T opm_addtype(OPM_T *, int, unsigned short int);
-OPM_ERR_T opm_addcustom(OPM_T *, char *, char *, unsigned short int);
-
 OPM_ERR_T opm_callback(OPM_T *, int, OPM_CALLBACK_FUNC *, void *);
 
 void opm_cycle(OPM_T *);

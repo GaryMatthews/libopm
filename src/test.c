@@ -79,7 +79,6 @@ int main(int argc, char **argv)
    opm_addtype(scanner, OPM_TYPE_SOCKS4, 1080);
    opm_addtype(scanner, OPM_TYPE_SOCKS5, 1080);
 
-   opm_addcustom(scanner, "HTTP", "CONNECT %i:%p HTTP/1.1", 80);
 
    switch(opm_scan(scanner, remote))
    {
