@@ -1145,12 +1145,18 @@ static void libopm_do_readready(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION
 
 static void libopm_do_read(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T *conn)
 {
+   OPM_LIST_T *list;
+   OPM_NODE_T *node;
    char *target_string;
- 
-   target_string = (char *) libopm_config(scanner->config, OPM_CONFIG_TARGET_STRING);
 
-   if(strstr(conn->readbuf, target_string))
-      libopm_do_openproxy(scanner, scan, conn);
+   //Check readbuf against target strings 
+   list = (OPM_LIST_T *) libopm_config(scanner->config, OPM_CONFIG_TARGET_STRING);
+   LIST_FOREACH(node, list->head)
+   {
+      target_string = (char *) node->data;
+      if(strstr(conn->readbuf, target_string))
+         libopm_do_openproxy(scanner, scan, conn);
+   }
 }
 
 

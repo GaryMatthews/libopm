@@ -28,6 +28,9 @@
 #include "inet.h"
 #include "opm_error.h"
 #include "opm_types.h"
+#include "opm_common.h"
+#include "list.h"
+
 #ifdef STDC_HEADERS
 # include <string.h>
 #endif
@@ -38,7 +41,7 @@ static OPM_CONFIG_HASH_T HASH[] = {
    {OPM_CONFIG_FD_LIMIT,       OPM_TYPE_INT},
    {OPM_CONFIG_BIND_IP ,       OPM_TYPE_ADDRESS},
    {OPM_CONFIG_DNSBL_HOST,     OPM_TYPE_STRING},
-   {OPM_CONFIG_TARGET_STRING,  OPM_TYPE_STRING},
+   {OPM_CONFIG_TARGET_STRING,  OPM_TYPE_STRINGLIST},
    {OPM_CONFIG_SCAN_IP,        OPM_TYPE_STRING},
    {OPM_CONFIG_SCAN_PORT,      OPM_TYPE_INT},
    {OPM_CONFIG_MAX_READ,       OPM_TYPE_INT},
@@ -74,7 +77,7 @@ OPM_CONFIG_T *libopm_config_create()
       OPM_TYPE_INT     = 0
       OPM_TYPE_STRING  = ""
       OPM_TYPE_ADDRESS = 0.0.0.0 
-
+      OPM_TYPE_STRINGLIST = empty list
    */
 
    for(i = 0; i < num; i++)
@@ -85,13 +88,19 @@ OPM_CONFIG_T *libopm_config_create()
             ret->vars[i] = MyMalloc(sizeof(int));
             *(int *) ret->vars[i] = 0;
             break;
+
          case OPM_TYPE_STRING:
             (char *) ret->vars[i] = strdup("");
             break;
+
          case OPM_TYPE_ADDRESS:
             (opm_sockaddr *) ret->vars[i] = MyMalloc(sizeof(opm_sockaddr));
             memset((opm_sockaddr *) ret->vars[i], 0, sizeof(opm_sockaddr));
             break; 
+
+         case OPM_TYPE_STRINGLIST:
+            (OPM_LIST_T *) ret->vars[i] = libopm_list_create();
+            break;
          default:
             ret->vars[i] = NULL;
       }
@@ -116,16 +125,30 @@ OPM_CONFIG_T *libopm_config_create()
 void libopm_config_free(OPM_CONFIG_T *config)
 {
    int num, i;
+   OPM_NODE_T *p, *next;
+   OPM_LIST_T *list;
+
    num = sizeof(HASH) / sizeof(OPM_CONFIG_HASH_T);
 
    for(i = 0; i < num; i++)
    {
-
       if(config->vars[i] == NULL)
          continue;
-      else
-         MyFree(config->vars[i]);
-     
+
+      switch(libopm_config_gettype(i))
+      {
+         case OPM_TYPE_STRINGLIST:
+            list = (OPM_LIST_T *) config->vars[i];
+            LIST_FOREACH_SAFE(p, next, list->head)
+            {
+               MyFree(p->data);
+               MyFree(p); 
+            }
+            break;
+         default:
+            MyFree(config->vars[i]);
+            break;
+      }
    }
 
    MyFree(config->vars);
@@ -153,6 +176,7 @@ OPM_ERR_T libopm_config_set(OPM_CONFIG_T *config, int key, void *value)
 {
 
    int num, i;
+   OPM_NODE_T *node;
 
    num = sizeof(HASH) / sizeof(OPM_CONFIG_HASH_T);
    
@@ -176,6 +200,11 @@ OPM_ERR_T libopm_config_set(OPM_CONFIG_T *config, int key, void *value)
                   <= 0)
             return OPM_ERR_BADVALUE; /* return appropriate err code */
          break; 
+
+      case OPM_TYPE_STRINGLIST:
+         node = libopm_node_create(strdup((char *) value));
+         libopm_list_add((OPM_LIST_T *) config->vars[key], node);
+         break;                        
 
       default:
          return OPM_ERR_BADKEY; /* return appropriate err code */

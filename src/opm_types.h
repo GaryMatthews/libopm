@@ -15,6 +15,7 @@
 #define OPM_TYPE_INT             1
 #define OPM_TYPE_STRING          2
 #define OPM_TYPE_ADDRESS         3
+#define OPM_TYPE_STRINGLIST      4
 
 /* Protocols */
 #define OPM_TYPE_HTTP            1

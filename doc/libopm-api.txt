@@ -142,7 +142,7 @@ OPM_ERR_T opm_config(OPM_T *, int, void *)
 
       OPM_CONFIG_BIND_IP         char *          IP to bind to for outgoing scans
 
-      OPM_CONFIG_TARGET_STRING   char *          Target string used to verify open proxies
+      OPM_CONFIG_TARGET_STRING   list of char *  Target strings used to verify open proxies
 
       OPM_CONFIG_SCAN_IP         char *          IP to command proxies to connect to
 
@@ -170,6 +170,8 @@ OPM_ERR_T opm_config(OPM_T *, int, void *)
                 opm_config(scanner, OPM_CONFIG_FD_LIMIT, &fd_limit);
                 opm_config(scanner, OPM_CONFIG_MAX_READ, &max_read);
                 opm_config(scanner, OPM_CONFIG_BIND_IP, "10.0.0.1");
+                opm_config(scanner, OPM_CONFIG_TARGET_STRING, "Match1");
+                opm_config(scanner, OPM_CONFIG_TARET_STRING, "Match2");
 
                 opm_free(scanner);
 
