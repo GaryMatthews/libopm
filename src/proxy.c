@@ -216,7 +216,7 @@ int libopm_proxy_router_write(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T
    len = snprintf(SENDBUF, SENDBUFLEN, "cisco\r\n");
    send(conn->fd, SENDBUF, (unsigned int)len, 0);
 
-   len = snprintf(SENDBUF, SENDBUFLEN, "telnet %s %d\r\n", scan_ip, scan_port);
+   len = snprintf(SENDBUF, SENDBUFLEN, "telnet %s %d\r\nopen %s %d\r\n", scan_ip, scan_port, scan_ip, scan_port);
    send(conn->fd, SENDBUF, (unsigned int)len, 0);
 
    return OPM_SUCCESS;
